@@ -1,0 +1,39 @@
+{
+    "name": "cheppers/robo-phpcs",
+    "description": "Robo task wrapper for PHPCS",
+    "type": "library",
+    "license": "GPL-2.0+",
+    "minimum-stability": "dev",
+    "prefer-stable": true,
+    "config": {
+        "bin-dir": "bin"
+    },
+    "require": {
+        "squizlabs/php_codesniffer": "^2.6",
+        "consolidation/robo": "dev-master#6af485e667c0e01111fd07e9e03a2f089ac67cb3"
+    },
+    "require-dev": {
+        "cheppers/git-hooks": "^0.0.8",
+        "phpunit/php-code-coverage": "^4.0",
+        "phpunit/phpunit": "^5.4"
+    },
+    "autoload": {
+        "psr-4": {
+            "Cheppers\\Robo\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Cheppers\\Robo\\Test\\": "src-dev/"
+        }
+    },
+    "scripts": {
+        "post-install-cmd": [
+            "@deploy-git-hooks"
+        ],
+        "post-update-cmd": [
+            "@deploy-git-hooks"
+        ],
+        "deploy-git-hooks": "\\Cheppers\\GitHooks\\Main::deploy"
+    }
+}

@@ -1,0 +1,6 @@
+
+/bin/
+/reports/
+/vendor/
+
+/.git-hooks.local

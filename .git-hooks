@@ -1,0 +1,29 @@
+#!/usr/bin/env bash
+
+echo "BEGIN Git hook: ${cghHookName}"
+
+function myExit ()
+{
+    echo "End Git hook: ${cghHookName}"
+
+    exit $1
+}
+
+export COMPOSER_DISABLE_XDEBUG_WARN=1
+
+# @todo Better detection for executables: php, composer.phar.
+cghRobo="$(composer config 'bin-dir')/robo"
+
+test -s "${cghBridge}.local" && . "${cghBridge}.local"
+
+# Exit without error if "robo" doesn't exists or it has no corresponding task.
+test -x "$cghRobo" || myExit 0
+"${cghRobo}" help "githook:${cghHookName}" 1> /dev/null 2>&1 || myExit 0
+
+if [ "$cghHasInput" = 'true' ]; then
+    "$cghRobo" "githook:${cghHookName}" $@ <<< $(</dev/stdin) || myExit $?
+else
+    "$cghRobo" "githook:${cghHookName}" $@ || myExit $?
+fi
+
+myExit 0
