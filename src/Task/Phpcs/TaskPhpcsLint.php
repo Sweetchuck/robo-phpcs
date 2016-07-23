@@ -2,8 +2,11 @@
 
 namespace Cheppers\Robo\Task\Phpcs;
 
+use League\Container\ContainerAwareInterface;
+use League\Container\ContainerInterface;
 use Robo\Common\IO;
 use Robo\Common\Timer;
+use Robo\Config;
 use Robo\Result;
 use Robo\Task\FileSystem\loadShortcuts as FsShortcuts;
 use Symfony\Component\Process\Process;
@@ -13,7 +16,7 @@ use Symfony\Component\Process\Process;
  *
  * @package Cheppers\Robo\Task\Phpcs
  */
-class TaskPhpcsLint extends TaskPhpcs
+class TaskPhpcsLint extends TaskPhpcs implements ContainerAwareInterface
 {
 
     use FsShortcuts;
@@ -29,6 +32,22 @@ class TaskPhpcsLint extends TaskPhpcs
     {
         parent::__construct();
         $this->setConfig($config);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function setContainer(ContainerInterface $container)
+    {
+        return Config::setContainer($container);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getContainer()
+    {
+        return Config::getContainer();
     }
 
     /**
