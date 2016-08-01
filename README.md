@@ -1,6 +1,8 @@
 
 # Robo task wrapper for PHP_CodeSniffer
 
+[![Build Status](https://travis-ci.org/Cheppers/robo-phpcs.svg?branch=master)](https://travis-ci.org/Cheppers/robo-phpcs)
+
 @todo
 
 
