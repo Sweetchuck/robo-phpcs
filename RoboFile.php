@@ -1,6 +1,8 @@
 <?php
 
 // @codingStandardsIgnoreStart
+use Symfony\Component\Process\Process;
+
 /**
  * Class RoboFile.
  */
@@ -30,15 +32,25 @@ class RoboFile extends \Robo\Tasks
     protected $binDir = 'vendor/bin';
 
     /**
+     * @var string
+     */
+    protected $phpExecutable = 'php';
+
+    /**
+     * @var string
+     */
+    protected $phpdbgExecutable = 'phpdbg';
+
+    /**
      * RoboFile constructor.
      */
     public function __construct()
     {
         $this->initComposerInfo();
 
-        $this->setContainer(\Robo\Config::getContainer());
+        $this->setContainer(\Robo\Robo::getContainer());
 
-        /** @var \Robo\Container\RoboContainer $c */
+        /** @var \League\Container\Container $c */
         $c = $this->getContainer();
         $c
             ->addServiceProvider(static::getPhpcsServiceProvider())
@@ -56,7 +68,7 @@ class RoboFile extends \Robo\Tasks
             ->collection()
             ->add($this->taskComposerValidate(), 'lint.composer.lock')
             ->add($this->getTaskPhpcsLint(), 'lint.phpcs.psr2')
-            ->add($this->getTaskPhpunit(['colors' => true]), 'phpunit');
+            ->add($this->getTaskCodecept(), 'codecept');
     }
 
     /**
@@ -64,12 +76,7 @@ class RoboFile extends \Robo\Tasks
      */
     public function test()
     {
-        $options = func_get_arg(0);
-        $config = [
-            'colors' => empty($options['no-ansi']),
-        ];
-
-        return $this->getTaskPhpunit($config);
+        return $this->getTaskCodecept();
     }
 
     /**
@@ -105,19 +112,21 @@ class RoboFile extends \Robo\Tasks
     }
 
     /**
-     * @param array $config
-     *
      * @return \Robo\Task\Base\Exec
      */
-    protected function getTaskPhpunit(array $config = [])
+    protected function getTaskCodecept()
     {
-        $cmd_pattern = '%s';
-        $cmd_args = [
-            escapeshellcmd("{$this->binDir}/phpunit"),
-        ];
+        $cmd_args = [];
+        if ($this->isXdebugAvailable()) {
+            $cmd_pattern = '%s';
+            $cmd_args[] = escapeshellcmd("{$this->binDir}/codecept");
+        } else {
+            $cmd_pattern = '%s -qrr %s';
+            $cmd_args[] = escapeshellcmd($this->phpdbgExecutable);
+            $cmd_args[] = escapeshellarg("{$this->binDir}/codecept");
+        }
 
-        $cmd_pattern .= ' --colors=%s';
-        $cmd_args[] = empty($config['colors']) ? 'never' : 'always';
+        $cmd_pattern .= ' --ansi --coverage --coverage-xml --coverage-html run';
 
         return $this->taskExec(vsprintf($cmd_pattern, $cmd_args));
     }
@@ -132,13 +141,22 @@ class RoboFile extends \Robo\Tasks
             'standard' => 'PSR2',
             'reports' => [
                 'full' => null,
-                'checkstyle' => 'reports/checkstyle.phpcs-psr2.xml',
+                'checkstyle' => 'tests/_output/checkstyle/phpcs-psr2.xml',
             ],
             'files' => [
                 'src/',
-                'src-dev/',
                 'RoboFile.php',
             ],
         ]);
+    }
+
+    /**
+     * @return bool
+     */
+    protected function isXdebugAvailable()
+    {
+        $command = sprintf('%s -m | grep xdebug', escapeshellcmd($this->phpExecutable));
+
+        return (new Process($command))->run() === 0;
     }
 }

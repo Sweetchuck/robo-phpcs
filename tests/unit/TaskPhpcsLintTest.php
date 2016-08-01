@@ -1,33 +1,43 @@
 <?php
-/**
- * @file
- * ${FILE_DESCRIPTION}${CARET}
- */
 
-namespace Cheppers\Robo\Test\Task;
-
-use Cheppers\Robo\Task\Phpcs\LoadTasks as PhpcsLoadTasks;
-use League\Container\Container;
-use Robo\Config;
-use Robo\Container\RoboContainer;
-use Robo\Runner;
+use Cheppers\Robo\Task\Phpcs\TaskPhpcsLint;
+use Codeception\Util\Stub;
 
 /**
  * Class TaskPhpcsLintTest.
  *
  * @package Cheppers\Robo\Test\Task
- *
- * covers \Cheppers\Robo\Task\Phpcs\TaskPhpcsLint
  */
-class TaskPhpcsLintTest extends \PHPUnit_Framework_TestCase
+// @codingStandardsIgnoreStart
+class TaskPhpcsLintTest extends \Codeception\Test\Unit
+    // @codingStandardsIgnoreEnd
 {
-    protected function setUp()
-    {
-        parent::setUp();
+    use \Cheppers\Robo\Task\Phpcs\LoadTasks;
+    use \Robo\TaskAccessor;
 
-        Config::setContainer(new RoboContainer());
-        Runner::addServiceProviders(Config::getContainer());
-        Config::getContainer()->addServiceProvider(PhpcsLoadTasks::getPhpcsServiceProvider());
+    /**
+     * @var \League\Container\Container
+     */
+    protected $container = null;
+
+    // @codingStandardsIgnoreStart
+    protected function _before()
+        // @codingStandardsIgnoreEnd
+    {
+        parent::_before();
+
+        $this->container = new \League\Container\Container();
+        \Robo\Robo::setContainer($this->container);
+        \Robo\Runner::configureContainer($this->container, null, new \Helper\Dummy\Output());
+        $this->container->addServiceProvider(static::getPhpcsServiceProvider());
+    }
+
+    /**
+     * @return \League\Container\Container
+     */
+    public function getContainer()
+    {
+        return $this->container;
     }
 
     /**
@@ -39,6 +49,14 @@ class TaskPhpcsLintTest extends \PHPUnit_Framework_TestCase
             'empty' => [
                 'phpcs',
                 [],
+            ],
+
+            'phpExecutable-string' => [
+                'my-phpcs --colors',
+                [
+                    'phpcsExecutable' => 'my-phpcs',
+                    'colors' => true,
+                ],
             ],
             'colors-null' => [
                 'phpcs',
@@ -73,8 +91,68 @@ class TaskPhpcsLintTest extends \PHPUnit_Framework_TestCase
                 "phpcs --report-width='80'",
                 ['reportWidth' => 80],
             ],
+            'severity-string-empty' => [
+                'phpcs',
+                ['severity' => ''],
+            ],
+            'severity-false' => [
+                'phpcs',
+                ['severity' => false],
+            ],
+            'severity-null' => [
+                'phpcs',
+                ['severity' => null],
+            ],
+            'severity-integer-zero' => [
+                "phpcs --severity='0'",
+                ['severity' => 0],
+            ],
+            'severity-string-zero' => [
+                "phpcs --severity='0'",
+                ['severity' => '0'],
+            ],
+            'warning-severity-string-empty' => [
+                'phpcs',
+                ['warningSeverity' => ''],
+            ],
+            'warning-severity-false' => [
+                'phpcs',
+                ['warningSeverity' => false],
+            ],
+            'warning-severity-null' => [
+                'phpcs',
+                ['warningSeverity' => null],
+            ],
+            'warning-severity-integer-zero' => [
+                "phpcs --warning-severity='0'",
+                ['warningSeverity' => 0],
+            ],
+            'warning-severity-string-zero' => [
+                "phpcs --warning-severity='0'",
+                ['warningSeverity' => '0'],
+            ],
+            'error-severity-string-empty' => [
+                'phpcs',
+                ['errorSeverity' => ''],
+            ],
+            'error-severity-false' => [
+                'phpcs',
+                ['errorSeverity' => false],
+            ],
+            'error-severity-null' => [
+                'phpcs',
+                ['errorSeverity' => null],
+            ],
+            'error-severity-integer-zero' => [
+                "phpcs --error-severity='0'",
+                ['errorSeverity' => 0],
+            ],
+            'error-severity-string-zero' => [
+                "phpcs --error-severity='0'",
+                ['errorSeverity' => '0'],
+            ],
             'standard-false' => [
-                "phpcs",
+                'phpcs',
                 ['standard' => false],
             ],
             'standard-value' => [
@@ -231,37 +309,42 @@ class TaskPhpcsLintTest extends \PHPUnit_Framework_TestCase
      * @dataProvider casesGetCommand
      *
      * @param string $expected
-     * @param array $config
+     * @param array $options
      */
-    public function testGetCommand($expected, array $config)
+    public function testGetCommand($expected, array $options)
     {
-        /** @var Container $container */
-        $container = Config::getContainer();
-        /** @var \Cheppers\Robo\Task\Phpcs\TaskPhpcsLint $task */
-        $task = $container->get('taskPhpcsLint', [$config]);
-        $task->phpcsExecutable('phpcs');
+        $options += ['phpcsExecutable' => 'phpcs'];
+        $task = $this->taskPhpcsLint($options);
 
         static::assertEquals($expected, $task->getCommand());
     }
 
-    public function testGetConfig()
+    public function testGetOptions()
     {
-        /** @var Container $container */
-        $container = Config::getContainer();
-        /** @var \Cheppers\Robo\Task\Phpcs\TaskPhpcsLint $task */
-        $task = $container->get('taskPhpcsLint');
-        $config = $task
+        $task = $this->taskPhpcsLint();
+        $options = $task
             ->extensions(['foo', 'bar'])
             ->ignore(['a', 'b'])
-            ->getConfig();
+            ->getOptions();
 
         static::assertEquals(
             [
                 'extensions' => ['foo', 'bar'],
                 'ignored' => ['a', 'b'],
             ],
-            $config
+            $options
         );
+    }
+
+    public function testRunMode()
+    {
+        $task = $this->taskPhpcsLint();
+        try {
+            $task->runMode('none');
+            static::fail('TaskPhpcsLint::runMode() did not throw an exception.');
+        } catch (\InvalidArgumentException $e) {
+            static::assertEquals("Invalid argument: 'none'", $e->getMessage());
+        }
     }
 
     /**
@@ -353,12 +436,138 @@ class TaskPhpcsLintTest extends \PHPUnit_Framework_TestCase
      * @dataProvider casesGetNormalizedConfig
      *
      * @param array $expected
-     * @param array $config
+     * @param array $options
      */
-    public function testGetNormalizedConfig(array $expected, array $config)
+    public function testGetNormalizedConfig(array $expected, array $options)
     {
+        $task = $this->taskPhpcsLint();
+        static::assertEquals($expected, $task->getNormalizedOptions($options));
+    }
+
+    /**
+     * @return array
+     */
+    public function casesRun()
+    {
+        return [
+            'cli-0' => [
+                0,
+                '{"success": true}',
+                [
+                    'runMode' => 'cli',
+                ],
+            ],
+            'cli-1' => [
+                1,
+                '{"success": true}',
+                [
+                    'runMode' => 'cli',
+                ],
+            ],
+            'native-0' => [
+                0,
+                '{"success": true}',
+                [
+                    'runMode' => 'native',
+                ],
+            ],
+            'native-1' => [
+                1,
+                '{"success": true}',
+                [
+                    'runMode' => 'native',
+                ],
+            ],
+        ];
+    }
+
+    /**
+     * This way cannot be tested those cases when the lint process failed.
+     *
+     * @dataProvider casesRun
+     *
+     * @param int $exitCode
+     * @param string $stdOutput
+     * @param array $options
+     */
+    public function testRun($exitCode, $stdOutput, $options)
+    {
+        $options += [
+            'workingDirectory' => '.',
+        ];
+
         /** @var \Cheppers\Robo\Task\Phpcs\TaskPhpcsLint $task */
-        $task = Config::getContainer()->get('taskPhpcsLint');
-        static::assertEquals($expected, $task->getNormalizedConfig($config));
+        $task = Stub::construct(
+            TaskPhpcsLint::class,
+            [$options, []],
+            [
+                'processClass' => \Helper\Dummy\Process::class,
+                'phpCodeSnifferCliClass' => \Helper\Dummy\PHP_CodeSniffer_CLI::class,
+            ]
+        );
+
+        \Helper\Dummy\Process::$exitCode = $exitCode;
+        \Helper\Dummy\Process::$stdOutput = $stdOutput;
+        \Helper\Dummy\PHP_CodeSniffer_CLI::$numOfErrors = $exitCode ? 42 : 0;
+
+        $task->setLogger($this->container->get('logger'));
+        $result = $task->run();
+
+        static::assertEquals($exitCode, $result->getExitCode());
+        static::assertEquals(
+            $options['workingDirectory'],
+            \Helper\Dummy\Process::$instance->getWorkingDirectory()
+        );
+
+        /** @var \Helper\Dummy\Output $output */
+        $output = $this->container->get('output');
+
+        if ($options['runMode'] === 'cli') {
+            static::assertContains($stdOutput, $output->output);
+        }
+    }
+
+    public function _testRunFailed()
+    {
+        $exitCode = 1;
+        $stdOutput = '{"foo": "bar"}';
+        $options = [
+            'workingDirectory' => 'my-working-dir',
+            'assetJarMapping' => ['report' => ['phpcsLint', 'report']],
+            'format' => 'json',
+            'runMode' => 'cli',
+        ];
+
+        /** @var TaskPhpcsLint $task */
+        $task = Stub::construct(
+            TaskPhpcsLint::class,
+            [$options, []],
+            [
+                'processClass' => \Helper\Dummy\Process::class,
+            ]
+        );
+
+        \Helper\Dummy\Process::$exitCode = $exitCode;
+        \Helper\Dummy\Process::$stdOutput = $stdOutput;
+
+        $task->setLogger($this->container->get('logger'));
+        //$assetJar = new \Cheppers\AssetJar\AssetJar();
+        //$task->setAssetJar($assetJar);
+
+        $result = $task->run();
+
+        static::assertEquals($exitCode, $result->getExitCode());
+        static::assertEquals(
+            $options['workingDirectory'],
+            \Helper\Dummy\Process::$instance->getWorkingDirectory()
+        );
+
+        //static::assertEquals(['foo' => 'bar'], $assetJar->getValue(['phpcsLint', 'report']));
+    }
+
+    public function testContainerInstance()
+    {
+        $task = $this->taskPhpcsLint();
+        static::assertEquals(0, $task->getTaskExitCode());
     }
 }

@@ -2,7 +2,9 @@
 
 namespace Cheppers\Robo\Task\Phpcs;
 
+use Robo\Common\IO;
 use Robo\Task\BaseTask;
+use Symfony\Component\Process\Process;
 
 /**
  * Class TaskPhpcs.
@@ -11,6 +13,8 @@ use Robo\Task\BaseTask;
  */
 abstract class TaskPhpcs extends BaseTask
 {
+
+    use IO;
 
     const RUN_MODE_CLI = 'cli';
 
@@ -25,6 +29,20 @@ abstract class TaskPhpcs extends BaseTask
      * @var string
      */
     protected $phpcsExecutable = 'false';
+
+    /**
+     * @todo Some kind of dependency injection would be awesome.
+     *
+     * @var string
+     */
+    protected $processClass = Process::class;
+
+    /**
+     * @todo Some kind of dependency injection would be awesome.
+     *
+     * @var string
+     */
+    protected $phpCodeSnifferCliClass = \PHP_CodeSniffer_CLI::class;
 
     /**
      * @var string
@@ -43,6 +61,9 @@ abstract class TaskPhpcs extends BaseTask
     protected $simpleOptions = [
         'standard' => 'standard',
         'reportWidth' => 'report-width',
+        'severity' => 'severity',
+        'errorSeverity' => 'error-severity',
+        'warningSeverity' => 'warning-severity',
     ];
 
     protected $listOptions = [
@@ -57,7 +78,7 @@ abstract class TaskPhpcs extends BaseTask
      *
      * @var array
      */
-    protected $config = [];
+    protected $options = [];
 
     /**
      * TaskPhpcs constructor.
@@ -68,61 +89,29 @@ abstract class TaskPhpcs extends BaseTask
     }
 
     /**
-     * {@inheritdoc}
+     * @param array $options
+     *
+     * @return $this
      */
-    public function getCommand()
+    public function setOptions(array $options)
     {
-        $cmd_pattern = '%s';
-        $cmd_args = [
-            escapeshellcmd($this->phpcsExecutable),
-        ];
+        foreach ($options as $name => $value) {
+            switch ($name) {
+                case 'workingDirectory':
+                    $this->dir($value);
+                    break;
 
-        foreach ($this->triStateOptions as $config => $option) {
-            if (isset($this->config[$config])) {
-                $cmd_pattern .= $this->config[$config] ? " --{$option}" : " --no-{$option}";
+                case 'phpcsExecutable':
+                    $this->phpcsExecutable($value);
+                    break;
+
+                case 'runMode':
+                    $this->runMode($value);
+                    break;
             }
         }
 
-        foreach ($this->simpleOptions as $config => $option) {
-            if (!empty($this->config[$config])) {
-                $cmd_pattern .= " --{$option}=%s";
-                $cmd_args[] = escapeshellarg($this->config[$config]);
-            }
-        }
-
-        foreach ($this->listOptions as $config => $option) {
-            if (!empty($this->config[$config])) {
-                $items = $this->filterEnabled($this->config[$config]);
-                if ($items) {
-                    $cmd_pattern .= " --{$option}=%s";
-                    $cmd_args[] = escapeshellarg(implode(',', $items));
-                }
-            }
-        }
-
-        if (isset($this->config['reports'])) {
-            ksort($this->config['reports']);
-            foreach ($this->config['reports'] as $report_type => $report_dst) {
-                if ($report_dst === null) {
-                    $cmd_pattern .= ' --report=%s';
-                    $cmd_args[] = escapeshellarg($report_type);
-                } elseif ($report_dst) {
-                    $cmd_pattern .= ' --report-%s=%s';
-                    $cmd_args[] = escapeshellarg($report_type);
-                    $cmd_args[] = escapeshellarg($report_dst);
-                }
-            }
-        }
-
-        if (!empty($this->config['files'])) {
-            $files = $this->filterEnabled($this->config['files']);
-            $cmd_pattern .= str_repeat(' %s', count($files));
-            foreach ($files as $file) {
-                $cmd_args[] = escapeshellarg($file);
-            }
-        }
-
-        return vsprintf($cmd_pattern, $cmd_args);
+        return $this;
     }
 
     /**
@@ -163,6 +152,66 @@ abstract class TaskPhpcs extends BaseTask
         $this->runMode = $run_mode;
 
         return $this;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getCommand()
+    {
+        $cmd_pattern = '%s';
+        $cmd_args = [
+            escapeshellcmd($this->phpcsExecutable),
+        ];
+
+        foreach ($this->triStateOptions as $config => $option) {
+            if (isset($this->options[$config])) {
+                $cmd_pattern .= $this->options[$config] ? " --{$option}" : " --no-{$option}";
+            }
+        }
+
+        foreach ($this->simpleOptions as $config => $option) {
+            if (isset($this->options[$config])
+                && ($this->options[$config] === 0 || $this->options[$config] === '0' || $this->options[$config])
+            ) {
+                $cmd_pattern .= " --{$option}=%s";
+                $cmd_args[] = escapeshellarg($this->options[$config]);
+            }
+        }
+
+        foreach ($this->listOptions as $config => $option) {
+            if (!empty($this->options[$config])) {
+                $items = $this->filterEnabled($this->options[$config]);
+                if ($items) {
+                    $cmd_pattern .= " --{$option}=%s";
+                    $cmd_args[] = escapeshellarg(implode(',', $items));
+                }
+            }
+        }
+
+        if (isset($this->options['reports'])) {
+            ksort($this->options['reports']);
+            foreach ($this->options['reports'] as $report_type => $report_dst) {
+                if ($report_dst === null) {
+                    $cmd_pattern .= ' --report=%s';
+                    $cmd_args[] = escapeshellarg($report_type);
+                } elseif ($report_dst) {
+                    $cmd_pattern .= ' --report-%s=%s';
+                    $cmd_args[] = escapeshellarg($report_type);
+                    $cmd_args[] = escapeshellarg($report_dst);
+                }
+            }
+        }
+
+        if (!empty($this->options['files'])) {
+            $files = $this->filterEnabled($this->options['files']);
+            $cmd_pattern .= str_repeat(' %s', count($files));
+            foreach ($files as $file) {
+                $cmd_args[] = escapeshellarg($file);
+            }
+        }
+
+        return vsprintf($cmd_pattern, $cmd_args);
     }
 
     /**

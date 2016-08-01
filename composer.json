@@ -10,21 +10,15 @@
     },
     "require": {
         "squizlabs/php_codesniffer": "^2.6",
-        "consolidation/robo": "dev-master#6af485e667c0e01111fd07e9e03a2f089ac67cb3"
+        "consolidation/robo": "dev-master#628f807dc6e321ba858cadc00eecc6a40a99efa9"
     },
     "require-dev": {
         "cheppers/git-hooks": "^0.0.8",
-        "phpunit/php-code-coverage": "^4.0",
-        "phpunit/phpunit": "^5.4"
+        "codeception/codeception": "^2.2"
     },
     "autoload": {
         "psr-4": {
             "Cheppers\\Robo\\": "src/"
-        }
-    },
-    "autoload-dev": {
-        "psr-4": {
-            "Cheppers\\Robo\\Test\\": "src-dev/"
         }
     },
     "scripts": {
@@ -34,6 +28,7 @@
         "post-update-cmd": [
             "@deploy-git-hooks"
         ],
-        "deploy-git-hooks": "\\Cheppers\\GitHooks\\Main::deploy"
+        "deploy-git-hooks": "\\Cheppers\\GitHooks\\Main::deploy",
+        "test": "phpdbg -qrr bin/codecept run --coverage --coverage-xml --coverage-html"
     }
 }

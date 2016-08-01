@@ -3,12 +3,10 @@
 namespace Cheppers\Robo\Task\Phpcs;
 
 use League\Container\ContainerAwareInterface;
-use League\Container\ContainerInterface;
-use Robo\Common\IO;
-use Robo\Common\Timer;
-use Robo\Config;
+use League\Container\ContainerAwareTrait;
 use Robo\Result;
 use Robo\Task\FileSystem\loadShortcuts as FsShortcuts;
+use Robo\TaskAccessor;
 use Symfony\Component\Process\Process;
 
 /**
@@ -18,36 +16,22 @@ use Symfony\Component\Process\Process;
  */
 class TaskPhpcsLint extends TaskPhpcs implements ContainerAwareInterface
 {
-
     use FsShortcuts;
-    use Timer;
-    use IO;
+    use TaskAccessor;
+    use ContainerAwareTrait;
 
     /**
      * TaskPhpcsLint constructor.
      *
-     * @param array|NULL $config
+     * @param array|NULL $options
      */
-    public function __construct(array $config = [])
+    public function __construct(array $options = null)
     {
         parent::__construct();
-        $this->setConfig($config);
-    }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function setContainer(ContainerInterface $container)
-    {
-        return Config::setContainer($container);
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function getContainer()
-    {
-        return Config::getContainer();
+        if ($options) {
+            $this->setOptions($options);
+        }
     }
 
     /**
@@ -56,19 +40,21 @@ class TaskPhpcsLint extends TaskPhpcs implements ContainerAwareInterface
      * @return array
      *   The PHPCS configuration.
      */
-    public function getConfig()
+    public function getOptions()
     {
-        return $this->config;
+        return $this->options;
     }
 
     /**
-     * @param array $config
+     * @param array $options
      *
      * @return $this
      */
-    public function setConfig(array $config)
+    public function setOptions(array $options)
     {
-        foreach ($config as $name => $value) {
+        parent::setOptions($options);
+
+        foreach ($options as $name => $value) {
             switch ($name) {
                 case 'colors':
                     $this->colors($value);
@@ -80,6 +66,18 @@ class TaskPhpcsLint extends TaskPhpcs implements ContainerAwareInterface
 
                 case 'reportWidth':
                     $this->reportWidth($value);
+                    break;
+
+                case 'severity':
+                    $this->severity($value);
+                    break;
+
+                case 'errorSeverity':
+                    $this->errorSeverity($value);
+                    break;
+
+                case 'warningSeverity':
+                    $this->warningSeverity($value);
                     break;
 
                 case 'standard':
@@ -128,7 +126,7 @@ class TaskPhpcsLint extends TaskPhpcs implements ContainerAwareInterface
      */
     public function extensions(array $value)
     {
-        $this->config['extensions'] = $value;
+        $this->options['extensions'] = $value;
 
         return $this;
     }
@@ -140,7 +138,7 @@ class TaskPhpcsLint extends TaskPhpcs implements ContainerAwareInterface
      */
     public function sniffs(array $value)
     {
-        $this->config['sniffs'] = $value;
+        $this->options['sniffs'] = $value;
 
         return $this;
     }
@@ -152,7 +150,7 @@ class TaskPhpcsLint extends TaskPhpcs implements ContainerAwareInterface
      */
     public function exclude(array $value)
     {
-        $this->config['exclude'] = $value;
+        $this->options['exclude'] = $value;
 
         return $this;
     }
@@ -168,7 +166,7 @@ class TaskPhpcsLint extends TaskPhpcs implements ContainerAwareInterface
      */
     public function standard($value)
     {
-        $this->config['standard'] = $value;
+        $this->options['standard'] = $value;
 
         return $this;
     }
@@ -184,7 +182,7 @@ class TaskPhpcsLint extends TaskPhpcs implements ContainerAwareInterface
      */
     public function colors($value)
     {
-        $this->config['colors'] = $value;
+        $this->options['colors'] = $value;
 
         return $this;
     }
@@ -220,7 +218,7 @@ class TaskPhpcsLint extends TaskPhpcs implements ContainerAwareInterface
      */
     public function report($report, $file_name = null)
     {
-        $this->config['reports'][$report] = $file_name;
+        $this->options['reports'][$report] = $file_name;
 
         return $this;
     }
@@ -237,7 +235,43 @@ class TaskPhpcsLint extends TaskPhpcs implements ContainerAwareInterface
      */
     public function reportWidth($width)
     {
-        $this->config['reportWidth'] = $width;
+        $this->options['reportWidth'] = $width;
+
+        return $this;
+    }
+
+    /**
+     * @param $value
+     *
+     * @return $this
+     */
+    public function severity($value)
+    {
+        $this->options['severity'] = $value;
+
+        return $this;
+    }
+
+    /**
+     * @param $value
+     *
+     * @return $this
+     */
+    public function errorSeverity($value)
+    {
+        $this->options['errorSeverity'] = $value;
+
+        return $this;
+    }
+
+    /**
+     * @param $value
+     *
+     * @return $this
+     */
+    public function warningSeverity($value)
+    {
+        $this->options['warningSeverity'] = $value;
 
         return $this;
     }
@@ -253,7 +287,7 @@ class TaskPhpcsLint extends TaskPhpcs implements ContainerAwareInterface
      */
     public function files(array $files)
     {
-        $this->config['files'] = $files;
+        $this->options['files'] = $files;
 
         return $this;
     }
@@ -269,7 +303,7 @@ class TaskPhpcsLint extends TaskPhpcs implements ContainerAwareInterface
      */
     public function ignore(array $value)
     {
-        $this->config['ignored'] = $value;
+        $this->options['ignored'] = $value;
 
         return $this;
     }
@@ -279,19 +313,20 @@ class TaskPhpcsLint extends TaskPhpcs implements ContainerAwareInterface
      */
     public function run()
     {
-        $standard = !empty($this->config['standard']) ? $this->config['standard'] : 'Default';
+        $standard = !empty($this->options['standard']) ? $this->options['standard'] : 'Default';
         $this->printTaskInfo("PHP_CodeSniffer is linting with <info>{$standard}</info> standard");
 
-        $this->config['reports'] = array_diff_key(
-            $this->config['reports'],
-            array_flip(array_keys($this->config['reports'], false, true))
+        $this->options += ['reports' => []];
+        $this->options['reports'] = array_diff_key(
+            $this->options['reports'],
+            array_flip(array_keys($this->options['reports'], false, true))
         );
 
         $this->prepareReportDirectories();
 
-        $this->startTimer();
         if ($this->runMode === static::RUN_MODE_CLI) {
-            $process = new Process($this->getCommand());
+            /** @var Process $process */
+            $process = new $this->processClass($this->getCommand());
             if ($this->workingDirectory) {
                 $process->setWorkingDirectory($this->workingDirectory);
             }
@@ -303,53 +338,63 @@ class TaskPhpcsLint extends TaskPhpcs implements ContainerAwareInterface
             if ($this->workingDirectory) {
                 chdir($this->workingDirectory);
             }
-            $phpcs_cli = new \PHP_CodeSniffer_CLI();
-            $num_of_errors = $phpcs_cli->process($this->getNormalizedConfig($this->config));
+            /** @var \PHP_CodeSniffer_CLI $phpcs_cli */
+            $phpcs_cli = new $this->phpCodeSnifferCliClass();
+            $num_of_errors = $phpcs_cli->process($this->getNormalizedOptions($this->options));
             $this->exitCode = $num_of_errors ? 1 : 0;
 
             if ($this->workingDirectory) {
                 chdir($cwd);
             }
         }
-        $this->stopTimer();
 
         $msg = $this->exitCode ? 'PHP Code Sniffer found some errors :-(' : 'PHP Code Sniffer not found any errors.';
 
-        return new Result($this, $this->exitCode, $msg, ['time' => $this->getExecutionTime()]);
+        return new Result($this, $this->exitCode, $msg);
     }
 
     /**
-     * @param array $config
+     * @param array $options
      *
      * @return array
      */
-    public function getNormalizedConfig(array $config)
+    public function getNormalizedOptions(array $options)
     {
         foreach (array_keys($this->triStateOptions) as $key) {
-            if (!isset($config[$key])) {
-                unset($config[$key]);
+            if (!isset($options[$key])) {
+                unset($options[$key]);
             } else {
-                settype($config[$key], 'boolean');
+                settype($options[$key], 'boolean');
             }
         }
 
         foreach (array_keys($this->simpleOptions) as $key) {
-            if (!isset($config[$key])) {
-                unset($config[$key]);
+            if (!isset($options[$key])) {
+                unset($options[$key]);
             }
         }
 
         foreach (array_keys($this->listOptions) as $key) {
-            if (!empty($config[$key])) {
-                $config[$key] = $this->filterEnabled($config[$key]);
+            if (!empty($options[$key])) {
+                $options[$key] = $this->filterEnabled($options[$key]);
             }
         }
 
-        if (!empty($config['files'])) {
-            $config['files'] = $this->filterEnabled($config['files']);
+        if (!empty($options['files'])) {
+            $options['files'] = $this->filterEnabled($options['files']);
         }
 
-        return $config;
+        return $options;
+    }
+
+    /**
+     * @todo Implement.
+     *
+     * @return int
+     */
+    public function getTaskExitCode()
+    {
+        return $this->exitCode;
     }
 
     /**
@@ -360,11 +405,11 @@ class TaskPhpcsLint extends TaskPhpcs implements ContainerAwareInterface
      */
     protected function prepareReportDirectories()
     {
-        if (!isset($this->config['reports'])) {
+        if (!isset($this->options['reports'])) {
             return Result::success($this, 'There is no directory to create.');
         }
 
-        foreach (array_filter($this->config['reports']) as $file_name) {
+        foreach (array_filter($this->options['reports']) as $file_name) {
             $dir = dirname($file_name);
             if (!file_exists($dir)) {
                 $result = $this->_mkdir($dir);
