@@ -17,23 +17,8 @@ extensions:
     enabled:
         - Codeception\Extension\RunFailed
 
-modules:
-    config:
-        Db:
-            dsn: ''
-            user: ''
-            password: ''
-            dump: tests/_data/dump.sql
-
 coverage:
     enabled: true
     whitelist:
         include:
             - 'src/*'
-#        exclude:
-#            - app/cache/*
-#    blacklist:
-#        include:
-#            - app/controllers/*
-#        exclude:
-#            - app/cache/CacheProvider.php
