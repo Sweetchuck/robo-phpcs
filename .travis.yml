@@ -26,3 +26,6 @@ script:
 
 after_success:
   - 'travis_retry php ./bin/coveralls'
+
+notifications:
+  email: false
