@@ -1,8 +1,5 @@
 <?php
 
-// @codingStandardsIgnoreStart
-use Symfony\Component\Process\Process;
-
 /**
  * Class RoboFile.
  */

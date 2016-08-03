@@ -527,44 +527,6 @@ class TaskPhpcsLintTest extends \Codeception\Test\Unit
         }
     }
 
-    public function _testRunFailed()
-    {
-        $exitCode = 1;
-        $stdOutput = '{"foo": "bar"}';
-        $options = [
-            'workingDirectory' => 'my-working-dir',
-            'assetJarMapping' => ['report' => ['phpcsLint', 'report']],
-            'format' => 'json',
-            'runMode' => 'cli',
-        ];
-
-        /** @var TaskPhpcsLint $task */
-        $task = Stub::construct(
-            TaskPhpcsLint::class,
-            [$options, []],
-            [
-                'processClass' => \Helper\Dummy\Process::class,
-            ]
-        );
-
-        \Helper\Dummy\Process::$exitCode = $exitCode;
-        \Helper\Dummy\Process::$stdOutput = $stdOutput;
-
-        $task->setLogger($this->container->get('logger'));
-        //$assetJar = new \Cheppers\AssetJar\AssetJar();
-        //$task->setAssetJar($assetJar);
-
-        $result = $task->run();
-
-        static::assertEquals($exitCode, $result->getExitCode());
-        static::assertEquals(
-            $options['workingDirectory'],
-            \Helper\Dummy\Process::$instance->getWorkingDirectory()
-        );
-
-        //static::assertEquals(['foo' => 'bar'], $assetJar->getValue(['phpcsLint', 'report']));
-    }
-
     public function testContainerInstance()
     {
         $task = $this->taskPhpcsLint();

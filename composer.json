@@ -29,7 +29,6 @@
         "post-update-cmd": [
             "@deploy-git-hooks"
         ],
-        "deploy-git-hooks": "\\Cheppers\\GitHooks\\Main::deploy",
-        "test": "phpdbg -qrr bin/codecept run --coverage --coverage-xml --coverage-html"
+        "deploy-git-hooks": "\\Cheppers\\GitHooks\\Main::deploy"
     }
 }
