@@ -60,7 +60,7 @@ class RoboFile extends \Robo\Tasks
     /**
      * Git "pre-commit" hook callback.
      *
-     * @return \Robo\Collection\Collection
+     * @return \Robo\Collection\CollectionInterface
      */
     public function githookPreCommit()
     {
@@ -128,7 +128,9 @@ class RoboFile extends \Robo\Tasks
 
         $cmd_pattern .= ' --ansi --coverage --coverage-xml --coverage-html=html run';
 
-        return $this->taskExec(vsprintf($cmd_pattern, $cmd_args));
+        return $this
+          ->taskExec(vsprintf($cmd_pattern, $cmd_args))
+          ->printed(false);
     }
 
     /**

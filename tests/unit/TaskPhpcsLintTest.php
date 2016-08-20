@@ -2,6 +2,7 @@
 
 use Cheppers\Robo\Task\Phpcs\TaskPhpcsLint;
 use Codeception\Util\Stub;
+use Robo\Robo;
 
 /**
  * Class TaskPhpcsLintTest.
@@ -27,7 +28,7 @@ class TaskPhpcsLintTest extends \Codeception\Test\Unit
         parent::_before();
 
         $this->container = new \League\Container\Container();
-        \Robo\Robo::setContainer($this->container);
+        Robo::setContainer($this->container);
         \Robo\Runner::configureContainer($this->container, null, new \Helper\Dummy\Output());
         $this->container->addServiceProvider(static::getPhpcsServiceProvider());
     }
@@ -510,6 +511,7 @@ class TaskPhpcsLintTest extends \Codeception\Test\Unit
         \Helper\Dummy\Process::$stdOutput = $stdOutput;
         \Helper\Dummy\PHP_CodeSniffer_CLI::$numOfErrors = $exitCode ? 42 : 0;
 
+        $task->setConfig(Robo::config());
         $task->setLogger($this->container->get('logger'));
         $result = $task->run();
 
