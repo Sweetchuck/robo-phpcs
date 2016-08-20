@@ -126,7 +126,7 @@ class RoboFile extends \Robo\Tasks
             $cmd_args[] = escapeshellarg("{$this->binDir}/codecept");
         }
 
-        $cmd_pattern .= ' --ansi --coverage --coverage-xml --coverage-html run';
+        $cmd_pattern .= ' --ansi --coverage --coverage-xml --coverage-html=html run';
 
         return $this->taskExec(vsprintf($cmd_pattern, $cmd_args));
     }
