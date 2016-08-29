@@ -6,7 +6,7 @@
 class RoboFile extends \Robo\Tasks
     // @codingStandardsIgnoreEnd
 {
-    use \Cheppers\Robo\Task\Phpcs\LoadTasks;
+    use \Cheppers\Robo\Phpcs\Task\LoadTasks;
 
     /**
      * RoboFile constructor.

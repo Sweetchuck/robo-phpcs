@@ -1,6 +1,6 @@
 <?php
 
-use Cheppers\Robo\Task\Phpcs\TaskPhpcsLint;
+use Cheppers\Robo\Phpcs\Task\TaskPhpcsLint;
 use Codeception\Util\Stub;
 use Robo\Robo;
 
@@ -13,7 +13,7 @@ use Robo\Robo;
 class TaskPhpcsLintTest extends \Codeception\Test\Unit
     // @codingStandardsIgnoreEnd
 {
-    use \Cheppers\Robo\Task\Phpcs\LoadTasks;
+    use \Cheppers\Robo\Phpcs\Task\LoadTasks;
     use \Robo\TaskAccessor;
 
     /**
@@ -497,7 +497,7 @@ class TaskPhpcsLintTest extends \Codeception\Test\Unit
             'workingDirectory' => '.',
         ];
 
-        /** @var \Cheppers\Robo\Task\Phpcs\TaskPhpcsLint $task */
+        /** @var \Cheppers\Robo\Phpcs\Task\TaskPhpcsLint $task */
         $task = Stub::construct(
             TaskPhpcsLint::class,
             [$options, []],

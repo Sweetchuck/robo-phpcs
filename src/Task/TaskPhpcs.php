@@ -1,6 +1,6 @@
 <?php
 
-namespace Cheppers\Robo\Task\Phpcs;
+namespace Cheppers\Robo\Phpcs\Task;
 
 use Robo\Common\IO;
 use Robo\Task\BaseTask;
@@ -9,7 +9,7 @@ use Symfony\Component\Process\Process;
 /**
  * Class TaskPhpcs.
  *
- * @package Cheppers\Robo\Task\Phpcs
+ * @package Cheppers\Robo\Phpcs\Task
  */
 abstract class TaskPhpcs extends BaseTask
 {

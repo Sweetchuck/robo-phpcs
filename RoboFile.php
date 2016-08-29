@@ -9,7 +9,7 @@ use Symfony\Component\Process\Process;
 class RoboFile extends \Robo\Tasks
 // @codingStandardsIgnoreEnd
 {
-    use Cheppers\Robo\Task\Phpcs\LoadTasks;
+    use Cheppers\Robo\Phpcs\Task\LoadTasks;
 
     /**
      * @var array
@@ -136,7 +136,7 @@ class RoboFile extends \Robo\Tasks
     }
 
     /**
-     * @return \Cheppers\Robo\Task\Phpcs\TaskPhpcsLint
+     * @return \Cheppers\Robo\Phpcs\Task\TaskPhpcsLint
      */
     protected function getTaskPhpcsLint()
     {

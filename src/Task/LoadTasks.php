@@ -1,6 +1,6 @@
 <?php
 
-namespace Cheppers\Robo\Task\Phpcs;
+namespace Cheppers\Robo\Phpcs\Task;
 
 use Robo\Container\SimpleServiceProvider;
 use Robo\TaskAccessor;
@@ -8,7 +8,7 @@ use Robo\TaskAccessor;
 /**
  * Class PhpcsTask.
  *
- * @package Cheppers\Robo\Task\Phpcs
+ * @package Cheppers\Robo\Phpcs\Task
  */
 trait LoadTasks
 {
@@ -29,7 +29,7 @@ trait LoadTasks
      *
      * @param array $options
      *
-     * @return \Cheppers\Robo\Task\Phpcs\TaskPhpcsLint
+     * @return \Cheppers\Robo\Phpcs\Task\TaskPhpcsLint
      *   The task handler.
      */
     protected function taskPhpcsLint(array $options = null)

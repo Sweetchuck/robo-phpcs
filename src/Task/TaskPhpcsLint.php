@@ -1,6 +1,6 @@
 <?php
 
-namespace Cheppers\Robo\Task\Phpcs;
+namespace Cheppers\Robo\Phpcs\Task;
 
 use League\Container\ContainerAwareInterface;
 use League\Container\ContainerAwareTrait;
@@ -12,7 +12,7 @@ use Symfony\Component\Process\Process;
 /**
  * Class TaskPhpcsLint.
  *
- * @package Cheppers\Robo\Task\Phpcs
+ * @package Cheppers\Robo\Phpcs\Task
  */
 class TaskPhpcsLint extends TaskPhpcs implements ContainerAwareInterface
 {

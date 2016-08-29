@@ -18,7 +18,7 @@
     },
     "autoload": {
         "psr-4": {
-            "Cheppers\\Robo\\Task\\Phpcs\\": "src/"
+            "Cheppers\\Robo\\Phpcs\\": "src/"
         }
     },
     "scripts": {
