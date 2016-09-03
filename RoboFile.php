@@ -47,28 +47,23 @@ class RoboFile extends \Robo\Tasks
     public function __construct()
     {
         $this->initComposerInfo();
-
-        $this->setContainer(\Robo\Robo::getContainer());
-
-        /** @var \League\Container\Container $c */
-        $c = $this->getContainer();
-        $c
-            ->addServiceProvider(static::getPhpcsServiceProvider())
-            ->addServiceProvider(\Robo\Task\Filesystem\loadTasks::getFilesystemServices());
     }
 
     /**
      * Git "pre-commit" hook callback.
      *
-     * @return \Robo\Collection\CollectionInterface
+     * @return \Robo\Collection\CollectionBuilder
      */
     public function githookPreCommit()
     {
-        return $this
-            ->collection()
-            ->add($this->taskComposerValidate(), 'lint.composer.lock')
-            ->add($this->getTaskPhpcsLint(), 'lint.phpcs.psr2')
-            ->add($this->getTaskCodecept(), 'codecept');
+        /** @var \Robo\Collection\CollectionBuilder $cb */
+        $cb = $this->collectionBuilder();
+
+        return $cb->addTaskList([
+            'lint.composer.lock' => $this->taskComposerValidate(),
+            'lint.phpcs.psr2' => $this->getTaskPhpcsLint(),
+            'codecept' => $this->getTaskCodecept(),
+        ]);
     }
 
     /**
@@ -82,14 +77,17 @@ class RoboFile extends \Robo\Tasks
     /**
      * Run code style checkers.
      *
-     * @return \Robo\Collection\Collection
+     * @return \Robo\Collection\CollectionBuilder
      */
     public function lint()
     {
-        return $this
-            ->collection()
-            ->add($this->taskComposerValidate(), 'lint.composer.lock')
-            ->add($this->getTaskPhpcsLint(), 'lint.phpcs.psr2');
+        /** @var \Robo\Collection\CollectionBuilder $cb */
+        $cb = $this->collectionBuilder();
+
+        return $cb->addTaskList([
+            'lint.composer.lock' => $this->taskComposerValidate(),
+            'lint.phpcs.psr2' => $this->getTaskPhpcsLint(),
+        ]);
     }
 
     /**
@@ -117,7 +115,7 @@ class RoboFile extends \Robo\Tasks
     protected function getTaskCodecept()
     {
         $cmd_args = [];
-        if ($this->isXdebugAvailable()) {
+        if ($this->isPhpExtensionAvailable('xdebug')) {
             $cmd_pattern = '%s';
             $cmd_args[] = escapeshellcmd("{$this->binDir}/codecept");
         } else {
@@ -149,18 +147,30 @@ class RoboFile extends \Robo\Tasks
             ],
             'files' => [
                 'src/',
+                'tests/_data/RoboFile.php',
+                'tests/_support/Helper/',
+                'tests/acceptance/',
+                'tests/unit/',
                 'RoboFile.php',
             ],
         ]);
     }
 
     /**
+     * @param string $extension
+     *
      * @return bool
      */
-    protected function isXdebugAvailable()
+    protected function isPhpExtensionAvailable($extension)
     {
-        $command = sprintf('%s -m | grep xdebug', escapeshellcmd($this->phpExecutable));
+        $command = sprintf('%s -m', escapeshellcmd($this->phpExecutable));
 
-        return (new Process($command))->run() === 0;
+        $process = new Process($command);
+        $exitCode = $process->run();
+        if ($exitCode !== 0) {
+            throw new \RuntimeException('@todo');
+        }
+
+        return in_array($extension, explode("\n", $process->getOutput()));
     }
 }

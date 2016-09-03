@@ -2,5 +2,5 @@
 class_name: AcceptanceTester
 modules:
     enabled:
-        - Cli:
+        - \Helper\Module\Cli
         - \Helper\Acceptance

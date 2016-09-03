@@ -3,24 +3,11 @@
 /**
  * Class RoboFile.
  */
+// @codingStandardsIgnoreStart
 class RoboFile extends \Robo\Tasks
-    // @codingStandardsIgnoreEnd
 {
+    // @codingStandardsIgnoreEnd
     use \Cheppers\Robo\Phpcs\Task\LoadTasks;
-
-    /**
-     * RoboFile constructor.
-     */
-    public function __construct()
-    {
-        $this->setContainer(\Robo\Robo::getContainer());
-
-        /** @var \League\Container\Container $c */
-        $c = $this->getContainer();
-        $c
-            ->addServiceProvider(static::getPhpcsServiceProvider())
-            ->addServiceProvider(\Robo\Task\Filesystem\loadTasks::getFilesystemServices());
-    }
 
     public function lint()
     {
@@ -30,5 +17,4 @@ class RoboFile extends \Robo\Tasks
             ->report('checkstyle', 'reports/psr2.xml')
             ->files(['fixtures/']);
     }
-
 }

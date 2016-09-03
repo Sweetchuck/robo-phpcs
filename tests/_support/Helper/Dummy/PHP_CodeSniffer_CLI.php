@@ -7,8 +7,10 @@ namespace Helper\Dummy;
  *
  * @package Helper
  */
+// @codingStandardsIgnoreStart
 class PHP_CodeSniffer_CLI extends \PHP_CodeSniffer_CLI
 {
+    // @codingStandardsIgnoreEnd
 
     /**
      * @var int

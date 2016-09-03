@@ -4,8 +4,11 @@ namespace Cheppers\Robo\Phpcs\Task;
 
 use League\Container\ContainerAwareInterface;
 use League\Container\ContainerAwareTrait;
+use Robo\Common\BuilderAwareTrait;
+use Robo\Contract\BuilderAwareInterface;
 use Robo\Result;
-use Robo\Task\FileSystem\loadShortcuts as FsShortcuts;
+use Robo\Task\Filesystem\loadTasks as FsLoadTasks;
+use Robo\Task\Filesystem\loadShortcuts as FsShortCuts;
 use Robo\TaskAccessor;
 use Symfony\Component\Process\Process;
 
@@ -14,11 +17,13 @@ use Symfony\Component\Process\Process;
  *
  * @package Cheppers\Robo\Phpcs\Task
  */
-class TaskPhpcsLint extends TaskPhpcs implements ContainerAwareInterface
+class TaskPhpcsLint extends TaskPhpcs implements ContainerAwareInterface, BuilderAwareInterface
 {
-    use FsShortcuts;
+    use FsLoadTasks;
+    use FsShortCuts;
     use TaskAccessor;
     use ContainerAwareTrait;
+    use BuilderAwareTrait;
 
     /**
      * TaskPhpcsLint constructor.
@@ -410,7 +415,7 @@ class TaskPhpcsLint extends TaskPhpcs implements ContainerAwareInterface
         }
 
         foreach (array_filter($this->options['reports']) as $file_name) {
-            $dir = dirname($file_name);
+            $dir = pathinfo($file_name, PATHINFO_DIRNAME);
             if (!file_exists($dir)) {
                 $result = $this->_mkdir($dir);
                 if (!$result->wasSuccessful()) {
