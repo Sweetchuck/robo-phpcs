@@ -2,9 +2,6 @@
 
 namespace Cheppers\Robo\Phpcs\Task;
 
-use Robo\Container\SimpleServiceProvider;
-use Robo\TaskAccessor;
-
 /**
  * Class PhpcsTask.
  *
@@ -12,18 +9,6 @@ use Robo\TaskAccessor;
  */
 trait LoadTasks
 {
-    /**
-     * Return services.
-     */
-    public static function getPhpcsServiceProvider()
-    {
-        return new SimpleServiceProvider(
-            [
-                'taskPhpcsLint' => TaskPhpcsLint::class,
-            ]
-        );
-    }
-
     /**
      * Expose phpcs-lint task.
      *
@@ -34,6 +19,6 @@ trait LoadTasks
      */
     protected function taskPhpcsLint(array $options = null)
     {
-        return $this->task(__FUNCTION__, $options);
+        return $this->task(TaskPhpcsLint::class, $options);
     }
 }

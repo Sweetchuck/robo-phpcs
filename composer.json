@@ -10,7 +10,7 @@
     },
     "require": {
         "squizlabs/php_codesniffer": "^2.6",
-        "consolidation/robo": "1.0.0-RC1"
+        "consolidation/robo": "1.0.0-RC2"
     },
     "require-dev": {
         "cheppers/git-hooks": "^0.0.8",

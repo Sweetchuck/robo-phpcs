@@ -11,34 +11,11 @@ use Robo\Robo;
  */
 // @codingStandardsIgnoreStart
 class TaskPhpcsLintTest extends \Codeception\Test\Unit
-    // @codingStandardsIgnoreEnd
 {
-    use \Cheppers\Robo\Phpcs\Task\LoadTasks;
-    use \Robo\TaskAccessor;
-
-    /**
-     * @var \League\Container\Container
-     */
-    protected $container = null;
-
-    // @codingStandardsIgnoreStart
     protected function _before()
+    {
         // @codingStandardsIgnoreEnd
-    {
         parent::_before();
-
-        $this->container = new \League\Container\Container();
-        Robo::setContainer($this->container);
-        \Robo\Runner::configureContainer($this->container, null, new \Helper\Dummy\Output());
-        $this->container->addServiceProvider(static::getPhpcsServiceProvider());
-    }
-
-    /**
-     * @return \League\Container\Container
-     */
-    public function getContainer()
-    {
-        return $this->container;
     }
 
     /**
@@ -315,14 +292,20 @@ class TaskPhpcsLintTest extends \Codeception\Test\Unit
     public function testGetCommand($expected, array $options)
     {
         $options += ['phpcsExecutable' => 'phpcs'];
-        $task = $this->taskPhpcsLint($options);
+        /** @var \Cheppers\Robo\Phpcs\Task\TaskPhpcsLint $task */
+        $task = Stub::construct(
+            TaskPhpcsLint::class,
+            [$options, []]
+        );
 
         static::assertEquals($expected, $task->getCommand());
     }
 
     public function testGetOptions()
     {
-        $task = $this->taskPhpcsLint();
+        /** @var \Cheppers\Robo\Phpcs\Task\TaskPhpcsLint $task */
+        $task = Stub::construct(TaskPhpcsLint::class);
+
         $options = $task
             ->extensions(['foo', 'bar'])
             ->ignore(['a', 'b'])
@@ -339,7 +322,8 @@ class TaskPhpcsLintTest extends \Codeception\Test\Unit
 
     public function testRunMode()
     {
-        $task = $this->taskPhpcsLint();
+        /** @var \Cheppers\Robo\Phpcs\Task\TaskPhpcsLint $task */
+        $task = Stub::construct(TaskPhpcsLint::class);
         try {
             $task->runMode('none');
             static::fail('TaskPhpcsLint::runMode() did not throw an exception.');
@@ -441,7 +425,8 @@ class TaskPhpcsLintTest extends \Codeception\Test\Unit
      */
     public function testGetNormalizedConfig(array $expected, array $options)
     {
-        $task = $this->taskPhpcsLint();
+        /** @var \Cheppers\Robo\Phpcs\Task\TaskPhpcsLint $task */
+        $task = Stub::construct(TaskPhpcsLint::class);
         static::assertEquals($expected, $task->getNormalizedOptions($options));
     }
 
@@ -493,6 +478,12 @@ class TaskPhpcsLintTest extends \Codeception\Test\Unit
      */
     public function testRun($exitCode, $stdOutput, $options)
     {
+        $container = new \League\Container\Container();
+        $config = new \Robo\Config();
+        $mainOutput = new \Helper\Dummy\Output();
+        \Robo\Robo::configureContainer($container);
+        \Robo\Robo::setContainer($container, null, $mainOutput);
+
         $options += [
             'workingDirectory' => '.',
         ];
@@ -511,8 +502,9 @@ class TaskPhpcsLintTest extends \Codeception\Test\Unit
         \Helper\Dummy\Process::$stdOutput = $stdOutput;
         \Helper\Dummy\PHP_CodeSniffer_CLI::$numOfErrors = $exitCode ? 42 : 0;
 
-        $task->setConfig(Robo::config());
-        $task->setLogger($this->container->get('logger'));
+        //$task->setConfig(Robo::config());
+        $task->setLogger($container->get('logger'));
+        $task->setOutput($mainOutput);
         $result = $task->run();
 
         static::assertEquals($exitCode, $result->getExitCode());
@@ -521,17 +513,8 @@ class TaskPhpcsLintTest extends \Codeception\Test\Unit
             \Helper\Dummy\Process::$instance->getWorkingDirectory()
         );
 
-        /** @var \Helper\Dummy\Output $output */
-        $output = $this->container->get('output');
-
         if ($options['runMode'] === 'cli') {
-            static::assertContains($stdOutput, $output->output);
+            static::assertContains($stdOutput, $mainOutput->output);
         }
-    }
-
-    public function testContainerInstance()
-    {
-        $task = $this->taskPhpcsLint();
-        static::assertEquals(0, $task->getTaskExitCode());
     }
 }
