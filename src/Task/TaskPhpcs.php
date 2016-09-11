@@ -222,6 +222,7 @@ abstract class TaskPhpcs extends BaseTask
         $suggestions = [
             'vendor/bin/phpcs',
             'bin/phpcs',
+            dirname($_SERVER['argv'][0]) . '/phpcs',
         ];
 
         foreach ($suggestions as $suggestion) {

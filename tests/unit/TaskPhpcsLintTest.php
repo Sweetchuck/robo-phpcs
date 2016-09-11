@@ -502,7 +502,6 @@ class TaskPhpcsLintTest extends \Codeception\Test\Unit
         \Helper\Dummy\Process::$stdOutput = $stdOutput;
         \Helper\Dummy\PHP_CodeSniffer_CLI::$numOfErrors = $exitCode ? 42 : 0;
 
-        //$task->setConfig(Robo::config());
         $task->setLogger($container->get('logger'));
         $task->setOutput($mainOutput);
         $result = $task->run();

@@ -2,10 +2,14 @@
 
 namespace Cheppers\Robo\Phpcs\Task;
 
+use Cheppers\AssetJar\AssetJarAware;
+use Cheppers\AssetJar\AssetJarAwareInterface;
 use League\Container\ContainerAwareInterface;
 use League\Container\ContainerAwareTrait;
 use Robo\Common\BuilderAwareTrait;
+use Robo\Common\IO;
 use Robo\Contract\BuilderAwareInterface;
+use Robo\Contract\OutputAwareInterface;
 use Robo\Result;
 use Robo\Task\Filesystem\loadTasks as FsLoadTasks;
 use Robo\Task\Filesystem\loadShortcuts as FsShortCuts;
@@ -17,13 +21,31 @@ use Symfony\Component\Process\Process;
  *
  * @package Cheppers\Robo\Phpcs\Task
  */
-class TaskPhpcsLint extends TaskPhpcs implements ContainerAwareInterface, BuilderAwareInterface
+class TaskPhpcsLint extends TaskPhpcs implements
+    AssetJarAwareInterface,
+    ContainerAwareInterface,
+    BuilderAwareInterface,
+    OutputAwareInterface
 {
+    use AssetJarAware;
+    use BuilderAwareTrait;
+    use ContainerAwareTrait;
     use FsLoadTasks;
     use FsShortCuts;
     use TaskAccessor;
-    use ContainerAwareTrait;
-    use BuilderAwareTrait;
+    use IO;
+
+    const EXIT_CODE_OK = 0;
+
+    const EXIT_CODE_ERROR = 1;
+
+    /**
+     * @var string[]
+     */
+    protected $exitMessages = [
+        0 => 'PHP Code Sniffer not found any errors.',
+        1 => 'PHP Code Sniffer found some errors :-(',
+    ];
 
     /**
      * TaskPhpcsLint constructor.
@@ -203,8 +225,8 @@ class TaskPhpcsLint extends TaskPhpcs implements ContainerAwareInterface, Builde
      */
     public function reports(array $reports)
     {
-        foreach ($reports as $report => $file_name) {
-            $this->report($report, $file_name);
+        foreach ($reports as $report => $fileName) {
+            $this->report($report, $fileName);
         }
 
         return $this;
@@ -215,15 +237,15 @@ class TaskPhpcsLint extends TaskPhpcs implements ContainerAwareInterface, Builde
      *
      * @param string $report
      *   Name of the report type.
-     * @param string $file_name
+     * @param string $fileName
      *   Write the report to the specified file path.
      *
      * @return $this
      *   The called object.
      */
-    public function report($report, $file_name = null)
+    public function report($report, $fileName = null)
     {
-        $this->options['reports'][$report] = $file_name;
+        $this->options['reports'][$report] = $fileName;
 
         return $this;
     }
@@ -329,6 +351,7 @@ class TaskPhpcsLint extends TaskPhpcs implements ContainerAwareInterface, Builde
 
         $this->prepareReportDirectories();
 
+        $lintOutput = '';
         if ($this->runMode === static::RUN_MODE_CLI) {
             /** @var Process $process */
             $process = new $this->processClass($this->getCommand());
@@ -337,25 +360,41 @@ class TaskPhpcsLint extends TaskPhpcs implements ContainerAwareInterface, Builde
             }
 
             $this->exitCode = $process->run();
-            $this->getOutput()->write($process->getOutput());
+            $lintOutput = $process->getOutput();
         } elseif ($this->runMode === static::RUN_MODE_NATIVE) {
             $cwd = getcwd();
             if ($this->workingDirectory) {
                 chdir($this->workingDirectory);
             }
-            /** @var \PHP_CodeSniffer_CLI $phpcs_cli */
-            $phpcs_cli = new $this->phpCodeSnifferCliClass();
-            $num_of_errors = $phpcs_cli->process($this->getNormalizedOptions($this->options));
-            $this->exitCode = $num_of_errors ? 1 : 0;
+
+            /** @var \PHP_CodeSniffer_CLI $phpcsCli */
+            $phpcsCli = new $this->phpCodeSnifferCliClass();
+
+            ob_start();
+            $numOfErrors = $phpcsCli->process($this->getNormalizedOptions($this->options));
+            $lintOutput = ob_get_contents();
+            ob_end_clean();
+
+            $this->exitCode = $numOfErrors ? static::EXIT_CODE_ERROR : static::EXIT_CODE_OK;
 
             if ($this->workingDirectory) {
                 chdir($cwd);
             }
         }
 
-        $msg = $this->exitCode ? 'PHP Code Sniffer found some errors :-(' : 'PHP Code Sniffer not found any errors.';
+        if ($this->isReportHasToBePutBackIntoJar()) {
+            $this
+                ->getAssetJar()
+                ->setValue(
+                    $this->getAssetJarMap('report'),
+                    // @todo Pray for a valid JSON output.
+                    json_decode($lintOutput, true)
+                );
+        } elseif ($lintOutput) {
+            $this->output()->writeln($lintOutput);
+        }
 
-        return new Result($this, $this->exitCode, $msg);
+        return new Result($this, $this->getTaskExitCode(), $this->getExitMessage());
     }
 
     /**
@@ -403,6 +442,21 @@ class TaskPhpcsLint extends TaskPhpcs implements ContainerAwareInterface, Builde
     }
 
     /**
+     * @return bool
+     */
+    protected function isReportHasToBePutBackIntoJar()
+    {
+        return (
+            $this->hasAssetJar()
+            && $this->getAssetJarMap('report')
+            && array_key_exists('reports', $this->options)
+            && array_key_exists('json', $this->options['reports'])
+            && $this->options['reports']['json'] === null
+            && in_array($this->exitCode, $this->lintSuccessExitCodes())
+        );
+    }
+
+    /**
      * Prepare directories for report outputs.
      *
      * @return null|\Robo\Result
@@ -414,8 +468,8 @@ class TaskPhpcsLint extends TaskPhpcs implements ContainerAwareInterface, Builde
             return Result::success($this, 'There is no directory to create.');
         }
 
-        foreach (array_filter($this->options['reports']) as $file_name) {
-            $dir = pathinfo($file_name, PATHINFO_DIRNAME);
+        foreach (array_filter($this->options['reports']) as $fileName) {
+            $dir = pathinfo($fileName, PATHINFO_DIRNAME);
             if (!file_exists($dir)) {
                 $result = $this->_mkdir($dir);
                 if (!$result->wasSuccessful()) {
@@ -425,5 +479,25 @@ class TaskPhpcsLint extends TaskPhpcs implements ContainerAwareInterface, Builde
         }
 
         return Result::success($this, 'All directory was created successfully.');
+    }
+
+    /**
+     * @return int[]
+     */
+    protected function lintSuccessExitCodes()
+    {
+        return [static::EXIT_CODE_OK];
+    }
+
+    /**
+     * @return string
+     */
+    protected function getExitMessage()
+    {
+        if (isset($this->exitMessages[$this->exitCode])) {
+            return $this->exitMessages[$this->exitCode];
+        }
+
+        return 'Unknown outcome.';
     }
 }
