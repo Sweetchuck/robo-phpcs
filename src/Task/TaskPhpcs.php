@@ -139,17 +139,17 @@ abstract class TaskPhpcs extends BaseTask
     }
 
     /**
-     * @param string $run_mode
+     * @param string $runMode
      *
      * @return $this
      */
-    public function runMode($run_mode)
+    public function runMode($runMode)
     {
-        if ($run_mode !== static::RUN_MODE_NATIVE && $run_mode !== static::RUN_MODE_CLI) {
-            throw new \InvalidArgumentException("Invalid argument: '$run_mode'");
+        if ($runMode !== static::RUN_MODE_NATIVE && $runMode !== static::RUN_MODE_CLI) {
+            throw new \InvalidArgumentException("Invalid argument: '$runMode'");
         }
 
-        $this->runMode = $run_mode;
+        $this->runMode = $runMode;
 
         return $this;
     }
@@ -159,14 +159,14 @@ abstract class TaskPhpcs extends BaseTask
      */
     public function getCommand()
     {
-        $cmd_pattern = '%s';
-        $cmd_args = [
+        $cmdPattern = '%s';
+        $cmdArgs = [
             escapeshellcmd($this->phpcsExecutable),
         ];
 
         foreach ($this->triStateOptions as $config => $option) {
             if (isset($this->options[$config])) {
-                $cmd_pattern .= $this->options[$config] ? " --{$option}" : " --no-{$option}";
+                $cmdPattern .= $this->options[$config] ? " --{$option}" : " --no-{$option}";
             }
         }
 
@@ -174,8 +174,8 @@ abstract class TaskPhpcs extends BaseTask
             if (isset($this->options[$config])
                 && ($this->options[$config] === 0 || $this->options[$config] === '0' || $this->options[$config])
             ) {
-                $cmd_pattern .= " --{$option}=%s";
-                $cmd_args[] = escapeshellarg($this->options[$config]);
+                $cmdPattern .= " --{$option}=%s";
+                $cmdArgs[] = escapeshellarg($this->options[$config]);
             }
         }
 
@@ -183,35 +183,35 @@ abstract class TaskPhpcs extends BaseTask
             if (!empty($this->options[$config])) {
                 $items = $this->filterEnabled($this->options[$config]);
                 if ($items) {
-                    $cmd_pattern .= " --{$option}=%s";
-                    $cmd_args[] = escapeshellarg(implode(',', $items));
+                    $cmdPattern .= " --{$option}=%s";
+                    $cmdArgs[] = escapeshellarg(implode(',', $items));
                 }
             }
         }
 
         if (isset($this->options['reports'])) {
             ksort($this->options['reports']);
-            foreach ($this->options['reports'] as $report_type => $report_dst) {
-                if ($report_dst === null) {
-                    $cmd_pattern .= ' --report=%s';
-                    $cmd_args[] = escapeshellarg($report_type);
-                } elseif ($report_dst) {
-                    $cmd_pattern .= ' --report-%s=%s';
-                    $cmd_args[] = escapeshellarg($report_type);
-                    $cmd_args[] = escapeshellarg($report_dst);
+            foreach ($this->options['reports'] as $reportType => $reportDst) {
+                if ($reportDst === null) {
+                    $cmdPattern .= ' --report=%s';
+                    $cmdArgs[] = escapeshellarg($reportType);
+                } elseif ($reportDst) {
+                    $cmdPattern .= ' --report-%s=%s';
+                    $cmdArgs[] = escapeshellarg($reportType);
+                    $cmdArgs[] = escapeshellarg($reportDst);
                 }
             }
         }
 
         if (!empty($this->options['files'])) {
             $files = $this->filterEnabled($this->options['files']);
-            $cmd_pattern .= str_repeat(' %s', count($files));
+            $cmdPattern .= str_repeat(' %s', count($files));
             foreach ($files as $file) {
-                $cmd_args[] = escapeshellarg($file);
+                $cmdArgs[] = escapeshellarg($file);
             }
         }
 
-        return vsprintf($cmd_pattern, $cmd_args);
+        return vsprintf($cmdPattern, $cmdArgs);
     }
 
     /**
