@@ -4,9 +4,41 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "c8635de5d84dda70730165fc7ea28cdf",
-    "content-hash": "fe531f3dc6625d8300c4ba2868522bb9",
+    "hash": "937ebe4773e830dfb40054d4ef5783bd",
+    "content-hash": "a151caecb37f67b87d5c63260a81edb2",
     "packages": [
+        {
+            "name": "cheppers/asset-jar",
+            "version": "v0.0.1",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/Cheppers/asset-jar.git",
+                "reference": "ef34273299c55defb0da78090b92a44125cf8ab2"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/Cheppers/asset-jar/zipball/ef34273299c55defb0da78090b92a44125cf8ab2",
+                "reference": "ef34273299c55defb0da78090b92a44125cf8ab2",
+                "shasum": ""
+            },
+            "require-dev": {
+                "phpunit/php-code-coverage": "^4.0",
+                "phpunit/phpunit": "^5.4",
+                "squizlabs/php_codesniffer": "^2.6"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Cheppers\\AssetJar\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "GPL-2.0+"
+            ],
+            "description": "Provides a very simple, shared, in-memory data storage.",
+            "time": "2016-07-30 09:09:38"
+        },
         {
             "name": "consolidation/annotated-command",
             "version": "1.2.2",

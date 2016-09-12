@@ -21,7 +21,7 @@ use Symfony\Component\Process\Process;
  *
  * @package Cheppers\Robo\Phpcs\Task
  */
-class TaskPhpcsLint extends TaskPhpcs implements
+class PhpcsLint extends Phpcs implements
     AssetJarAwareInterface,
     ContainerAwareInterface,
     BuilderAwareInterface,
@@ -83,6 +83,10 @@ class TaskPhpcsLint extends TaskPhpcs implements
 
         foreach ($options as $name => $value) {
             switch ($name) {
+                case 'assetJarMapping':
+                    $this->setAssetJarMapping($value);
+                    break;
+
                 case 'colors':
                     $this->colors($value);
                     break;
@@ -343,7 +347,10 @@ class TaskPhpcsLint extends TaskPhpcs implements
         $standard = !empty($this->options['standard']) ? $this->options['standard'] : 'Default';
         $this->printTaskInfo("PHP_CodeSniffer is linting with <info>{$standard}</info> standard");
 
-        $this->options += ['reports' => []];
+        $this->options += [
+            'reports' => [],
+            'verbosity' => 1,
+        ];
         $this->options['reports'] = array_diff_key(
             $this->options['reports'],
             array_flip(array_keys($this->options['reports'], false, true))
@@ -383,13 +390,8 @@ class TaskPhpcsLint extends TaskPhpcs implements
         }
 
         if ($this->isReportHasToBePutBackIntoJar()) {
-            $this
-                ->getAssetJar()
-                ->setValue(
-                    $this->getAssetJarMap('report'),
-                    // @todo Pray for a valid JSON output.
-                    json_decode($lintOutput, true)
-                );
+            // @todo Pray for a valid JSON output.
+            $this->setAssetJarValue('report', json_decode($lintOutput, true));
         } elseif ($lintOutput) {
             $this->output()->writeln($lintOutput);
         }
@@ -486,7 +488,10 @@ class TaskPhpcsLint extends TaskPhpcs implements
      */
     protected function lintSuccessExitCodes()
     {
-        return [static::EXIT_CODE_OK];
+        return [
+            static::EXIT_CODE_OK,
+            static::EXIT_CODE_ERROR,
+        ];
     }
 
     /**

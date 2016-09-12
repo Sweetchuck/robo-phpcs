@@ -11,7 +11,7 @@ use Symfony\Component\Process\Process;
  *
  * @package Cheppers\Robo\Phpcs\Task
  */
-abstract class TaskPhpcs extends BaseTask
+abstract class Phpcs extends BaseTask
 {
 
     use IO;

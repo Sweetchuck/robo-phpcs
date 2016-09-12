@@ -14,11 +14,11 @@ trait LoadTasks
      *
      * @param array $options
      *
-     * @return \Cheppers\Robo\Phpcs\Task\TaskPhpcsLint
+     * @return \Cheppers\Robo\Phpcs\Task\PhpcsLint
      *   The task handler.
      */
     protected function taskPhpcsLint(array $options = null)
     {
-        return $this->task(TaskPhpcsLint::class, $options);
+        return $this->task(PhpcsLint::class, $options);
     }
 }

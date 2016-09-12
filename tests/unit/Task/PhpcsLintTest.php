@@ -1,6 +1,6 @@
 <?php
 
-use Cheppers\Robo\Phpcs\Task\TaskPhpcsLint;
+use Cheppers\Robo\Phpcs\Task\PhpcsLint;
 use Codeception\Util\Stub;
 use Robo\Robo;
 
@@ -10,13 +10,9 @@ use Robo\Robo;
  * @package Cheppers\Robo\Test\Task
  */
 // @codingStandardsIgnoreStart
-class TaskPhpcsLintTest extends \Codeception\Test\Unit
+class PhpcsLintTest extends \Codeception\Test\Unit
 {
-    protected function _before()
-    {
-        // @codingStandardsIgnoreEnd
-        parent::_before();
-    }
+    // @codingStandardsIgnoreEnd
 
     /**
      * @return array
@@ -292,9 +288,9 @@ class TaskPhpcsLintTest extends \Codeception\Test\Unit
     public function testGetCommand($expected, array $options)
     {
         $options += ['phpcsExecutable' => 'phpcs'];
-        /** @var \Cheppers\Robo\Phpcs\Task\TaskPhpcsLint $task */
+        /** @var \Cheppers\Robo\Phpcs\Task\PhpcsLint $task */
         $task = Stub::construct(
-            TaskPhpcsLint::class,
+            PhpcsLint::class,
             [$options, []]
         );
 
@@ -303,8 +299,8 @@ class TaskPhpcsLintTest extends \Codeception\Test\Unit
 
     public function testGetOptions()
     {
-        /** @var \Cheppers\Robo\Phpcs\Task\TaskPhpcsLint $task */
-        $task = Stub::construct(TaskPhpcsLint::class);
+        /** @var \Cheppers\Robo\Phpcs\Task\PhpcsLint $task */
+        $task = Stub::construct(PhpcsLint::class);
 
         $options = $task
             ->extensions(['foo', 'bar'])
@@ -322,8 +318,8 @@ class TaskPhpcsLintTest extends \Codeception\Test\Unit
 
     public function testRunMode()
     {
-        /** @var \Cheppers\Robo\Phpcs\Task\TaskPhpcsLint $task */
-        $task = Stub::construct(TaskPhpcsLint::class);
+        /** @var \Cheppers\Robo\Phpcs\Task\PhpcsLint $task */
+        $task = Stub::construct(PhpcsLint::class);
         try {
             $task->runMode('none');
             static::fail('TaskPhpcsLint::runMode() did not throw an exception.');
@@ -425,8 +421,8 @@ class TaskPhpcsLintTest extends \Codeception\Test\Unit
      */
     public function testGetNormalizedConfig(array $expected, array $options)
     {
-        /** @var \Cheppers\Robo\Phpcs\Task\TaskPhpcsLint $task */
-        $task = Stub::construct(TaskPhpcsLint::class);
+        /** @var \Cheppers\Robo\Phpcs\Task\PhpcsLint $task */
+        $task = Stub::construct(PhpcsLint::class);
         static::assertEquals($expected, $task->getNormalizedOptions($options));
     }
 
@@ -435,62 +431,54 @@ class TaskPhpcsLintTest extends \Codeception\Test\Unit
      */
     public function casesRun()
     {
-        return [
-            'cli-0' => [
-                0,
-                '{"success": true}',
-                [
-                    'runMode' => 'cli',
-                ],
-            ],
-            'cli-1' => [
-                1,
-                '{"success": true}',
-                [
-                    'runMode' => 'cli',
-                ],
-            ],
-            'native-0' => [
-                0,
-                '{"success": true}',
-                [
-                    'runMode' => 'native',
-                ],
-            ],
-            'native-1' => [
-                1,
-                '{"success": true}',
-                [
-                    'runMode' => 'native',
-                ],
-            ],
-        ];
+        $output = '{"success": true}';
+        $label_pattern = 'exitCode: %d; runMode: %s; withJar: %s;';
+        $cases = [];
+        foreach ([0, 1] as $exitCode) {
+            foreach (['cli', 'native'] as $runMode) {
+                foreach ([true, false] as $withJar) {
+                    $label = sprintf($label_pattern, $exitCode, $runMode, $withJar ? 'true' : 'false');
+                    $cases[$label] = [
+                        $exitCode,
+                        $runMode,
+                        $withJar,
+                        $output,
+                    ];
+                }
+            }
+        }
+
+        return $cases;
     }
 
     /**
-     * This way cannot be tested those cases when the lint process failed.
-     *
      * @dataProvider casesRun
      *
      * @param int $exitCode
-     * @param string $stdOutput
-     * @param array $options
+     * @param string $runMode
+     * @param bool $withJar
+     * @param string $expectedStdOutput
      */
-    public function testRun($exitCode, $stdOutput, $options)
+    public function testRun($exitCode, $runMode, $withJar, $expectedStdOutput)
     {
         $container = new \League\Container\Container();
         $config = new \Robo\Config();
-        $mainOutput = new \Helper\Dummy\Output();
+        $mainStdOutput = new \Helper\Dummy\Output();
         \Robo\Robo::configureContainer($container);
-        \Robo\Robo::setContainer($container, null, $mainOutput);
+        \Robo\Robo::setContainer($container, null, $mainStdOutput);
 
-        $options += [
+        $options = [
             'workingDirectory' => '.',
+            'assetJarMapping' => ['report' => ['phpcsLintRun', 'report']],
+            'runMode' => $runMode,
+            'reports' => [
+                'json' => null,
+            ],
         ];
 
-        /** @var \Cheppers\Robo\Phpcs\Task\TaskPhpcsLint $task */
+        /** @var \Cheppers\Robo\Phpcs\Task\PhpcsLint $task */
         $task = Stub::construct(
-            TaskPhpcsLint::class,
+            PhpcsLint::class,
             [$options, []],
             [
                 'processClass' => \Helper\Dummy\Process::class,
@@ -499,21 +487,46 @@ class TaskPhpcsLintTest extends \Codeception\Test\Unit
         );
 
         \Helper\Dummy\Process::$exitCode = $exitCode;
-        \Helper\Dummy\Process::$stdOutput = $stdOutput;
+        \Helper\Dummy\Process::$stdOutput = $expectedStdOutput;
         \Helper\Dummy\PHP_CodeSniffer_CLI::$numOfErrors = $exitCode ? 42 : 0;
+        \Helper\Dummy\PHP_CodeSniffer_CLI::$stdOutput = $expectedStdOutput;
 
         $task->setLogger($container->get('logger'));
-        $task->setOutput($mainOutput);
+        $task->setOutput($mainStdOutput);
+
+        $assetJar = null;
+        if ($withJar) {
+            $assetJar = new \Cheppers\AssetJar\AssetJar();
+            $task->setAssetJar($assetJar);
+        }
+
         $result = $task->run();
 
-        static::assertEquals($exitCode, $result->getExitCode());
         static::assertEquals(
-            $options['workingDirectory'],
-            \Helper\Dummy\Process::$instance->getWorkingDirectory()
+            $exitCode,
+            $result->getExitCode(),
+            'Exit code is different than the expected.'
         );
 
-        if ($options['runMode'] === 'cli') {
-            static::assertContains($stdOutput, $mainOutput->output);
+        if ($runMode === 'cli') {
+            static::assertEquals(
+                $options['workingDirectory'],
+                \Helper\Dummy\Process::$instance->getWorkingDirectory()
+            );
+        }
+
+        if ($withJar) {
+            static::assertEquals(
+                json_decode($expectedStdOutput, true),
+                $assetJar->getValue(['phpcsLintRun', 'report']),
+                'Output equals'
+            );
+        } else {
+            static::assertContains(
+                $expectedStdOutput,
+                $mainStdOutput->output,
+                'Output contains'
+            );
         }
     }
 }

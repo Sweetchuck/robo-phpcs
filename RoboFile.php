@@ -134,7 +134,7 @@ class RoboFile extends \Robo\Tasks
     }
 
     /**
-     * @return \Cheppers\Robo\Phpcs\Task\TaskPhpcsLint
+     * @return \Cheppers\Robo\Phpcs\Task\PhpcsLint
      */
     protected function getTaskPhpcsLint()
     {
