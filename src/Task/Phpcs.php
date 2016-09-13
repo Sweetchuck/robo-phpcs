@@ -3,6 +3,7 @@
 namespace Cheppers\Robo\Phpcs\Task;
 
 use Robo\Common\IO;
+use Robo\Contract\OutputAwareInterface;
 use Robo\Task\BaseTask;
 use Symfony\Component\Process\Process;
 
@@ -11,9 +12,8 @@ use Symfony\Component\Process\Process;
  *
  * @package Cheppers\Robo\Phpcs\Task
  */
-abstract class Phpcs extends BaseTask
+abstract class Phpcs extends BaseTask implements OutputAwareInterface
 {
-
     use IO;
 
     const RUN_MODE_CLI = 'cli';
@@ -52,7 +52,7 @@ abstract class Phpcs extends BaseTask
     /**
      * @var string
      */
-    protected $runMode = 'native';
+    protected $runMode = 'cli';
 
     protected $triStateOptions = [
         'colors' => 'colors',

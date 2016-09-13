@@ -24,8 +24,7 @@ use Symfony\Component\Process\Process;
 class PhpcsLint extends Phpcs implements
     AssetJarAwareInterface,
     ContainerAwareInterface,
-    BuilderAwareInterface,
-    OutputAwareInterface
+    BuilderAwareInterface
 {
     use AssetJarAware;
     use BuilderAwareTrait;
@@ -33,7 +32,6 @@ class PhpcsLint extends Phpcs implements
     use FsLoadTasks;
     use FsShortCuts;
     use TaskAccessor;
-    use IO;
 
     const EXIT_CODE_OK = 0;
 
