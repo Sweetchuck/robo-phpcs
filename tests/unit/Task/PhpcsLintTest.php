@@ -431,7 +431,65 @@ class PhpcsLintTest extends \Codeception\Test\Unit
      */
     public function casesRun()
     {
-        $output = '{"success": true}';
+        $output = <<< 'JSON'
+{
+  "totals": {
+    "errors": 2,
+    "warnings": 0,
+    "fixable": 1
+  },
+  "files": {
+    "psr2.invalid.php": {
+      "errors": 4,
+      "warnings": 0,
+      "messages": [
+        {
+          "message": "Each class must be in a namespace of at least one level (a top-level vendor name)",
+          "source": "PSR1.Classes.ClassDeclaration.MissingNamespace",
+          "severity": 5,
+          "type": "ERROR",
+          "line": 3,
+          "column": 1,
+          "fixable": false
+        },
+        {
+          "message": "The closing brace for the class must go on the next line after the body",
+          "source": "PSR2.Classes.ClassDeclaration.CloseBraceAfterBody",
+          "severity": 5,
+          "type": "ERROR",
+          "line": 9,
+          "column": 1,
+          "fixable": true
+        }
+      ]
+    }
+  }
+}
+JSON;
+
+        $lintReport = [
+            'psr2.invalid.php' => [
+                [
+                    'message' => 'Each class must be in a namespace of at least one level (a top-level vendor name)',
+                    'source' => 'PSR1.Classes.ClassDeclaration.MissingNamespace',
+                    'severity' => 5,
+                    'type' => 'ERROR',
+                    'line' => 3,
+                    'column' => 1,
+                    'fixable' => false,
+                ],
+                [
+                    'message' => 'The closing brace for the class must go on the next line after the body',
+                    'source' => 'PSR2.Classes.ClassDeclaration.CloseBraceAfterBody',
+                    'severity' => 5,
+                    'type' => 'ERROR',
+                    'line' => 9,
+                    'column' => 1,
+                    'fixable' => true,
+                ],
+            ],
+        ];
+
         $label_pattern = 'exitCode: %d; runMode: %s; withJar: %s;';
         $cases = [];
         foreach ([0, 1] as $exitCode) {
@@ -443,6 +501,7 @@ class PhpcsLintTest extends \Codeception\Test\Unit
                         $runMode,
                         $withJar,
                         $output,
+                        $lintReport,
                     ];
                 }
             }
@@ -458,8 +517,9 @@ class PhpcsLintTest extends \Codeception\Test\Unit
      * @param string $runMode
      * @param bool $withJar
      * @param string $expectedStdOutput
+     * @param array $expectedStdOutput
      */
-    public function testRun($exitCode, $runMode, $withJar, $expectedStdOutput)
+    public function testRun($exitCode, $runMode, $withJar, $expectedStdOutput, array $expectedReportInTheJar)
     {
         $container = new \League\Container\Container();
         $config = new \Robo\Config();
@@ -517,7 +577,7 @@ class PhpcsLintTest extends \Codeception\Test\Unit
 
         if ($withJar) {
             static::assertEquals(
-                json_decode($expectedStdOutput, true),
+                $expectedReportInTheJar,
                 $assetJar->getValue(['phpcsLintRun', 'report']),
                 'Output equals'
             );

@@ -389,7 +389,7 @@ class PhpcsLint extends Phpcs implements
 
         if ($this->isReportHasToBePutBackIntoJar()) {
             // @todo Pray for a valid JSON output.
-            $this->setAssetJarValue('report', json_decode($lintOutput, true));
+            $this->setAssetJarValue('report', $this->convertJson2LintReport(json_decode($lintOutput, true)));
         } elseif ($lintOutput) {
             $this->output()->writeln($lintOutput);
         }
@@ -454,6 +454,25 @@ class PhpcsLint extends Phpcs implements
             && $this->options['reports']['json'] === null
             && in_array($this->exitCode, $this->lintSuccessExitCodes())
         );
+    }
+
+    /**
+     * @param array $json
+     *
+     * @return array
+     */
+    protected function convertJson2LintReport(array $json)
+    {
+        $lintReport = [];
+        if (!empty($json['files'])) {
+            foreach ($json['files'] as $fileName => $info) {
+                if (!empty($info['messages'])) {
+                    $lintReport[$fileName] = $info['messages'];
+                }
+            }
+        }
+
+        return $lintReport;
     }
 
     /**
