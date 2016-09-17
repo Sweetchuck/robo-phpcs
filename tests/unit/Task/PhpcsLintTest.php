@@ -431,77 +431,87 @@ class PhpcsLintTest extends \Codeception\Test\Unit
      */
     public function casesRun()
     {
-        $output = <<< 'JSON'
-{
-  "totals": {
-    "errors": 2,
-    "warnings": 0,
-    "fixable": 1
-  },
-  "files": {
-    "psr2.invalid.php": {
-      "errors": 4,
-      "warnings": 0,
-      "messages": [
-        {
-          "message": "Each class must be in a namespace of at least one level (a top-level vendor name)",
-          "source": "PSR1.Classes.ClassDeclaration.MissingNamespace",
-          "severity": 5,
-          "type": "ERROR",
-          "line": 3,
-          "column": 1,
-          "fixable": false
-        },
-        {
-          "message": "The closing brace for the class must go on the next line after the body",
-          "source": "PSR2.Classes.ClassDeclaration.CloseBraceAfterBody",
-          "severity": 5,
-          "type": "ERROR",
-          "line": 9,
-          "column": 1,
-          "fixable": true
-        }
-      ]
-    }
-  }
-}
-JSON;
-
-        $lintReport = [
-            'psr2.invalid.php' => [
-                [
-                    'message' => 'Each class must be in a namespace of at least one level (a top-level vendor name)',
-                    'source' => 'PSR1.Classes.ClassDeclaration.MissingNamespace',
-                    'severity' => 5,
-                    'type' => 'ERROR',
-                    'line' => 3,
-                    'column' => 1,
-                    'fixable' => false,
-                ],
-                [
-                    'message' => 'The closing brace for the class must go on the next line after the body',
-                    'source' => 'PSR2.Classes.ClassDeclaration.CloseBraceAfterBody',
-                    'severity' => 5,
-                    'type' => 'ERROR',
-                    'line' => 9,
-                    'column' => 1,
-                    'fixable' => true,
+        $reportBase = [
+            'totals' => [
+                'errors' => 0,
+                'warnings' => 0,
+            ],
+            'files' => [
+                'psr2.invalid.php' => [
+                    'errors' => 0,
+                    'warnings' => 0,
+                    'messages' => [],
                 ],
             ],
         ];
 
-        $label_pattern = 'exitCode: %d; runMode: %s; withJar: %s;';
+        $messageWarning = [
+            'message' => 'M1',
+            'source' => 'S1',
+            'severity' => 4,
+            'type' => 'WARNING',
+            'line' => 2,
+            'column' => 2,
+            'fixable' => true,
+        ];
+
+        $messageError = [
+            'message' => 'M1',
+            'source' => 'S1',
+            'severity' => 5,
+            'type' => 'ERROR',
+            'line' => 1,
+            'column' => 1,
+            'fixable' => true,
+        ];
+
+        $label_pattern = 'failOn: %s; exitCode: %d; runMode: %s; withJar: %s;';
         $cases = [];
-        foreach ([0, 1] as $exitCode) {
-            foreach (['cli', 'native'] as $runMode) {
-                foreach ([true, false] as $withJar) {
-                    $label = sprintf($label_pattern, $exitCode, $runMode, $withJar ? 'true' : 'false');
+
+        $combinations = [
+            ['e' => true, 'w' => true, 'f' => 'never', 'c' => 0],
+            ['e' => true, 'w' => false, 'f' => 'never', 'c' => 0],
+            ['e' => false, 'w' => true, 'f' => 'never', 'c' => 0],
+            ['e' => false, 'w' => false, 'f' => 'never', 'c' => 0],
+
+            ['e' => true, 'w' => true, 'f' => 'warning', 'c' => 1],
+            ['e' => true, 'w' => false, 'f' => 'warning', 'c' => 1],
+            ['e' => false, 'w' => true, 'f' => 'warning', 'c' => 1],
+            ['e' => false, 'w' => false, 'f' => 'warning', 'c' => 0],
+
+            ['e' => true, 'w' => true, 'f' => 'error', 'c' => 1],
+            ['e' => true, 'w' => false, 'f' => 'error', 'c' => 1],
+            ['e' => false, 'w' => true, 'f' => 'error', 'c' => 0],
+            ['e' => false, 'w' => false, 'f' => 'error', 'c' => 0],
+        ];
+
+        foreach (['cli', 'native'] as $runMode) {
+            foreach ([true, false] as $withJar) {
+                $withJarStr = $withJar ? 'true' : 'false';
+                foreach ($combinations as $c) {
+                    $report = $reportBase;
+
+                    if ($c['e']) {
+                        $report['totals']['errors'] = 1;
+                        $report['files']['a.php']['errors'] = 1;
+                        $report['files']['a.php']['messages'][] = $messageError;
+                    }
+
+                    if ($c['w']) {
+                        $report['totals']['warnings'] = 1;
+                        $report['files']['a.php']['warnings'] = 1;
+                        $report['files']['a.php']['messages'][] = $messageWarning;
+                    }
+
+                    $label = sprintf($label_pattern, $c['f'], $c['c'], $runMode, $withJarStr);
                     $cases[$label] = [
-                        $exitCode,
-                        $runMode,
+                        $c['c'],
+                        [
+                            'failOn' => $c['f'],
+                            'runMode' => $runMode,
+                        ],
                         $withJar,
-                        $output,
-                        $lintReport,
+                        json_encode($report)
                     ];
                 }
             }
@@ -514,12 +524,11 @@ JSON;
      * @dataProvider casesRun
      *
      * @param int $exitCode
-     * @param string $runMode
+     * @param array $options
      * @param bool $withJar
      * @param string $expectedStdOutput
-     * @param array $expectedStdOutput
      */
-    public function testRun($exitCode, $runMode, $withJar, $expectedStdOutput, array $expectedReportInTheJar)
+    public function testRun($exitCode, $options, $withJar, $expectedStdOutput)
     {
         $container = new \League\Container\Container();
         $config = new \Robo\Config();
@@ -527,10 +536,9 @@ JSON;
         \Robo\Robo::configureContainer($container);
         \Robo\Robo::setContainer($container, null, $mainStdOutput);
 
-        $options = [
+        $options += [
             'workingDirectory' => '.',
             'assetJarMapping' => ['report' => ['phpcsLintRun', 'report']],
-            'runMode' => $runMode,
             'reports' => [
                 'json' => null,
             ],
@@ -568,7 +576,7 @@ JSON;
             'Exit code is different than the expected.'
         );
 
-        if ($runMode === 'cli') {
+        if ($options['runMode'] === 'cli') {
             static::assertEquals(
                 $options['workingDirectory'],
                 \Helper\Dummy\Process::$instance->getWorkingDirectory()
@@ -577,7 +585,7 @@ JSON;
 
         if ($withJar) {
             static::assertEquals(
-                $expectedReportInTheJar,
+                json_decode($expectedStdOutput, true),
                 $assetJar->getValue(['phpcsLintRun', 'report']),
                 'Output equals'
             );

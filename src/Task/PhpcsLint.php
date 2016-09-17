@@ -7,9 +7,7 @@ use Cheppers\AssetJar\AssetJarAwareInterface;
 use League\Container\ContainerAwareInterface;
 use League\Container\ContainerAwareTrait;
 use Robo\Common\BuilderAwareTrait;
-use Robo\Common\IO;
 use Robo\Contract\BuilderAwareInterface;
-use Robo\Contract\OutputAwareInterface;
 use Robo\Result;
 use Robo\Task\Filesystem\loadTasks as FsLoadTasks;
 use Robo\Task\Filesystem\loadShortcuts as FsShortCuts;
@@ -44,6 +42,31 @@ class PhpcsLint extends Phpcs implements
         0 => 'PHP Code Sniffer not found any errors.',
         1 => 'PHP Code Sniffer found some errors :-(',
     ];
+
+    /**
+     * @var string
+     */
+    protected $failOn = 'error';
+
+    /**
+     * @return string
+     */
+    public function getFailOn()
+    {
+        return $this->failOn;
+    }
+
+    /**
+     * @param string $failOn
+     *
+     * @return $this
+     */
+    public function failOn($value)
+    {
+        $this->failOn = $value;
+
+        return $this;
+    }
 
     /**
      * TaskPhpcsLint constructor.
@@ -83,6 +106,10 @@ class PhpcsLint extends Phpcs implements
             switch ($name) {
                 case 'assetJarMapping':
                     $this->setAssetJarMapping($value);
+                    break;
+
+                case 'failOn':
+                    $this->failOn($value);
                     break;
 
                 case 'colors':
@@ -356,6 +383,7 @@ class PhpcsLint extends Phpcs implements
 
         $this->prepareReportDirectories();
 
+        $totals = [];
         $lintOutput = '';
         if ($this->runMode === static::RUN_MODE_CLI) {
             /** @var Process $process */
@@ -389,12 +417,14 @@ class PhpcsLint extends Phpcs implements
 
         if ($this->isReportHasToBePutBackIntoJar()) {
             // @todo Pray for a valid JSON output.
-            $this->setAssetJarValue('report', $this->convertJson2LintReport(json_decode($lintOutput, true)));
+            $report = json_decode($lintOutput, true);
+            $this->setAssetJarValue('report', $report);
+            $totals = $report['totals'];
         } elseif ($lintOutput) {
             $this->output()->writeln($lintOutput);
         }
 
-        return new Result($this, $this->getTaskExitCode(), $this->getExitMessage());
+        return new Result($this, $this->getTaskExitCode($totals), $this->getExitMessage());
     }
 
     /**
@@ -434,10 +464,26 @@ class PhpcsLint extends Phpcs implements
     /**
      * @todo Implement.
      *
+     * @param array $totals
+     *
      * @return int
      */
-    public function getTaskExitCode()
+    public function getTaskExitCode(array $totals = [])
     {
+        if ($totals) {
+            if ($this->getFailOn() === 'never') {
+                return 0;
+            }
+
+            if ($this->getFailOn() === 'warning' && (!empty($totals['warnings']) || !empty($totals['errors']))) {
+                return 1;
+            }
+
+            if ($this->getFailOn() === 'error' && !empty($totals['errors'])) {
+                return 1;
+            }
+        }
+
         return $this->exitCode;
     }
 
