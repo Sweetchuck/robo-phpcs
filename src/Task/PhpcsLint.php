@@ -462,25 +462,24 @@ class PhpcsLint extends Phpcs implements
     }
 
     /**
-     * @todo Implement.
-     *
      * @param array $totals
      *
      * @return int
      */
     public function getTaskExitCode(array $totals = [])
     {
+        $failOn = $this->getFailOn();
+        if ($failOn === 'never') {
+            return 0;
+        }
+
         if ($totals) {
-            if ($this->getFailOn() === 'never') {
-                return 0;
-            }
+            switch ($failOn) {
+                case 'warning':
+                    return (empty($totals['warnings']) && empty($totals['errors'])) ? 0 : 1;
 
-            if ($this->getFailOn() === 'warning' && (!empty($totals['warnings']) || !empty($totals['errors']))) {
-                return 1;
-            }
-
-            if ($this->getFailOn() === 'error' && !empty($totals['errors'])) {
-                return 1;
+                case 'error':
+                    return empty($totals['errors']) ? 0 : 1;
             }
         }
 

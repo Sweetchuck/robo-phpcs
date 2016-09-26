@@ -465,7 +465,7 @@ class PhpcsLintTest extends \Codeception\Test\Unit
             'fixable' => true,
         ];
 
-        $label_pattern = 'failOn: %s; exitCode: %d; runMode: %s; withJar: %s;';
+        $label_pattern = '%d; failOn: %s; E: %d; W: %d; exitCode: %d; runMode: %s; withJar: %s;';
         $cases = [];
 
         $combinations = [
@@ -485,10 +485,12 @@ class PhpcsLintTest extends \Codeception\Test\Unit
             ['e' => false, 'w' => false, 'f' => 'error', 'c' => 0],
         ];
 
+        $i = 0;
         foreach (['cli', 'native'] as $runMode) {
             foreach ([true, false] as $withJar) {
                 $withJarStr = $withJar ? 'true' : 'false';
                 foreach ($combinations as $c) {
+                    $i++;
                     $report = $reportBase;
 
                     if ($c['e']) {
@@ -503,7 +505,7 @@ class PhpcsLintTest extends \Codeception\Test\Unit
                         $report['files']['a.php']['messages'][] = $messageWarning;
                     }
 
-                    $label = sprintf($label_pattern, $c['f'], $c['c'], $runMode, $withJarStr);
+                    $label = sprintf($label_pattern, $i, $c['f'], $c['e'], $c['w'], $c['c'], $runMode, $withJarStr);
                     $cases[$label] = [
                         $c['c'],
                         [
