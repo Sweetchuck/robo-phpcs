@@ -4,8 +4,7 @@ namespace Cheppers\Robo\Phpcs\Task;
 
 use Cheppers\AssetJar\AssetJarAware;
 use Cheppers\AssetJar\AssetJarAwareInterface;
-use League\Container\ContainerAwareInterface;
-use League\Container\ContainerAwareTrait;
+use Cheppers\Robo\Phpcs\LintReportWrapper\ReportWrapper;
 use Robo\Common\BuilderAwareTrait;
 use Robo\Contract\BuilderAwareInterface;
 use Robo\Result;
@@ -21,32 +20,52 @@ use Symfony\Component\Process\Process;
  */
 class PhpcsLint extends Phpcs implements
     AssetJarAwareInterface,
-    ContainerAwareInterface,
     BuilderAwareInterface
 {
     use AssetJarAware;
     use BuilderAwareTrait;
-    use ContainerAwareTrait;
     use FsLoadTasks;
     use FsShortCuts;
     use TaskAccessor;
 
     const EXIT_CODE_OK = 0;
 
-    const EXIT_CODE_ERROR = 1;
+    const EXIT_CODE_WARNING = 1;
+
+    const EXIT_CODE_ERROR = 2;
 
     /**
      * @var string[]
      */
     protected $exitMessages = [
-        0 => 'PHP Code Sniffer not found any errors.',
-        1 => 'PHP Code Sniffer found some errors :-(',
+        0 => 'PHP Code Sniffer not found any errors :-)',
+        1 => 'PHP Code Sniffer found some warnings :-|',
+        2 => 'PHP Code Sniffer found some errors :-(',
     ];
 
     /**
      * @var string
      */
     protected $failOn = 'error';
+
+    /**
+     * @var \Cheppers\LintReport\ReporterInterface[]
+     */
+    protected $lintReporters = [];
+
+    /**
+     * TaskPhpcsLint constructor.
+     *
+     * @param array|NULL $options
+     */
+    public function __construct(array $options = null)
+    {
+        parent::__construct();
+
+        if ($options) {
+            $this->setOptions($options);
+        }
+    }
 
     /**
      * @return string
@@ -69,17 +88,48 @@ class PhpcsLint extends Phpcs implements
     }
 
     /**
-     * TaskPhpcsLint constructor.
-     *
-     * @param array|NULL $options
+     * @return \Cheppers\LintReport\ReporterInterface[]
      */
-    public function __construct(array $options = null)
+    public function getLintReporters()
     {
-        parent::__construct();
+        return $this->lintReporters;
+    }
 
-        if ($options) {
-            $this->setOptions($options);
-        }
+    /**
+     * @param \Cheppers\LintReport\ReporterInterface[] $lintReporters
+     *
+     * @return $this
+     */
+    public function setLintReporters(array $lintReporters)
+    {
+        $this->lintReporters = $lintReporters;
+
+        return $this;
+    }
+
+    /**
+     * @param string $id
+     * @param \Cheppers\LintReport\ReporterInterface|null $lintReporter
+     *
+     * @return $this
+     */
+    public function addLintReporter($id, $lintReporter = null)
+    {
+        $this->lintReporters[$id] = $lintReporter;
+
+        return $this;
+    }
+
+    /**
+     * @param string $id
+     *
+     * @return $this
+     */
+    public function removeLintReporter($id)
+    {
+        unset($this->lintReporters[$id]);
+
+        return $this;
     }
 
     /**
@@ -114,6 +164,10 @@ class PhpcsLint extends Phpcs implements
 
                 case 'colors':
                     $this->colors($value);
+                    break;
+
+                case 'lintReporters':
+                    $this->setLintReporters($value);
                     break;
 
                 case 'reports':
@@ -374,16 +428,22 @@ class PhpcsLint extends Phpcs implements
 
         $this->options += [
             'reports' => [],
-            'verbosity' => 1,
         ];
+
         $this->options['reports'] = array_diff_key(
             $this->options['reports'],
             array_flip(array_keys($this->options['reports'], false, true))
         );
 
+        $isStdOutputPublic = true;
+        if (!array_key_exists('json', $this->options['reports'])) {
+            $isStdOutputBusy = array_search(null, $this->options['reports'], true) !== false;
+            $this->options['reports']['json'] = $isStdOutputBusy ? tempnam(sys_get_temp_dir(), 'robo-phpcs') : null;
+            $isStdOutputPublic = $this->options['reports']['json'] !== null;
+        }
+
         $this->prepareReportDirectories();
 
-        $totals = [];
         $lintOutput = '';
         if ($this->runMode === static::RUN_MODE_CLI) {
             /** @var Process $process */
@@ -394,6 +454,9 @@ class PhpcsLint extends Phpcs implements
 
             $this->exitCode = $process->run();
             $lintOutput = $process->getOutput();
+            if ($isStdOutputPublic) {
+                $this->output()->write($lintOutput);
+            }
         } elseif ($this->runMode === static::RUN_MODE_NATIVE) {
             $cwd = getcwd();
             if ($this->workingDirectory) {
@@ -403,28 +466,45 @@ class PhpcsLint extends Phpcs implements
             /** @var \PHP_CodeSniffer_CLI $phpcsCli */
             $phpcsCli = new $this->phpCodeSnifferCliClass();
 
-            ob_start();
-            $numOfErrors = $phpcsCli->process($this->getNormalizedOptions($this->options));
-            $lintOutput = ob_get_contents();
-            ob_end_clean();
-
-            $this->exitCode = $numOfErrors ? static::EXIT_CODE_ERROR : static::EXIT_CODE_OK;
+            if ($this->options['reports']['json'] === null) {
+                ob_start();
+            }
+            $phpcsCli->process($this->getNormalizedOptions($this->options));
+            if ($this->options['reports']['json'] === null) {
+                $lintOutput = ob_get_contents();
+                ob_end_clean();
+                if ($isStdOutputPublic) {
+                    $this->output()->write($lintOutput);
+                }
+            }
 
             if ($this->workingDirectory) {
                 chdir($cwd);
             }
         }
 
-        if ($this->isReportHasToBePutBackIntoJar()) {
-            // @todo Pray for a valid JSON output.
-            $report = json_decode($lintOutput, true);
-            $this->setAssetJarValue('report', $report);
-            $totals = $report['totals'];
-        } elseif ($lintOutput) {
-            $this->output()->writeln($lintOutput);
+        if ($this->isLintSuccess() && $this->options['reports']['json'] !== null) {
+            $lintOutput = file_get_contents($this->options['reports']['json']);
         }
 
-        return new Result($this, $this->getTaskExitCode($totals), $this->getExitMessage());
+        // @todo Pray for a valid JSON output.
+        $report = (array) json_decode($lintOutput, true);
+        $report += ['totals' => [], 'files' => []];
+
+        $reportWrapper = new ReportWrapper($report);
+        if ($this->isReportHasToBePutBackIntoJar()) {
+            $this->setAssetJarValue('report', $reportWrapper);
+        }
+
+        foreach ($this->initLintReporters() as $lintReporter) {
+            $lintReporter
+                ->setReportWrapper($reportWrapper)
+                ->generate();
+        }
+
+        $exitCode = $this->getTaskExitCode($report['totals']);
+
+        return new Result($this, $exitCode, $this->getExitMessage($exitCode));
     }
 
     /**
@@ -458,6 +538,8 @@ class PhpcsLint extends Phpcs implements
             $options['files'] = $this->filterEnabled($options['files']);
         }
 
+        $options['verbosity'] = 0;
+
         return $options;
     }
 
@@ -466,24 +548,24 @@ class PhpcsLint extends Phpcs implements
      *
      * @return int
      */
-    public function getTaskExitCode(array $totals = [])
+    public function getTaskExitCode(array $totals)
     {
-        $failOn = $this->getFailOn();
-        if ($failOn === 'never') {
-            return 0;
+        switch ($this->getFailOn()) {
+            case 'never':
+                return static::EXIT_CODE_OK;
+
+            case 'warning':
+                if (!empty($totals['errors'])) {
+                    return static::EXIT_CODE_ERROR;
+                }
+
+                return empty($totals['warnings']) ? static::EXIT_CODE_OK : static::EXIT_CODE_WARNING;
+
+            case 'error':
+                return empty($totals['errors']) ? static::EXIT_CODE_OK : static::EXIT_CODE_ERROR;
         }
 
-        if ($totals) {
-            switch ($failOn) {
-                case 'warning':
-                    return (empty($totals['warnings']) && empty($totals['errors'])) ? 0 : 1;
-
-                case 'error':
-                    return empty($totals['errors']) ? 0 : 1;
-            }
-        }
-
-        return $this->exitCode;
+        return static::EXIT_CODE_OK;
     }
 
     /**
@@ -494,30 +576,20 @@ class PhpcsLint extends Phpcs implements
         return (
             $this->hasAssetJar()
             && $this->getAssetJarMap('report')
-            && array_key_exists('reports', $this->options)
-            && array_key_exists('json', $this->options['reports'])
-            && $this->options['reports']['json'] === null
-            && in_array($this->exitCode, $this->lintSuccessExitCodes())
+            && $this->isLintSuccess()
         );
     }
 
     /**
-     * @param array $json
+     * Returns true if the lint ran successfully.
      *
-     * @return array
+     * Returns true even if there was any code style error or warning.
+     *
+     * @return bool
      */
-    protected function convertJson2LintReport(array $json)
+    protected function isLintSuccess()
     {
-        $lintReport = [];
-        if (!empty($json['files'])) {
-            foreach ($json['files'] as $fileName => $info) {
-                if (!empty($info['messages'])) {
-                    $lintReport[$fileName] = $info['messages'];
-                }
-            }
-        }
-
-        return $lintReport;
+        return in_array($this->exitCode, $this->lintSuccessExitCodes());
     }
 
     /**
@@ -546,23 +618,57 @@ class PhpcsLint extends Phpcs implements
     }
 
     /**
+     * @return \Cheppers\LintReport\ReporterInterface[]
+     */
+    protected function initLintReporters()
+    {
+        $lintReporters = [];
+        $c = $this->getContainer();
+        foreach ($this->getLintReporters() as $id => $lintReporter) {
+            if ($lintReporter === false) {
+                continue;
+            }
+
+            if (!$lintReporter) {
+                $lintReporter = $c->get($id);
+            } elseif (is_string($lintReporter)) {
+                $lintReporter = $c->get($lintReporter);
+            }
+
+            if ($lintReporter instanceof \Cheppers\LintReport\ReporterInterface) {
+                $lintReporters[$id] = $lintReporter;
+                if (!$lintReporter->getDestination()) {
+                    $lintReporter
+                        ->setFilePathStyle('relative')
+                        ->setDestination($this->output());
+                }
+            }
+        }
+
+        return $lintReporters;
+    }
+
+    /**
      * @return int[]
      */
     protected function lintSuccessExitCodes()
     {
         return [
             static::EXIT_CODE_OK,
+            static::EXIT_CODE_WARNING,
             static::EXIT_CODE_ERROR,
         ];
     }
 
     /**
+     * @param int $exitCode
+     *
      * @return string
      */
-    protected function getExitMessage()
+    protected function getExitMessage($exitCode)
     {
-        if (isset($this->exitMessages[$this->exitCode])) {
-            return $this->exitMessages[$this->exitCode];
+        if (isset($this->exitMessages[$exitCode])) {
+            return $this->exitMessages[$exitCode];
         }
 
         return 'Unknown outcome.';

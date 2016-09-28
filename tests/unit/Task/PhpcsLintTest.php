@@ -14,6 +14,28 @@ class PhpcsLintTest extends \Codeception\Test\Unit
 {
     // @codingStandardsIgnoreEnd
 
+    public function testGetSetLintReporters()
+    {
+        $task = new PhpcsLint([
+            'lintReporters' => [
+                'aKey' => 'aValue',
+            ],
+        ]);
+
+        $task
+            ->addLintReporter('bKey', 'bValue')
+            ->addLintReporter('cKey', 'cValue')
+            ->removeLintReporter('bKey');
+
+        $this->assertEquals(
+            [
+                'aKey' => 'aValue',
+                'cKey' => 'cValue',
+            ],
+            $task->getLintReporters()
+        );
+    }
+
     /**
      * @return array
      */
@@ -421,6 +443,8 @@ class PhpcsLintTest extends \Codeception\Test\Unit
      */
     public function testGetNormalizedConfig(array $expected, array $options)
     {
+        $expected['verbosity'] = 0;
+
         /** @var \Cheppers\Robo\Phpcs\Task\PhpcsLint $task */
         $task = Stub::construct(PhpcsLint::class);
         static::assertEquals($expected, $task->getNormalizedOptions($options));
@@ -474,13 +498,13 @@ class PhpcsLintTest extends \Codeception\Test\Unit
             ['e' => false, 'w' => true, 'f' => 'never', 'c' => 0],
             ['e' => false, 'w' => false, 'f' => 'never', 'c' => 0],
 
-            ['e' => true, 'w' => true, 'f' => 'warning', 'c' => 1],
-            ['e' => true, 'w' => false, 'f' => 'warning', 'c' => 1],
+            ['e' => true, 'w' => true, 'f' => 'warning', 'c' => 2],
+            ['e' => true, 'w' => false, 'f' => 'warning', 'c' => 2],
             ['e' => false, 'w' => true, 'f' => 'warning', 'c' => 1],
             ['e' => false, 'w' => false, 'f' => 'warning', 'c' => 0],
 
-            ['e' => true, 'w' => true, 'f' => 'error', 'c' => 1],
-            ['e' => true, 'w' => false, 'f' => 'error', 'c' => 1],
+            ['e' => true, 'w' => true, 'f' => 'error', 'c' => 2],
+            ['e' => true, 'w' => false, 'f' => 'error', 'c' => 2],
             ['e' => false, 'w' => true, 'f' => 'error', 'c' => 0],
             ['e' => false, 'w' => false, 'f' => 'error', 'c' => 0],
         ];
@@ -586,9 +610,11 @@ class PhpcsLintTest extends \Codeception\Test\Unit
         }
 
         if ($withJar) {
+            /** @var \Cheppers\LintReport\ReportWrapperInterface $reportWrapper */
+            $reportWrapper = $assetJar->getValue(['phpcsLintRun', 'report']);
             static::assertEquals(
                 json_decode($expectedStdOutput, true),
-                $assetJar->getValue(['phpcsLintRun', 'report']),
+                $reportWrapper->getReport(),
                 'Output equals'
             );
         } else {

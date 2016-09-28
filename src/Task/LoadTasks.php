@@ -2,6 +2,9 @@
 
 namespace Cheppers\Robo\Phpcs\Task;
 
+use League\Container\ContainerAwareInterface;
+use Robo\Contract\OutputAwareInterface;
+
 /**
  * Class PhpcsTask.
  *
@@ -19,6 +22,16 @@ trait LoadTasks
      */
     protected function taskPhpcsLint(array $options = null)
     {
-        return $this->task(PhpcsLint::class, $options);
+        /** @var PhpcsLint $task */
+        $task = $this->task(PhpcsLint::class, $options);
+        if ($this instanceof ContainerAwareInterface) {
+            $task->setContainer($this->getContainer());
+        }
+
+        if ($this instanceof OutputAwareInterface) {
+            $task->setOutput($this->output());
+        }
+
+        return $task;
     }
 }
