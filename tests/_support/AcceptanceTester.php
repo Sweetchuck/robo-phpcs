@@ -26,7 +26,7 @@ class AcceptanceTester extends \Codeception\Actor
      */
     public function clearTheReportsDir()
     {
-        $reportsDir = 'tests/_data/reports';
+        $reportsDir = codecept_data_dir('actual');
         if (is_dir($reportsDir)) {
             $finder = new \Symfony\Component\Finder\Finder();
             $finder->in($reportsDir);
@@ -45,9 +45,10 @@ class AcceptanceTester extends \Codeception\Actor
      */
     public function runRoboTask($taskName, array $args = [], array $options = [])
     {
-        $cmdPattern = 'cd tests/_data && ../../bin/robo %s';
+        $cmdPattern = 'cd %s && ../../bin/robo %s';
         $cmdArgs = [
-            escapeshellarg($taskName)
+            escapeshellarg(codecept_data_dir()),
+            escapeshellarg($taskName),
         ];
 
         foreach ($options as $option => $value) {

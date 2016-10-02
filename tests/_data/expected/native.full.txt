@@ -1,0 +1,14 @@
+fixtures/psr2.invalid.php
+----------------------------------------------------------------------
+FOUND 4 ERRORS AFFECTING 3 LINES
+----------------------------------------------------------------------
+ 3 | ERROR | [ ] Each class must be in a namespace of at least one
+   |       |     level (a top-level vendor name)
+ 3 | ERROR | [x] Opening brace of a class must be on the line after
+   |       |     the definition
+ 5 | ERROR | [x] Opening brace should be on a new line
+ 9 | ERROR | [x] The closing brace for the class must go on the next
+   |       |     line after the body
+----------------------------------------------------------------------
+PHPCBF CAN FIX THE 3 MARKED SNIFF VIOLATIONS AUTOMATICALLY
+----------------------------------------------------------------------

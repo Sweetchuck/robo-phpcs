@@ -1,13 +1,32 @@
 <?php
 
+use Cheppers\LintReport\Reporter\BaseReporter;
+use Cheppers\LintReport\Reporter\SummaryReporter;
+use Cheppers\LintReport\Reporter\VerboseReporter;
+use League\Container\ContainerAwareInterface;
+use League\Container\ContainerInterface;
+use Robo\Contract\ConfigAwareInterface;
+use Robo\Contract\OutputAwareInterface;
+
 /**
  * Class RoboFile.
  */
 // @codingStandardsIgnoreStart
-class RoboFile extends \Robo\Tasks
+class RoboFile extends \Robo\Tasks implements ContainerAwareInterface, ConfigAwareInterface
 {
     // @codingStandardsIgnoreEnd
     use \Cheppers\Robo\Phpcs\Task\LoadTasks;
+    use \League\Container\ContainerAwareTrait;
+    use \Robo\Common\ConfigAwareTrait;
+
+    public function setContainer(ContainerInterface $container)
+    {
+        $this->container = $container;
+
+        BaseReporter::lintReportConfigureContainer($this->container);
+
+        return $this;
+    }
 
     /**
      * @param string $runMode
@@ -15,14 +34,29 @@ class RoboFile extends \Robo\Tasks
      *
      * @return $this
      */
-    public function lintFullStdOutputAndCheckstyleFile($runMode)
+    public function lintAllInOne($runMode)
     {
+        $reportsDir = 'actual';
+        $verboseFile = new VerboseReporter();
+        $verboseFile
+            ->setFilePathStyle('relative')
+            ->setDestination("$reportsDir/extra.verbose.txt");
+
+        $summaryFile = new SummaryReporter();
+        $summaryFile
+            ->setFilePathStyle('relative')
+            ->setDestination("$reportsDir/extra.summary.txt");
+
         return $this->taskPhpcsLint()
-            ->setOutput($this->getOutput())
             ->runMode($runMode)
+            ->colors(false)
             ->standard('PSR2')
+            ->files(['fixtures/'])
             ->report('full')
-            ->report('checkstyle', 'reports/psr2.xml')
-            ->files(['fixtures/']);
+            ->report('checkstyle', "$reportsDir/native.checkstyle.xml")
+            ->addLintReporter('verbose:StdOutput', 'lintVerboseReporter')
+            ->addLintReporter('verbose:file', $verboseFile)
+            ->addLintReporter('summary:StdOutput', 'lintSummaryReporter')
+            ->addLintReporter('summary:file', $summaryFile);
     }
 }

@@ -2,6 +2,8 @@
 
 namespace Cheppers\Robo\Phpcs\Task;
 
+use League\Container\ContainerAwareInterface;
+use League\Container\ContainerAwareTrait;
 use Robo\Common\IO;
 use Robo\Contract\OutputAwareInterface;
 use Robo\Task\BaseTask;
@@ -12,9 +14,10 @@ use Symfony\Component\Process\Process;
  *
  * @package Cheppers\Robo\Phpcs\Task
  */
-abstract class Phpcs extends BaseTask implements OutputAwareInterface
+abstract class Phpcs extends BaseTask implements OutputAwareInterface, ContainerAwareInterface
 {
     use IO;
+    use ContainerAwareTrait;
 
     const RUN_MODE_CLI = 'cli';
 
