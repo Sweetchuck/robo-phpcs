@@ -34,6 +34,8 @@ class PhpcsLint extends Phpcs implements
 
     const EXIT_CODE_ERROR = 2;
 
+    const EXIT_CODE_UNKNOWN = 3;
+
     /**
      * @var string[]
      */
@@ -445,6 +447,7 @@ class PhpcsLint extends Phpcs implements
         $this->prepareReportDirectories();
 
         $lintOutput = '';
+        $exitMessage = '';
         if ($this->runMode === static::RUN_MODE_CLI) {
             /** @var Process $process */
             $process = new $this->processClass($this->getCommand());
@@ -469,7 +472,14 @@ class PhpcsLint extends Phpcs implements
             if ($this->options['reports']['json'] === null) {
                 ob_start();
             }
-            $phpcsCli->process($this->getNormalizedOptions($this->options));
+
+            try {
+                $phpcsCli->process($this->getNormalizedOptions($this->options));
+            } catch (\Exception $e) {
+                $this->exitCode = static::EXIT_CODE_UNKNOWN;
+                $exitMessage = $e->getMessage();
+            }
+
             if ($this->options['reports']['json'] === null) {
                 $lintOutput = ob_get_contents();
                 ob_end_clean();
@@ -483,28 +493,40 @@ class PhpcsLint extends Phpcs implements
             }
         }
 
-        if ($this->isLintSuccess() && $this->options['reports']['json'] !== null) {
+        if ($this->isLintSuccess()
+            && $this->options['reports']['json'] !== null
+            && is_readable($this->options['reports']['json'])
+        ) {
             $lintOutput = file_get_contents($this->options['reports']['json']);
         }
 
-        // @todo Pray for a valid JSON output.
-        $report = (array) json_decode($lintOutput, true);
-        $report += ['totals' => [], 'files' => []];
+        $reportWrapper = null;
+        if ($this->exitCode && !$lintOutput) {
+            $exitCode = static::EXIT_CODE_UNKNOWN;
+            $exitMessage = $exitMessage ?: 'Unknown error';
+        } else {
+            // @todo Pray for a valid JSON output.
+            $report = (array) json_decode($lintOutput, true);
+            $report += ['totals' => [], 'files' => []];
 
-        $reportWrapper = new ReportWrapper($report);
-        if ($this->isReportHasToBePutBackIntoJar()) {
-            $this->setAssetJarValue('report', $reportWrapper);
+            $reportWrapper = new ReportWrapper($report);
+            if ($this->isReportHasToBePutBackIntoJar()) {
+                $this->setAssetJarValue('report', $reportWrapper);
+            }
+
+            foreach ($this->initLintReporters() as $lintReporter) {
+                $lintReporter
+                    ->setReportWrapper($reportWrapper)
+                    ->generate();
+            }
+
+            $exitCode = $this->getTaskExitCode($report['totals']);
+            $exitMessage = $this->getExitMessage($exitCode);
         }
 
-        foreach ($this->initLintReporters() as $lintReporter) {
-            $lintReporter
-                ->setReportWrapper($reportWrapper)
-                ->generate();
-        }
-
-        $exitCode = $this->getTaskExitCode($report['totals']);
-
-        return new Result($this, $exitCode, $this->getExitMessage($exitCode));
+        return new Result($this, $exitCode, $exitMessage, [
+            'report' => $reportWrapper,
+        ]);
     }
 
     /**
