@@ -2,6 +2,7 @@
 
 namespace Cheppers\Robo\Phpcs\Task;
 
+use Cheppers\Robo\Phpcs\Utils;
 use League\Container\ContainerAwareInterface;
 use League\Container\ContainerAwareTrait;
 use Robo\Common\IO;
@@ -210,7 +211,7 @@ abstract class Phpcs extends BaseTask implements OutputAwareInterface, Container
             $files = $this->filterEnabled($this->options['files']);
             $cmdPattern .= str_repeat(' %s', count($files));
             foreach ($files as $file) {
-                $cmdArgs[] = escapeshellarg($file);
+                $cmdArgs[] = Utils::escapeShellArgWithWildcard($file);
             }
         }
 
