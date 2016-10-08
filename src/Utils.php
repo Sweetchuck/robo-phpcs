@@ -27,4 +27,35 @@ class Utils
 
         return $escaped ?: "''";
     }
+
+    /**
+     * @param array $reports
+     *
+     * @return array
+     */
+    public static function mergeReports(array $reports)
+    {
+        if (func_num_args() > 1) {
+            $reports = func_get_args();
+        }
+
+        $merged = [
+            'totals' => [
+                'errors' => 0,
+                'warnings' => 0,
+                'fixable' => 0,
+            ],
+            'files' => [],
+        ];
+
+        foreach ($reports as $report) {
+            $merged['totals']['errors'] += $report['totals']['errors'];
+            $merged['totals']['warnings'] += $report['totals']['warnings'];
+            $merged['totals']['fixable'] += $report['totals']['fixable'];
+            // @todo Support the same file in more than one report.
+            $merged['files'] += $report['files'];
+        }
+
+        return $merged;
+    }
 }

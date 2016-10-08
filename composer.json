@@ -12,6 +12,7 @@
     "require": {
         "cheppers/asset-jar": "^0.0.1",
         "cheppers/lint-report": "^0.0.4",
+        "cheppers/robo-git": "^0.0.1",
         "consolidation/robo": "1.0.0-RC2",
         "squizlabs/php_codesniffer": "^2.6"
     },

@@ -1,6 +1,6 @@
 <?php
 
-use Cheppers\Robo\Phpcs\Task\PhpcsLint;
+use Cheppers\Robo\Phpcs\Task\PhpcsLintFiles;
 use Codeception\Util\Stub;
 use Robo\Robo;
 
@@ -10,13 +10,13 @@ use Robo\Robo;
  * @package Cheppers\Robo\Test\Task
  */
 // @codingStandardsIgnoreStart
-class PhpcsLintTest extends \Codeception\Test\Unit
+class PhpcsLintFilesTest extends \Codeception\Test\Unit
 {
     // @codingStandardsIgnoreEnd
 
     public function testGetSetLintReporters()
     {
-        $task = new PhpcsLint([
+        $task = new PhpcsLintFiles([
             'lintReporters' => [
                 'aKey' => 'aValue',
             ],
@@ -310,40 +310,21 @@ class PhpcsLintTest extends \Codeception\Test\Unit
     public function testGetCommand($expected, array $options)
     {
         $options += ['phpcsExecutable' => 'phpcs'];
-        /** @var \Cheppers\Robo\Phpcs\Task\PhpcsLint $task */
+        /** @var \Cheppers\Robo\Phpcs\Task\PhpcsLintFiles $task */
         $task = Stub::construct(
-            PhpcsLint::class,
+            PhpcsLintFiles::class,
             [$options, []]
         );
 
         static::assertEquals($expected, $task->getCommand());
     }
 
-    public function testGetOptions()
-    {
-        /** @var \Cheppers\Robo\Phpcs\Task\PhpcsLint $task */
-        $task = Stub::construct(PhpcsLint::class);
-
-        $options = $task
-            ->extensions(['foo', 'bar'])
-            ->ignore(['a', 'b'])
-            ->getOptions();
-
-        static::assertEquals(
-            [
-                'extensions' => ['foo', 'bar'],
-                'ignored' => ['a', 'b'],
-            ],
-            $options
-        );
-    }
-
     public function testRunMode()
     {
-        /** @var \Cheppers\Robo\Phpcs\Task\PhpcsLint $task */
-        $task = Stub::construct(PhpcsLint::class);
+        /** @var \Cheppers\Robo\Phpcs\Task\PhpcsLintFiles $task */
+        $task = Stub::construct(PhpcsLintFiles::class);
         try {
-            $task->runMode('none');
+            $task->setRunMode('none');
             static::fail('TaskPhpcsLint::runMode() did not throw an exception.');
         } catch (\InvalidArgumentException $e) {
             static::assertEquals("Invalid argument: 'none'", $e->getMessage());
@@ -385,9 +366,7 @@ class PhpcsLintTest extends \Codeception\Test\Unit
                 ],
             ],
             'extensions-empty' => [
-                [
-                    'extensions' => [],
-                ],
+                [],
                 [
                     'extensions' => [],
                 ],
@@ -445,8 +424,8 @@ class PhpcsLintTest extends \Codeception\Test\Unit
     {
         $expected['verbosity'] = 0;
 
-        /** @var \Cheppers\Robo\Phpcs\Task\PhpcsLint $task */
-        $task = Stub::construct(PhpcsLint::class);
+        /** @var \Cheppers\Robo\Phpcs\Task\PhpcsLintFiles $task */
+        $task = Stub::construct(PhpcsLintFiles::class);
         static::assertEquals($expected, $task->getNormalizedOptions($options));
     }
 
@@ -459,6 +438,7 @@ class PhpcsLintTest extends \Codeception\Test\Unit
             'totals' => [
                 'errors' => 0,
                 'warnings' => 0,
+                'fixable' => 0,
             ],
             'files' => [
                 'psr2.invalid.php' => [
@@ -570,9 +550,9 @@ class PhpcsLintTest extends \Codeception\Test\Unit
             ],
         ];
 
-        /** @var \Cheppers\Robo\Phpcs\Task\PhpcsLint $task */
+        /** @var \Cheppers\Robo\Phpcs\Task\PhpcsLintFiles $task */
         $task = Stub::construct(
-            PhpcsLint::class,
+            PhpcsLintFiles::class,
             [$options, []],
             [
                 'processClass' => \Helper\Dummy\Process::class,

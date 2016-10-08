@@ -47,16 +47,54 @@ class RoboFile extends \Robo\Tasks implements ContainerAwareInterface, ConfigAwa
             ->setFilePathStyle('relative')
             ->setDestination("$reportsDir/extra.summary.txt");
 
-        return $this->taskPhpcsLint()
-            ->runMode($runMode)
-            ->colors(false)
-            ->standard('PSR2')
-            ->files(['fixtures/'])
-            ->report('full')
-            ->report('checkstyle', "$reportsDir/native.checkstyle.xml")
+        return $this->taskPhpcsLintFiles()
+            ->setRunMode($runMode)
+            ->setColors(false)
+            ->setStandard('PSR2')
+            ->setFiles(['fixtures/'])
+            ->setReport('full')
+            ->setReport('checkstyle', "$reportsDir/native.checkstyle.xml")
             ->addLintReporter('verbose:StdOutput', 'lintVerboseReporter')
             ->addLintReporter('verbose:file', $verboseFile)
             ->addLintReporter('summary:StdOutput', 'lintSummaryReporter')
             ->addLintReporter('summary:file', $summaryFile);
+    }
+
+    public function lintInput()
+    {
+        return $this->taskPhpcsLintInput()
+            ->setRunMode('native')
+            ->setReport('full')
+            ->setStandard('PSR2')
+            ->setFiles([
+                '.',
+            ]);
+    }
+
+    public function lintNotExists($runMode)
+    {
+        return $this
+            ->validateRunMode($runMode)
+            ->taskPhpcsLintFiles()
+            ->setRunMode($runMode)
+            ->setReport('full')
+            ->setStandard('PSR2')
+            ->setFiles([
+                'sadsad',
+            ]);
+    }
+
+    /**
+     * @param string $runMode
+     *
+     * @return $this
+     */
+    protected function validateRunMode($runMode)
+    {
+        if (!in_array($runMode, ['cli', 'native'])) {
+            throw new \InvalidArgumentException("Run mode is invalid: '$runMode'");
+        }
+
+        return $this;
     }
 }

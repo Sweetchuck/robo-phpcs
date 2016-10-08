@@ -4,29 +4,45 @@ namespace Cheppers\Robo\Phpcs\Task;
 
 use Cheppers\AssetJar\AssetJarAware;
 use Cheppers\AssetJar\AssetJarAwareInterface;
+use Cheppers\LintReport\ReportWrapperInterface;
 use Cheppers\Robo\Phpcs\LintReportWrapper\ReportWrapper;
+use Cheppers\Robo\Phpcs\Utils;
+use League\Container\ContainerAwareInterface;
+use League\Container\ContainerAwareTrait;
 use Robo\Common\BuilderAwareTrait;
+use Robo\Common\IO;
 use Robo\Contract\BuilderAwareInterface;
+use Robo\Contract\OutputAwareInterface;
 use Robo\Result;
+use Robo\TaskAccessor;
+use Robo\Task\BaseTask;
 use Robo\Task\Filesystem\loadTasks as FsLoadTasks;
 use Robo\Task\Filesystem\loadShortcuts as FsShortCuts;
-use Robo\TaskAccessor;
+use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Process\Process;
 
 /**
- * Class TaskPhpcsLint.
+ * Class TaskPhpcs.
  *
  * @package Cheppers\Robo\Phpcs\Task
  */
-class PhpcsLint extends Phpcs implements
+abstract class PhpcsLint extends BaseTask implements
     AssetJarAwareInterface,
-    BuilderAwareInterface
+    BuilderAwareInterface,
+    ContainerAwareInterface,
+    OutputAwareInterface
 {
     use AssetJarAware;
     use BuilderAwareTrait;
+    use ContainerAwareTrait;
     use FsLoadTasks;
     use FsShortCuts;
+    use IO;
     use TaskAccessor;
+
+    const RUN_MODE_CLI = 'cli';
+
+    const RUN_MODE_NATIVE = 'native';
 
     const EXIT_CODE_OK = 0;
 
@@ -35,6 +51,40 @@ class PhpcsLint extends Phpcs implements
     const EXIT_CODE_ERROR = 2;
 
     const EXIT_CODE_UNKNOWN = 3;
+
+    /**
+     * @todo Some kind of dependency injection would be awesome.
+     *
+     * @var string
+     */
+    protected $processClass = Process::class;
+
+    /**
+     * @todo Some kind of dependency injection would be awesome.
+     *
+     * @var string
+     */
+    protected $phpCodeSnifferCliClass = \PHP_CodeSniffer_CLI::class;
+
+    /**
+     * @var int
+     */
+    protected $lintExitCode = 0;
+
+    /**
+     * @var string
+     */
+    protected $lintStdOutput = '';
+
+    /**
+     * @var bool
+     */
+    protected $isLintStdOutputPublic = true;
+
+    /**
+     * @var string
+     */
+    protected $reportRaw = '';
 
     /**
      * @var string[]
@@ -46,28 +96,101 @@ class PhpcsLint extends Phpcs implements
     ];
 
     /**
+     * @var bool
+     */
+    protected $addFilesToCliCommand = true;
+
+    /**
+     * @var string
+     */
+    protected $lintOutput = '';
+
+    /**
+     * @var array
+     */
+    protected $report = [];
+
+    /**
+     * @var ReportWrapperInterface
+     */
+    protected $reportWrapper = null;
+
+    protected $triStateOptions = [
+        'colors' => 'colors',
+    ];
+
+    protected $simpleOptions = [
+        'standard' => 'standard',
+        'reportWidth' => 'report-width',
+        'severity' => 'severity',
+        'errorSeverity' => 'error-severity',
+        'warningSeverity' => 'warning-severity',
+        'stdinPath' => 'stdin-path',
+    ];
+
+    protected $listOptions = [
+        'extensions' => 'extensions',
+        'sniffs' => 'sniffs',
+        'exclude' => 'exclude',
+        'ignored' => 'ignore',
+    ];
+
+    //region Property - workingDirectory
+    /**
+     * @var string
+     */
+    protected $workingDirectory = null;
+
+    public function getWorkingDirectory()
+    {
+        return $this->workingDirectory;
+    }
+
+    /**
+     * @param string $workingDirectory
+     *
+     * @return $this
+     */
+    public function setWorkingDirectory($workingDirectory)
+    {
+        $this->workingDirectory = $workingDirectory;
+
+        return $this;
+    }
+    //endregion
+
+    //region Property - phpcsExecutable
+    /**
+     * @var string
+     */
+    protected $phpcsExecutable = '';
+
+    /**
+     * @return string
+     */
+    public function getPhpcsExecutable()
+    {
+        return $this->phpcsExecutable;
+    }
+
+    /**
+     * @param string $phpcsExecutable
+     *
+     * @return $this
+     */
+    public function setPhpcsExecutable($phpcsExecutable)
+    {
+        $this->phpcsExecutable = $phpcsExecutable;
+
+        return $this;
+    }
+    //endregion
+
+    //region Property - failOn
+    /**
      * @var string
      */
     protected $failOn = 'error';
-
-    /**
-     * @var \Cheppers\LintReport\ReporterInterface[]
-     */
-    protected $lintReporters = [];
-
-    /**
-     * TaskPhpcsLint constructor.
-     *
-     * @param array|NULL $options
-     */
-    public function __construct(array $options = null)
-    {
-        parent::__construct();
-
-        if ($options) {
-            $this->setOptions($options);
-        }
-    }
 
     /**
      * @return string
@@ -82,12 +205,19 @@ class PhpcsLint extends Phpcs implements
      *
      * @return $this
      */
-    public function failOn($value)
+    public function setFailOn($value)
     {
         $this->failOn = $value;
 
         return $this;
     }
+    //endregion
+
+    //region Property - lintReporters
+    /**
+     * @var \Cheppers\LintReport\ReporterInterface[]
+     */
+    protected $lintReporters = [];
 
     /**
      * @return \Cheppers\LintReport\ReporterInterface[]
@@ -133,17 +263,38 @@ class PhpcsLint extends Phpcs implements
 
         return $this;
     }
+    //endregion
+
+    //region Property - runMode
+    /**
+     * @var string
+     */
+    protected $runMode = 'cli';
 
     /**
-     * Get the configuration.
-     *
-     * @return array
-     *   The PHPCS configuration.
+     * @return string
      */
-    public function getOptions()
+    public function getRunMode()
     {
-        return $this->options;
+        return $this->runMode;
     }
+
+    /**
+     * @param string $runMode
+     *
+     * @return $this
+     */
+    public function setRunMode($runMode)
+    {
+        if ($runMode !== static::RUN_MODE_NATIVE && $runMode !== static::RUN_MODE_CLI) {
+            throw new \InvalidArgumentException("Invalid argument: '$runMode'");
+        }
+
+        $this->runMode = $runMode;
+
+        return $this;
+    }
+    //endregion
 
     /**
      * @param array $options
@@ -152,73 +303,332 @@ class PhpcsLint extends Phpcs implements
      */
     public function setOptions(array $options)
     {
-        parent::setOptions($options);
-
         foreach ($options as $name => $value) {
             switch ($name) {
+                case 'assetJar':
+                    $this->setAssetJar($value);
+                    break;
+
                 case 'assetJarMapping':
                     $this->setAssetJarMapping($value);
                     break;
 
-                case 'failOn':
-                    $this->failOn($value);
+                case 'workingDirectory':
+                    $this->setWorkingDirectory($value);
                     break;
 
-                case 'colors':
-                    $this->colors($value);
+                case 'phpcsExecutable':
+                    $this->setPhpcsExecutable($value);
+                    break;
+
+                case 'runMode':
+                    $this->setRunMode($value);
+                    break;
+
+                case 'failOn':
+                    $this->setFailOn($value);
                     break;
 
                 case 'lintReporters':
                     $this->setLintReporters($value);
                     break;
 
+                case 'colors':
+                    $this->setColors($value);
+                    break;
+
                 case 'reports':
-                    $this->reports($value);
+                    $this->setReports($value);
                     break;
 
                 case 'reportWidth':
-                    $this->reportWidth($value);
+                    $this->setReportWidth($value);
                     break;
 
                 case 'severity':
-                    $this->severity($value);
+                    $this->setSeverity($value);
                     break;
 
                 case 'errorSeverity':
-                    $this->errorSeverity($value);
+                    $this->setErrorSeverity($value);
                     break;
 
                 case 'warningSeverity':
-                    $this->warningSeverity($value);
+                    $this->setWarningSeverity($value);
                     break;
 
                 case 'standard':
-                    $this->standard($value);
+                    $this->setStandard($value);
                     break;
 
                 case 'extensions':
-                    $this->extensions($value);
+                    $this->setExtensions($value);
                     break;
 
                 case 'sniffs':
-                    $this->sniffs($value);
+                    $this->setSniffs($value);
                     break;
 
                 case 'exclude':
-                    $this->exclude($value);
-                    break;
-
-                case 'ignored':
-                    $this->ignore($value);
+                    $this->setExclude($value);
                     break;
 
                 case 'files':
-                    $this->files($value);
+                    $this->setFiles($value);
                     break;
             }
         }
 
         return $this;
+    }
+
+    //region Option - colors
+    /**
+     * @var bool
+     */
+    protected $colors = null;
+
+    /**
+     * @return bool|null
+     */
+    public function getColors()
+    {
+        return $this->colors;
+    }
+
+    /**
+     * Use colors in output.
+     *
+     * @param bool $value
+     *   Use or not to use colors in output.
+     *
+     * @return $this
+     *   The called object.
+     */
+    public function setColors($value)
+    {
+        $this->colors = $value;
+
+        return $this;
+    }
+    //endregion
+
+    //region Option - reports
+    /**
+     * @var array
+     */
+    protected $reports = [];
+
+    public function getReports()
+    {
+        return $this->reports;
+    }
+
+    /**
+     * Set reports.
+     *
+     * @param array $reports
+     *   Key-value pairs of report name and file path.
+     *
+     * @return $this
+     *   The called object.
+     */
+    public function setReports(array $reports)
+    {
+        foreach ($reports as $report => $fileName) {
+            $this->setReport($report, $fileName);
+        }
+
+        return $this;
+    }
+
+    /**
+     * @param string $reportName
+     *
+     * @return string|null
+     */
+    public function getReport($reportName)
+    {
+        $reports = $this->getReports();
+
+        return array_key_exists($reportName, $reports) ? $reports[$reportName] : null;
+    }
+
+    /**
+     * Set one report.
+     *
+     * @param string $report
+     *   Name of the report type.
+     * @param string $fileName
+     *   Write the report to the specified file path.
+     *
+     * @return $this
+     *   The called object.
+     */
+    public function setReport($report, $fileName = null)
+    {
+        $this->reports[$report] = $fileName;
+
+        return $this;
+    }
+    //endregion
+
+    //region Option - reportWidth
+    /**
+     * @var int|null
+     */
+    protected $reportWidth = null;
+
+    /**
+     * @return int|string|null
+     */
+    public function getReportWidth()
+    {
+        return $this->reportWidth;
+    }
+
+    /**
+     * Report type.
+     *
+     * @param int|string $width
+     *   How many columns wide screen reports should be printed or set to "auto"
+     *   to use current screen width, where supported.
+     *
+     * @return $this
+     *   The called object.
+     */
+    public function setReportWidth($width)
+    {
+        $this->reportWidth = $width;
+
+        return $this;
+    }
+    //endregion
+
+    //region Option - severity
+    /**
+     * @var int|null
+     */
+    protected $severity = null;
+
+    /**
+     * @return int|null
+     */
+    public function getSeverity()
+    {
+        return $this->severity;
+    }
+
+    /**
+     * @param int $value
+     *
+     * @return $this
+     */
+    public function setSeverity($value)
+    {
+        $this->severity = $value;
+
+        return $this;
+    }
+    //endregion
+
+    //region Options - errorSeverity
+    /**
+     * @var int|null
+     */
+    protected $errorSeverity = null;
+
+    /**
+     * @return int|null
+     */
+    public function getErrorSeverity()
+    {
+        return $this->errorSeverity;
+    }
+
+    /**
+     * @param int $value
+     *
+     * @return $this
+     */
+    public function setErrorSeverity($value)
+    {
+        $this->errorSeverity = $value;
+
+        return $this;
+    }
+    //endregion
+
+    //region Option - warningSeverity
+    /**
+     * @var int|null
+     */
+    protected $warningSeverity = null;
+
+    /**
+     * @return int|null
+     */
+    public function getWarningSeverity()
+    {
+        return $this->warningSeverity;
+    }
+
+    /**
+     * @param $value
+     *
+     * @return $this
+     */
+    public function setWarningSeverity($value)
+    {
+        $this->warningSeverity = $value;
+
+        return $this;
+    }
+    //endregion
+
+    //region Option - standard
+    /**
+     * @var string|null
+     */
+    protected $standard = null;
+
+    /**
+     * @return string|null
+     */
+    public function getStandard()
+    {
+        return $this->standard;
+    }
+
+    /**
+     * Set the name or path of the coding standard to use.
+     *
+     * @param string $value
+     *   The name or path of the coding standard to use.
+     *
+     * @return $this
+     *   The called object.
+     */
+    public function setStandard($value)
+    {
+        $this->standard = $value;
+
+        return $this;
+    }
+    //endregion
+
+    //region Option - extensions
+    /**
+     * @var array
+     */
+    protected $extensions = [];
+
+    /**
+     * @return array|null
+     */
+    public function getExtensions()
+    {
+        return $this->extensions;
     }
 
     /**
@@ -236,11 +646,26 @@ class PhpcsLint extends Phpcs implements
      *
      * @see \PHP_CodeSniffer::setAllowedFileExtensions
      */
-    public function extensions(array $value)
+    public function setExtensions(array $value)
     {
-        $this->options['extensions'] = $value;
+        $this->extensions = $value;
 
         return $this;
+    }
+    //endregion
+
+    //region Option - sniffs
+    /**
+     * @var array
+     */
+    protected $sniffs = [];
+
+    /**
+     * @return array|null
+     */
+    public function getSniffs()
+    {
+        return $this->sniffs;
     }
 
     /**
@@ -248,11 +673,26 @@ class PhpcsLint extends Phpcs implements
      *
      * @return $this
      */
-    public function sniffs(array $value)
+    public function setSniffs(array $value)
     {
-        $this->options['sniffs'] = $value;
+        $this->sniffs = $value;
 
         return $this;
+    }
+    //endregion
+
+    //region Option - exclude
+    /**
+     * @var array
+     */
+    protected $exclude = [];
+
+    /**
+     * @return array|null
+     */
+    public function getExclude()
+    {
+        return $this->exclude;
     }
 
     /**
@@ -260,132 +700,26 @@ class PhpcsLint extends Phpcs implements
      *
      * @return $this
      */
-    public function exclude(array $value)
+    public function setExclude(array $value)
     {
-        $this->options['exclude'] = $value;
+        $this->exclude = $value;
 
         return $this;
     }
+    //endregion
+
+    //region Option - files
+    /**
+     * @var array
+     */
+    protected $files = [];
 
     /**
-     * Set the name or path of the coding standard to use.
-     *
-     * @param string $value
-     *   The name or path of the coding standard to use.
-     *
-     * @return $this
-     *   The called object.
+     * @return array|null
      */
-    public function standard($value)
+    public function getFiles()
     {
-        $this->options['standard'] = $value;
-
-        return $this;
-    }
-
-    /**
-     * Use colors in output.
-     *
-     * @param bool $value
-     *   Use or not to use colors in output.
-     *
-     * @return $this
-     *   The called object.
-     */
-    public function colors($value)
-    {
-        $this->options['colors'] = $value;
-
-        return $this;
-    }
-
-    /**
-     * Set reports.
-     *
-     * @param array $reports
-     *   Key-value pairs of report name and file path.
-     *
-     * @return $this
-     *   The called object.
-     */
-    public function reports(array $reports)
-    {
-        foreach ($reports as $report => $fileName) {
-            $this->report($report, $fileName);
-        }
-
-        return $this;
-    }
-
-    /**
-     * Set one report.
-     *
-     * @param string $report
-     *   Name of the report type.
-     * @param string $fileName
-     *   Write the report to the specified file path.
-     *
-     * @return $this
-     *   The called object.
-     */
-    public function report($report, $fileName = null)
-    {
-        $this->options['reports'][$report] = $fileName;
-
-        return $this;
-    }
-
-    /**
-     * Report type.
-     *
-     * @param int|string $width
-     *   How many columns wide screen reports should be printed or set to "auto"
-     *   to use current screen width, where supported.
-     *
-     * @return $this
-     *   The called object.
-     */
-    public function reportWidth($width)
-    {
-        $this->options['reportWidth'] = $width;
-
-        return $this;
-    }
-
-    /**
-     * @param $value
-     *
-     * @return $this
-     */
-    public function severity($value)
-    {
-        $this->options['severity'] = $value;
-
-        return $this;
-    }
-
-    /**
-     * @param $value
-     *
-     * @return $this
-     */
-    public function errorSeverity($value)
-    {
-        $this->options['errorSeverity'] = $value;
-
-        return $this;
-    }
-
-    /**
-     * @param $value
-     *
-     * @return $this
-     */
-    public function warningSeverity($value)
-    {
-        $this->options['warningSeverity'] = $value;
-
-        return $this;
+        return $this->files;
     }
 
     /**
@@ -397,136 +731,104 @@ class PhpcsLint extends Phpcs implements
      * @return $this
      *   The called object.
      */
-    public function files(array $files)
+    public function setFiles(array $files)
     {
-        $this->options['files'] = $files;
+        $this->files = $files;
 
         return $this;
     }
+    //endregion
 
     /**
-     * Set patterns to ignore files.
-     *
-     * @param string[] $value
-     *   File patterns.
-     *
-     * @return $this
-     *   The called object.
+     * TaskPhpcs constructor.
      */
-    public function ignore(array $value)
+    public function __construct(array $options = null)
     {
-        $this->options['ignored'] = $value;
-
-        return $this;
+        $this->setPhpcsExecutable($this->findPhpcs());
+        if ($options) {
+            $this->setOptions($options);
+        }
     }
 
     /**
      * {@inheritdoc}
      */
-    public function run()
+    public function getCommand(array $options = null)
     {
-        $standard = !empty($this->options['standard']) ? $this->options['standard'] : 'Default';
-        $this->printTaskInfo("PHP_CodeSniffer is linting with <info>{$standard}</info> standard");
+        if ($options === null) {
+            $options = $this->buildOptions();
+        }
 
-        $this->options += [
-            'reports' => [],
+        $cmdPattern = '%s';
+        $cmdArgs = [
+            escapeshellcmd($this->phpcsExecutable),
         ];
 
-        $this->options['reports'] = array_diff_key(
-            $this->options['reports'],
-            array_flip(array_keys($this->options['reports'], false, true))
-        );
-
-        $isStdOutputPublic = true;
-        if (!array_key_exists('json', $this->options['reports'])) {
-            $isStdOutputBusy = array_search(null, $this->options['reports'], true) !== false;
-            $this->options['reports']['json'] = $isStdOutputBusy ? tempnam(sys_get_temp_dir(), 'robo-phpcs') : null;
-            $isStdOutputPublic = $this->options['reports']['json'] !== null;
+        foreach ($this->triStateOptions as $config => $option) {
+            if (isset($options[$config])) {
+                $cmdPattern .= $options[$config] ? " --{$option}" : " --no-{$option}";
+            }
         }
 
-        $this->prepareReportDirectories();
-
-        $lintOutput = '';
-        $exitMessage = '';
-        if ($this->runMode === static::RUN_MODE_CLI) {
-            /** @var Process $process */
-            $process = new $this->processClass($this->getCommand());
-            if ($this->workingDirectory) {
-                $process->setWorkingDirectory($this->workingDirectory);
+        foreach ($this->simpleOptions as $config => $option) {
+            if (isset($options[$config])
+                && ($options[$config] === 0 || $options[$config] === '0' || $options[$config])
+            ) {
+                $cmdPattern .= " --{$option}=%s";
+                $cmdArgs[] = escapeshellarg($options[$config]);
             }
+        }
 
-            $this->exitCode = $process->run();
-            $lintOutput = $process->getOutput();
-            if ($isStdOutputPublic) {
-                $this->output()->write($lintOutput);
-            }
-        } elseif ($this->runMode === static::RUN_MODE_NATIVE) {
-            $cwd = getcwd();
-            if ($this->workingDirectory) {
-                chdir($this->workingDirectory);
-            }
-
-            /** @var \PHP_CodeSniffer_CLI $phpcsCli */
-            $phpcsCli = new $this->phpCodeSnifferCliClass();
-
-            if ($this->options['reports']['json'] === null) {
-                ob_start();
-            }
-
-            try {
-                $phpcsCli->process($this->getNormalizedOptions($this->options));
-            } catch (\Exception $e) {
-                $this->exitCode = static::EXIT_CODE_UNKNOWN;
-                $exitMessage = $e->getMessage();
-            }
-
-            if ($this->options['reports']['json'] === null) {
-                $lintOutput = ob_get_contents();
-                ob_end_clean();
-                if ($isStdOutputPublic) {
-                    $this->output()->write($lintOutput);
+        foreach ($this->listOptions as $config => $option) {
+            if (!empty($options[$config])) {
+                $items = $this->filterEnabled($options[$config]);
+                if ($items) {
+                    $cmdPattern .= " --{$option}=%s";
+                    $cmdArgs[] = escapeshellarg(implode(',', $items));
                 }
             }
+        }
 
-            if ($this->workingDirectory) {
-                chdir($cwd);
+        ksort($options['reports']);
+        foreach ($options['reports'] as $reportType => $reportDst) {
+            if ($reportDst === null) {
+                $cmdPattern .= ' --report=%s';
+                $cmdArgs[] = escapeshellarg($reportType);
+            } elseif ($reportDst) {
+                $cmdPattern .= ' --report-%s=%s';
+                $cmdArgs[] = escapeshellarg($reportType);
+                $cmdArgs[] = escapeshellarg($reportDst);
             }
         }
 
-        if ($this->isLintSuccess()
-            && $this->options['reports']['json'] !== null
-            && is_readable($this->options['reports']['json'])
-        ) {
-            $lintOutput = file_get_contents($this->options['reports']['json']);
+        if ($this->addFilesToCliCommand) {
+            $files = $this->filterEnabled($this->getFiles());
+            $cmdPattern .= str_repeat(' %s', count($files));
+            foreach ($files as $file) {
+                $cmdArgs[] = Utils::escapeShellArgWithWildcard($file);
+            }
         }
 
-        $reportWrapper = null;
-        if ($this->exitCode && !$lintOutput) {
-            $exitCode = static::EXIT_CODE_UNKNOWN;
-            $exitMessage = $exitMessage ?: 'Unknown error';
-        } else {
-            // @todo Pray for a valid JSON output.
-            $report = (array) json_decode($lintOutput, true);
-            $report += ['totals' => [], 'files' => []];
+        return vsprintf($cmdPattern, $cmdArgs);
+    }
 
-            $reportWrapper = new ReportWrapper($report);
-            if ($this->isReportHasToBePutBackIntoJar()) {
-                $this->setAssetJarValue('report', $reportWrapper);
-            }
-
-            foreach ($this->initLintReporters() as $lintReporter) {
-                $lintReporter
-                    ->setReportWrapper($reportWrapper)
-                    ->generate();
-            }
-
-            $exitCode = $this->getTaskExitCode($report['totals']);
-            $exitMessage = $this->getExitMessage($exitCode);
-        }
-
-        return new Result($this, $exitCode, $exitMessage, [
-            'report' => $reportWrapper,
-        ]);
+    /**
+     * @return array
+     */
+    protected function buildOptions()
+    {
+        return [
+            'colors' => $this->getColors(),
+            'standard' => $this->getStandard(),
+            'reports' => $this->getReports(),
+            'reportWidth' => $this->getReportWidth(),
+            'severity' => $this->getSeverity(),
+            'errorSeverity' => $this->getErrorSeverity(),
+            'warningSeverity' => $this->getWarningSeverity(),
+            'extensions' => $this->getExtensions(),
+            'sniffs' => $this->getSniffs(),
+            'exclude' => $this->getExclude(),
+        ];
     }
 
     /**
@@ -553,11 +855,14 @@ class PhpcsLint extends Phpcs implements
         foreach (array_keys($this->listOptions) as $key) {
             if (!empty($options[$key])) {
                 $options[$key] = $this->filterEnabled($options[$key]);
+            } else {
+                unset($options[$key]);
             }
         }
 
-        if (!empty($options['files'])) {
-            $options['files'] = $this->filterEnabled($options['files']);
+        $files = $this->getFiles();
+        if (!empty($files)) {
+            $options['files'] = $this->filterEnabled($files);
         }
 
         $options['verbosity'] = 0;
@@ -591,6 +896,217 @@ class PhpcsLint extends Phpcs implements
     }
 
     /**
+     * {@inheritdoc}
+     */
+    public function run()
+    {
+        return $this
+            ->runHeader()
+            ->runPrepareReportDirectories()
+            ->runLint()
+            ->runReleaseLintReports()
+            ->runReleaseAssets()
+            ->runReturn();
+    }
+
+    /**
+     * @return $this
+     */
+    protected function runHeader()
+    {
+        $standard = $this->getStandard() ?: 'Default';
+        $this->printTaskInfo("PHP_CodeSniffer is linting with <info>{$standard}</info> standard");
+
+        return $this;
+    }
+
+    /**
+     * Prepare directories for report outputs.
+     *
+     * @return $this
+     */
+    protected function runPrepareReportDirectories()
+    {
+        $reports = $this->getReports();
+        $fs = new Filesystem();
+        foreach (array_filter($reports) as $fileName) {
+            $dir = pathinfo($fileName, PATHINFO_DIRNAME);
+            if (!file_exists($dir)) {
+                $fs->mkdir($dir);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return $this
+     */
+    protected function runLint()
+    {
+        $this->reportRaw = '';
+        $this->isLintStdOutputPublic = true;
+        $this->report = [];
+        $this->reportWrapper = null;
+        $this->lintExitCode = static::EXIT_CODE_OK;
+
+        $options = $this->buildOptions();
+        $options['reports'] = array_diff_key(
+            $options['reports'],
+            array_flip(array_keys($options['reports'], false, true))
+        );
+
+        if (!array_key_exists('json', $options['reports'])) {
+            $this->isLintStdOutputPublic = array_search(null, $options['reports'], true) !== false;
+            $options['reports']['json'] = $this->isLintStdOutputPublic ?
+                tempnam(sys_get_temp_dir(), 'robo-phpcs')
+                : null;
+        }
+
+        if ($this->runMode === static::RUN_MODE_CLI) {
+            /** @var Process $process */
+            $process = new $this->processClass($this->getCommand($options));
+            if ($this->workingDirectory) {
+                $process->setWorkingDirectory($this->workingDirectory);
+            }
+
+            $this->lintExitCode = $process->run();
+            $this->lintStdOutput = $process->getOutput();
+            $this->reportRaw = $this->lintStdOutput;
+        } elseif ($this->runMode === static::RUN_MODE_NATIVE) {
+            $cwd = getcwd();
+            if ($this->workingDirectory) {
+                chdir($this->workingDirectory);
+            }
+
+            /** @var \PHP_CodeSniffer_CLI $phpcsCli */
+            $phpcsCli = new $this->phpCodeSnifferCliClass();
+
+            if ($options['reports']['json'] === null) {
+                ob_start();
+            }
+
+            try {
+                $phpcsCli->process($this->getNormalizedOptions($options));
+            } catch (\Exception $e) {
+                $this->lintExitCode = static::EXIT_CODE_UNKNOWN;
+            }
+
+            if ($options['reports']['json'] === null) {
+                $this->lintStdOutput = ob_get_contents();
+                ob_end_clean();
+                $this->reportRaw = $this->lintStdOutput;
+            }
+
+            if ($this->workingDirectory) {
+                chdir($cwd);
+            }
+        }
+
+        if ($this->isLintSuccess()
+            && $options['reports']['json'] !== null
+            && is_readable($options['reports']['json'])
+        ) {
+            $this->reportRaw = file_get_contents($options['reports']['json']);
+        }
+
+        if ($this->reportRaw) {
+            // @todo Pray for a valid JSON output.
+            $this->report = (array) json_decode($this->reportRaw, true);
+            $this->report += ['totals' => [], 'files' => []];
+            $this->report['totals'] += ['errors' => 0, 'warnings' => 0, 'fixable' => 0];
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return $this
+     */
+    protected function runReleaseLintReports()
+    {
+        if (!$this->isLintSuccess() || !$this->reportRaw) {
+            return $this;
+        }
+
+        if ($this->isLintStdOutputPublic) {
+            $this->output()->write($this->lintStdOutput);
+        }
+
+        $this->reportWrapper = new ReportWrapper($this->report);
+        foreach ($this->initLintReporters() as $lintReporter) {
+            $lintReporter
+                ->setReportWrapper($this->reportWrapper)
+                ->generate();
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return $this
+     */
+    protected function runReleaseAssets()
+    {
+        if ($this->isReportHasToBePutBackIntoJar()) {
+            $this->setAssetJarValue('report', $this->reportWrapper);
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return \Robo\Result
+     */
+    protected function runReturn()
+    {
+        if ($this->lintExitCode && !$this->reportRaw) {
+            $exitCode = static::EXIT_CODE_UNKNOWN;
+        } else {
+            $exitCode = $this->getTaskExitCode($this->report['totals']);
+        }
+
+        return new Result(
+            $this,
+            $exitCode,
+            $this->getExitMessage($exitCode),
+            [
+                'report' => $this->reportWrapper,
+            ]
+        );
+    }
+
+    /**
+     * @return string
+     */
+    protected function findPhpcs()
+    {
+        $suggestions = [
+            dirname($_SERVER['argv'][0]) . '/phpcs',
+            'vendor/bin/phpcs',
+            'bin/phpcs',
+        ];
+
+        foreach ($suggestions as $suggestion) {
+            if (is_executable($suggestion)) {
+                return $suggestion;
+            }
+        }
+
+        return 'phpcs';
+    }
+
+    /**
+     * @param array $items
+     *
+     * @return array
+     */
+    protected function filterEnabled(array $items)
+    {
+        return gettype(reset($items)) === 'boolean' ? array_keys($items, true, true) : $items;
+    }
+
+    /**
      * @return bool
      */
     protected function isReportHasToBePutBackIntoJar()
@@ -611,32 +1127,7 @@ class PhpcsLint extends Phpcs implements
      */
     protected function isLintSuccess()
     {
-        return in_array($this->exitCode, $this->lintSuccessExitCodes());
-    }
-
-    /**
-     * Prepare directories for report outputs.
-     *
-     * @return null|\Robo\Result
-     *   Returns NULL on success or an error \Robo\Result.
-     */
-    protected function prepareReportDirectories()
-    {
-        if (!isset($this->options['reports'])) {
-            return Result::success($this, 'There is no directory to create.');
-        }
-
-        foreach (array_filter($this->options['reports']) as $fileName) {
-            $dir = pathinfo($fileName, PATHINFO_DIRNAME);
-            if (!file_exists($dir)) {
-                $result = $this->_mkdir($dir);
-                if (!$result->wasSuccessful()) {
-                    return $result;
-                }
-            }
-        }
-
-        return Result::success($this, 'All directory was created successfully.');
+        return in_array($this->lintExitCode, $this->lintSuccessExitCodes());
     }
 
     /**

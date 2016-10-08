@@ -7,14 +7,9 @@
 @todo
 
 
-# Requirements
-
-@todo
-
-
 # Install
 
-@todo
+Run `composer require --dev cheppers/robo-phpcs`
 
 
 # Usage

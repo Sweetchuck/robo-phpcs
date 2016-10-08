@@ -52,4 +52,63 @@ class UtilsTest extends \Codeception\Test\Unit
     {
         $this->tester->assertEquals($expected, Utils::escapeShellArgWithWildcard($arg));
     }
+
+    public function casesMergeReports()
+    {
+        return [
+            'empty' => [
+                [
+                    'totals' => [
+                        'errors' => 0,
+                        'warnings' => 0,
+                        'fixable' => 0,
+                    ],
+                    'files' => [],
+                ],
+                [
+                    [],
+                ],
+            ],
+            'simple' => [
+                [
+                    'totals' => [
+                        'errors' => 11,
+                        'warnings' => 22,
+                        'fixable' => 34,
+                    ],
+                    'files' => [],
+                ],
+                [
+                    [
+                        'totals' => [
+                            'errors' => 10,
+                            'warnings' => 20,
+                            'fixable' => 30,
+                        ],
+                        'files' => [],
+                    ],
+                    [
+                        'totals' => [
+                            'errors' => 1,
+                            'warnings' => 2,
+                            'fixable' => 4,
+                        ],
+                        'files' => [],
+                    ],
+                ],
+            ],
+        ];
+    }
+
+    /**
+     * @dataProvider casesMergeReports
+     *
+     * @param array $expected
+     * @param array $args
+     */
+    public function testMergeReports(array $expected, array $args)
+    {
+        $callable = Utils::class . '::mergeReports';
+        $this->tester->assertEquals($expected, call_user_func_array($callable, $args));
+    }
 }
