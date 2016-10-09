@@ -69,6 +69,23 @@ class AcceptanceTester extends \Codeception\Actor
         return $this;
     }
 
+    /**
+     * @param string $fileName
+     *
+     * @return $this
+     */
+    public function haveAFileLikeThis($fileName) {
+        $expectedDir = codecept_data_dir('expected');
+        $actualDir = codecept_data_dir('actual');
+
+        Assert::assertContains(
+            file_get_contents("$expectedDir/$fileName"),
+            file_get_contents("$actualDir/$fileName")
+        );
+
+        return $this;
+    }
+
     public function haveAValidCheckstyleReport($fileName)
     {
         $fileName = "tests/_data/$fileName";

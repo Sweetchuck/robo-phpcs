@@ -1,0 +1,18 @@
+psr2.invalid.02.php
++--------------------------------------------------------------+-------------+
+| Source                                                       | Occurrences |
++--------------------------------------------------------------+-------------+
+| PSR1.Classes.ClassDeclaration.MissingNamespace               |           1 |
+| PSR2.Classes.ClassDeclaration.OpenBraceNewLine               |           1 |
+| Squiz.Functions.MultiLineFunctionDeclaration.BraceOnSameLine |           1 |
+| PSR2.Classes.ClassDeclaration.CloseBraceAfterBody            |           1 |
++--------------------------------------------------------------+-------------+
+
+psr2.invalid.03.php
++------------------------------------------------+-------------+
+| Source                                         | Occurrences |
++------------------------------------------------+-------------+
+| PSR1.Classes.ClassDeclaration.MissingNamespace |           1 |
+| PSR2.Classes.ClassDeclaration.OpenBraceNewLine |           1 |
+| Generic.Files.LineLength.TooLong               |           1 |
++------------------------------------------------+-------------+
