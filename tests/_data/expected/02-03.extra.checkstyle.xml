@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<checkstyle version="2.6.1">
+  <file name="psr2.invalid.02.php">
+    <error severity="error" source="PSR1.Classes.ClassDeclaration.MissingNamespace" line="3" column="1" message="Each class must be in a namespace of at least one level (a top-level vendor name)"/>
+    <error severity="error" source="PSR2.Classes.ClassDeclaration.OpenBraceNewLine" line="3" column="11" message="Opening brace of a class must be on the line after the definition"/>
+    <error severity="error" source="Squiz.Functions.MultiLineFunctionDeclaration.BraceOnSameLine" line="5" column="34" message="Opening brace should be on a new line"/>
+    <error severity="error" source="PSR2.Classes.ClassDeclaration.CloseBraceAfterBody" line="9" column="1" message="The closing brace for the class must go on the next line after the body"/>
+  </file>
+  <file name="psr2.invalid.03.php">
+    <error severity="error" source="PSR1.Classes.ClassDeclaration.MissingNamespace" line="3" column="1" message="Each class must be in a namespace of at least one level (a top-level vendor name)"/>
+    <error severity="error" source="PSR2.Classes.ClassDeclaration.OpenBraceNewLine" line="3" column="11" message="Opening brace of a class must be on the line after the definition"/>
+    <error severity="warning" source="Generic.Files.LineLength.TooLong" line="6" column="8" message="Line exceeds 120 characters; contains 139 characters"/>
+  </file>
+</checkstyle>

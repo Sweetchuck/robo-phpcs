@@ -1,0 +1,9 @@
+fixtures/psr2.invalid.01.php
++----------+------+-----------------------------------------------------------------------------------+
+| Severity | Line | Message                                                                           |
++----------+------+-----------------------------------------------------------------------------------+
+| error    |    3 | Each class must be in a namespace of at least one level (a top-level vendor name) |
+| error    |    3 | Opening brace of a class must be on the line after the definition                 |
+| error    |    5 | Opening brace should be on a new line                                             |
+| error    |    9 | The closing brace for the class must go on the next line after the body           |
++----------+------+-----------------------------------------------------------------------------------+

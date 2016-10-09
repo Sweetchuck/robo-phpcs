@@ -1,7 +1,9 @@
 <?php
 
 // @codingStandardsIgnoreStart
+use Cheppers\LintReport\Reporter\CheckstyleReporter;
 use League\Container\ContainerAwareInterface;
+use League\Container\ContainerInterface;
 use Symfony\Component\Process\Process;
 use Symfony\Component\Yaml\Yaml;
 
@@ -11,6 +13,7 @@ use Symfony\Component\Yaml\Yaml;
 class RoboFile extends \Robo\Tasks implements ContainerAwareInterface
 // @codingStandardsIgnoreEnd
 {
+    use \Cheppers\Robo\Git\Task\LoadTasks;
     use \Cheppers\Robo\Phpcs\Task\LoadTasks;
     use \League\Container\ContainerAwareTrait;
 
@@ -50,11 +53,40 @@ class RoboFile extends \Robo\Tasks implements ContainerAwareInterface
     protected $phpdbgExecutable = 'phpdbg';
 
     /**
+     * Allowed values: dev, git-hook, ci.
+     *
+     * @var string
+     */
+    protected $environment = '';
+
+    /**
      * RoboFile constructor.
      */
     public function __construct()
     {
+        putenv('COMPOSER_DISABLE_XDEBUG_WARN=1');
         $this->initComposerInfo();
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function setContainer(ContainerInterface $container)
+    {
+        $this->container = $container;
+        \Cheppers\LintReport\Reporter\BaseReporter::lintReportConfigureContainer($this->container);
+
+        return $this;
+    }
+
+    protected function getEnvironment()
+    {
+        $env = getenv('ROBO_PHPCS_ENVIRONMENT');
+        if ($env) {
+            return $env;
+        }
+
+        return $this->environment ?: 'dev';
     }
 
     /**
@@ -64,6 +96,8 @@ class RoboFile extends \Robo\Tasks implements ContainerAwareInterface
      */
     public function githookPreCommit()
     {
+        $this->environment = 'git-hook';
+
         /** @var \Robo\Collection\CollectionBuilder $cb */
         $cb = $this->collectionBuilder();
 
@@ -183,25 +217,59 @@ class RoboFile extends \Robo\Tasks implements ContainerAwareInterface
     }
 
     /**
-     * @return \Cheppers\Robo\Phpcs\Task\PhpcsLint
+     * @return \Cheppers\Robo\Phpcs\Task\PhpcsLintFiles | \Robo\Collection\CollectionBuilder
      */
     protected function getTaskPhpcsLint()
     {
-        return $this->taskPhpcsLint([
-            'colors' => 'always',
+        $env = $this->getEnvironment();
+
+        $files = [
+            'src/',
+            'tests/_data/RoboFile.php',
+            'tests/_support/Helper/',
+            'tests/acceptance/',
+            'tests/unit/',
+            'RoboFile.php',
+        ];
+
+        $options = [
             'standard' => 'PSR2',
-            'reports' => [
-                'full' => null,
+            'lintReporters' => [
+                'lintVerboseReporter' => null,
             ],
-            'files' => [
-                'src/',
-                'tests/_data/RoboFile.php',
-                'tests/_support/Helper/',
-                'tests/acceptance/',
-                'tests/unit/',
-                'RoboFile.php',
-            ],
-        ]);
+        ];
+
+        if ($env === 'ci') {
+            $checkstyleLintReporter = new CheckstyleReporter();
+            $checkstyleLintReporter->setDestination('tests/_output/checkstyle/phpcs.psr2.xml');
+            $options['lintReporters']['lintCheckstyleReporter'] = $checkstyleLintReporter;
+        }
+
+        if ($env === 'ci' || $env === 'dev') {
+            return $this->taskPhpcsLintFiles($options + ['files' => $files]);
+        }
+
+        /** @var \Robo\Collection\CollectionBuilder $cb */
+        $cb = $this->collectionBuilder();
+
+        if ($env === 'git-hook') {
+            $assetJar = new Cheppers\AssetJar\AssetJar();
+
+            $cb->addTaskList([
+                'git.staged' => $this
+                    ->taskGitReadStagedFiles()
+                    ->setAssetJar($assetJar)
+                    ->setAssetJarMap('files', ['files'])
+                    ->setPaths($files),
+                'phpcs.psr2' => $this
+                    ->taskPhpcsLintInput($options)
+                    ->setAssetJar($assetJar)
+                    ->setAssetJarMap('files', ['files'])
+                    ->setAssetJarMap('report', ['report']),
+            ]);
+        }
+
+        return $cb;
     }
 
     /**

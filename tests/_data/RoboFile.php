@@ -1,6 +1,8 @@
 <?php
 
+use Cheppers\AssetJar\AssetJar;
 use Cheppers\LintReport\Reporter\BaseReporter;
+use Cheppers\LintReport\Reporter\CheckstyleReporter;
 use Cheppers\LintReport\Reporter\SummaryReporter;
 use Cheppers\LintReport\Reporter\VerboseReporter;
 use League\Container\ContainerAwareInterface;
@@ -34,29 +36,93 @@ class RoboFile extends \Robo\Tasks implements ContainerAwareInterface, ConfigAwa
      *
      * @return $this
      */
-    public function lintAllInOne($runMode)
+    public function lintFilesAllInOne($runMode)
     {
         $reportsDir = 'actual';
-        $verboseFile = new VerboseReporter();
-        $verboseFile
-            ->setFilePathStyle('relative')
-            ->setDestination("$reportsDir/extra.verbose.txt");
 
-        $summaryFile = new SummaryReporter();
-        $summaryFile
+        $verboseFile = (new VerboseReporter())
             ->setFilePathStyle('relative')
-            ->setDestination("$reportsDir/extra.summary.txt");
+            ->setDestination("$reportsDir/01.extra.verbose.txt");
 
-        return $this->taskPhpcsLint()
-            ->runMode($runMode)
-            ->colors(false)
-            ->standard('PSR2')
-            ->files(['fixtures/'])
-            ->report('full')
-            ->report('checkstyle', "$reportsDir/native.checkstyle.xml")
+        $summaryFile = (new SummaryReporter())
+            ->setFilePathStyle('relative')
+            ->setDestination("$reportsDir/01.extra.summary.txt");
+
+        return $this->taskPhpcsLintFiles()
+            ->setRunMode($runMode)
+            ->setColors(false)
+            ->setStandard('PSR2')
+            ->setFiles(['fixtures/psr2.invalid.01.php'])
+            ->setReport('full')
+            ->setReport('checkstyle', "$reportsDir/01.native.checkstyle.xml")
             ->addLintReporter('verbose:StdOutput', 'lintVerboseReporter')
             ->addLintReporter('verbose:file', $verboseFile)
             ->addLintReporter('summary:StdOutput', 'lintSummaryReporter')
             ->addLintReporter('summary:file', $summaryFile);
+    }
+
+    public function lintInputWithoutJar()
+    {
+        $fixturesDir = 'fixtures';
+        $reportsDir = 'actual';
+
+        $verboseFile = (new VerboseReporter())
+            ->setFilePathStyle('relative')
+            ->setDestination("$reportsDir/02-03.extra.verbose.txt");
+
+        $summaryFile = (new SummaryReporter())
+            ->setFilePathStyle('relative')
+            ->setDestination("$reportsDir/02-03.extra.summary.txt");
+
+        $checkstyleFile = (new CheckstyleReporter())
+            ->setFilePathStyle('relative')
+            ->setDestination("$reportsDir/02-03.extra.checkstyle.xml");
+
+        return $this->taskPhpcsLintInput()
+            ->setStandard('PSR2')
+            ->setFiles([
+                'psr2.invalid.02.php' => [
+                    'fileName' => 'psr2.invalid.02.php',
+                    'content' => file_get_contents("$fixturesDir/psr2.invalid.02.php"),
+                ],
+                'psr2.invalid.03.php' => [
+                    'fileName' => 'psr2.invalid.02.php',
+                    'content' => file_get_contents("$fixturesDir/psr2.invalid.03.php"),
+                ],
+            ])
+            ->addLintReporter('verbose:StdOutput', 'lintVerboseReporter')
+            ->addLintReporter('verbose:file', $verboseFile)
+            ->addLintReporter('summary:StdOutput', 'lintSummaryReporter')
+            ->addLintReporter('summary:file', $summaryFile)
+            ->addLintReporter('checkstyle:file', $checkstyleFile);
+    }
+
+    public function lintInputWithJar()
+    {
+        $task = $this->lintInputWithoutJar();
+        $assetJar = new AssetJar([
+            'l1' => [
+                'l2' => $task->getFiles(),
+            ],
+        ]);
+
+        return $task
+            ->setFiles([])
+            ->setAssetJar($assetJar)
+            ->setAssetJarMap('files', ['l1', 'l2']);
+    }
+
+    /**
+     * @param string $runMode
+     *
+     * @return $this
+     */
+    protected function validateRunMode($runMode)
+    {
+        if (!in_array($runMode, ['cli', 'native'])) {
+            throw new \InvalidArgumentException("Run mode is invalid: '$runMode'");
+        }
+
+        return $this;
     }
 }
