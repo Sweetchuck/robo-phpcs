@@ -4,8 +4,8 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "73154bfbd456fe88072b5ac3c08178e6",
-    "content-hash": "d016a8a9ac59ef5a86f2cd8272564368",
+    "hash": "33fb36ca22d2175cc3375c171412eca9",
+    "content-hash": "b234a51573fdb4ed5e58a6f7a448c82b",
     "packages": [
         {
             "name": "cheppers/asset-jar",
@@ -76,42 +76,6 @@
             ],
             "description": "Generate reports from lint results",
             "time": "2016-10-02 12:00:15"
-        },
-        {
-            "name": "cheppers/robo-git",
-            "version": "v0.0.1",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/Cheppers/robo-git.git",
-                "reference": "fdc6e3bd5ceb1cc770cbbc833797a43c4b578e14"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/Cheppers/robo-git/zipball/fdc6e3bd5ceb1cc770cbbc833797a43c4b578e14",
-                "reference": "fdc6e3bd5ceb1cc770cbbc833797a43c4b578e14",
-                "shasum": ""
-            },
-            "require": {
-                "cheppers/asset-jar": "^0.0.1",
-                "consolidation/robo": "1.0.0-RC2"
-            },
-            "require-dev": {
-                "cheppers/git-hooks": "^0.0.8",
-                "cheppers/robo-phpcs": "^0.0.7",
-                "codeception/codeception": "^2.2"
-            },
-            "type": "library",
-            "autoload": {
-                "psr-4": {
-                    "Cheppers\\Robo\\Git\\": "src/"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "GPL-2.0"
-            ],
-            "description": "Robo task to read the content of the staged files",
-            "time": "2016-10-09 12:15:11"
         },
         {
             "name": "consolidation/annotated-command",
@@ -1279,6 +1243,42 @@
             ],
             "description": "Provide a bridge between Git hooks and scripts under VCS.",
             "time": "2016-07-10 07:41:08"
+        },
+        {
+            "name": "cheppers/robo-git",
+            "version": "v0.0.1",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/Cheppers/robo-git.git",
+                "reference": "fdc6e3bd5ceb1cc770cbbc833797a43c4b578e14"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/Cheppers/robo-git/zipball/fdc6e3bd5ceb1cc770cbbc833797a43c4b578e14",
+                "reference": "fdc6e3bd5ceb1cc770cbbc833797a43c4b578e14",
+                "shasum": ""
+            },
+            "require": {
+                "cheppers/asset-jar": "^0.0.1",
+                "consolidation/robo": "1.0.0-RC2"
+            },
+            "require-dev": {
+                "cheppers/git-hooks": "^0.0.8",
+                "cheppers/robo-phpcs": "^0.0.7",
+                "codeception/codeception": "^2.2"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Cheppers\\Robo\\Git\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "GPL-2.0"
+            ],
+            "description": "Robo task to read the content of the staged files",
+            "time": "2016-10-09 12:15:11"
         },
         {
             "name": "codeception/codeception",

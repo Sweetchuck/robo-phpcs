@@ -64,6 +64,7 @@ class RoboFile extends \Robo\Tasks implements ContainerAwareInterface
      */
     public function __construct()
     {
+        putenv('COMPOSER_DISABLE_XDEBUG_WARN=1');
         $this->initComposerInfo();
     }
 
@@ -236,7 +237,6 @@ class RoboFile extends \Robo\Tasks implements ContainerAwareInterface
             'lintReporters' => [
                 'lintVerboseReporter' => null,
             ],
-            'files' => $files,
         ];
 
         if ($env === 'ci') {
@@ -260,13 +260,12 @@ class RoboFile extends \Robo\Tasks implements ContainerAwareInterface
                     ->taskGitReadStagedFiles()
                     ->setAssetJar($assetJar)
                     ->setAssetJarMap('files', ['files'])
-                    ->setPaths($options['files']),
+                    ->setPaths($files),
                 'phpcs.psr2' => $this
                     ->taskPhpcsLintInput($options)
                     ->setAssetJar($assetJar)
                     ->setAssetJarMap('files', ['files'])
-                    ->setAssetJarMap('report', ['report'])
-                    ->setFiles($files),
+                    ->setAssetJarMap('report', ['report']),
             ]);
         }
 
