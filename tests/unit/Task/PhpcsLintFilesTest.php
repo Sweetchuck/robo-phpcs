@@ -1,5 +1,6 @@
 <?php
 
+use Cheppers\AssetJar\AssetJar;
 use Cheppers\Robo\Phpcs\Task\PhpcsLintFiles;
 use Codeception\Util\Stub;
 use Robo\Robo;
@@ -34,6 +35,75 @@ class PhpcsLintFilesTest extends \Codeception\Test\Unit
             ],
             $task->getLintReporters()
         );
+    }
+
+    public function testGetSetWorkingDirectory()
+    {
+        $task = new PhpcsLintFiles();
+        $this->assertNull($task->getWorkingDirectory());
+
+        $task = new PhpcsLintFiles(['workingDirectory' => 'a']);
+        $this->assertEquals('a', $task->getWorkingDirectory());
+
+        $task->setWorkingDirectory('b');
+        $this->assertEquals('b', $task->getWorkingDirectory());
+    }
+
+    public function testGetSetPhpcsExecutable()
+    {
+        $task = new PhpcsLintFiles();
+        $this->assertEquals('bin/phpcs', $task->getPhpcsExecutable(), 'default value');
+
+        $task = new PhpcsLintFiles(['phpcsExecutable' => 'a']);
+        $this->assertEquals('a', $task->getPhpcsExecutable(), 'set in constructor');
+
+        $task->setPhpcsExecutable('b');
+        $this->assertEquals('b', $task->getPhpcsExecutable(), 'normal');
+    }
+
+    public function testGetSetRunMode()
+    {
+        $task = new PhpcsLintFiles();
+        $this->assertEquals('cli', $task->getRunMode(), 'default value');
+
+        $task = new PhpcsLintFiles(['runMode' => 'native']);
+        $this->assertEquals('native', $task->getRunMode(), 'set in constructor');
+
+        $task->setRunMode('cli');
+        $this->assertEquals('cli', $task->getRunMode(), 'normal');
+
+        try {
+            $task->setRunMode('invalid');
+            $this->fail('Run mode not protected');
+        } catch (\InvalidArgumentException $e) {
+            $this->assertEquals("Invalid argument: 'invalid'", $e->getMessage());
+        }
+    }
+
+    public function testGetSetAssetJar()
+    {
+        $task = new PhpcsLintFiles();
+        $this->assertNull($task->getAssetJar(), 'default value');
+
+        $assetJar1 = new AssetJar();
+        $task = new PhpcsLintFiles(['assetJar' => $assetJar1]);
+        $this->assertEquals($assetJar1, $task->getAssetJar(), 'set in constructor');
+
+        $assetJar2 = new AssetJar();
+        $task->setAssetJar($assetJar2);
+        $this->assertEquals($assetJar2, $task->getAssetJar(), 'normal');
+    }
+
+    public function testGetSetReport()
+    {
+        $task = new PhpcsLintFiles();
+        $this->assertNull($task->getReport('full'), 'default value');
+
+        $task = new PhpcsLintFiles(['reports' => ['full' => 'a']]);
+        $this->assertEquals('a', $task->getReport('full'), 'set in constructor');
+
+        $task->setReport('full', 'b');
+        $this->assertEquals('b', $task->getReport('full'), 'normal');
     }
 
     /**
@@ -536,11 +606,10 @@ class PhpcsLintFilesTest extends \Codeception\Test\Unit
      */
     public function testRun($exitCode, $options, $withJar, $expectedStdOutput)
     {
-        $container = new \League\Container\Container();
-        $config = new \Robo\Config();
+        $container = \Robo\Robo::createDefaultContainer();
+        \Robo\Robo::setContainer($container);
+
         $mainStdOutput = new \Helper\Dummy\Output();
-        \Robo\Robo::configureContainer($container);
-        \Robo\Robo::setContainer($container, null, $mainStdOutput);
 
         $options += [
             'workingDirectory' => '.',
@@ -570,7 +639,7 @@ class PhpcsLintFilesTest extends \Codeception\Test\Unit
 
         $assetJar = null;
         if ($withJar) {
-            $assetJar = new \Cheppers\AssetJar\AssetJar();
+            $assetJar = new AssetJar();
             $task->setAssetJar($assetJar);
         }
 
