@@ -53,7 +53,7 @@ class RoboFile extends \Robo\Tasks implements ContainerAwareInterface
     protected $phpdbgExecutable = 'phpdbg';
 
     /**
-     * Allowed values: dev, git-hook, ci.
+     * Allowed values: dev, git-hook, jenkins.
      *
      * @var string
      */
@@ -73,20 +73,21 @@ class RoboFile extends \Robo\Tasks implements ContainerAwareInterface
      */
     public function setContainer(ContainerInterface $container)
     {
-        $this->container = $container;
-        \Cheppers\LintReport\Reporter\BaseReporter::lintReportConfigureContainer($this->container);
+        \Cheppers\LintReport\Reporter\BaseReporter::lintReportConfigureContainer($container);
 
-        return $this;
+        return parent::setContainer($container);
     }
 
+    /**
+     * @return string
+     */
     protected function getEnvironment()
     {
-        $env = getenv('ROBO_PHPCS_ENVIRONMENT');
-        if ($env) {
-            return $env;
+        if ($this->environment) {
+            return $this->environment;
         }
 
-        return $this->environment ?: 'dev';
+        return getenv('ROBO_PHPCS_ENVIRONMENT') ?: 'dev';
     }
 
     /**
@@ -178,42 +179,65 @@ class RoboFile extends \Robo\Tasks implements ContainerAwareInterface
      */
     protected function getTaskCodecept()
     {
-        $this->initCodeceptionInfo();
+        $environment = $this->getEnvironment();
+        $withCoverage = $environment !== 'git-hook';
+        $withUnitReport = $environment !== 'git-hook';
+        $logDir = $this->getLogDir();
 
-        $cmd_args = [];
+        $cmdArgs = [];
         if ($this->isPhpExtensionAvailable('xdebug')) {
-            $cmd_pattern = '%s';
-            $cmd_args[] = escapeshellcmd("{$this->binDir}/codecept");
+            $cmdPattern = '%s';
+            $cmdArgs[] = escapeshellcmd("{$this->binDir}/codecept");
         } else {
-            $cmd_pattern = '%s -qrr %s';
-            $cmd_args[] = escapeshellcmd($this->phpdbgExecutable);
-            $cmd_args[] = escapeshellarg("{$this->binDir}/codecept");
+            $cmdPattern = '%s -qrr %s';
+            $cmdArgs[] = escapeshellcmd($this->phpdbgExecutable);
+            $cmdArgs[] = escapeshellarg("{$this->binDir}/codecept");
         }
 
-        $cmd_pattern .= ' --ansi';
-        $cmd_pattern .= ' --verbose';
+        $cmdPattern .= ' --ansi';
+        $cmdPattern .= ' --verbose';
 
-        $cmd_pattern .= ' --coverage=%s';
-        $cmd_args[] = escapeshellarg('coverage/coverage.serialized');
+        $tasks = [];
+        if ($withCoverage) {
+            $cmdPattern .= ' --coverage=%s';
+            $cmdArgs[] = escapeshellarg('coverage/coverage.serialized');
 
-        $cmd_pattern .= ' --coverage-xml=%s';
-        $cmd_args[] = escapeshellarg('coverage/coverage.xml');
+            $cmdPattern .= ' --coverage-xml=%s';
+            $cmdArgs[] = escapeshellarg('coverage/coverage.xml');
 
-        $cmd_pattern .= ' --coverage-html=%s';
-        $cmd_args[] = escapeshellarg('coverage/html');
+            $cmdPattern .= ' --coverage-html=%s';
+            $cmdArgs[] = escapeshellarg('coverage/html');
 
-        $cmd_pattern .= ' run';
+            $tasks['prepareCoverageDir'] = $this
+                ->taskFilesystemStack()
+                ->mkdir("$logDir/coverage");
+        }
 
-        $reportsDir = $this->codeceptionInfo['paths']['log'];
+        if ($withUnitReport) {
+            $cmdPattern .= ' --xml=%s';
+            $cmdArgs[] = escapeshellarg('junit/junit.xml');
+
+            $cmdPattern .= ' --html=%s';
+            $cmdArgs[] = escapeshellarg('junit/junit.html');
+
+            $tasks['prepareJUnitDir'] = $this
+                ->taskFilesystemStack()
+                ->mkdir("$logDir/junit");
+        }
+
+        $cmdPattern .= ' run';
+
+        if ($environment === 'jenkins') {
+            // Jenkins has to use a post-build action to mark the build "unstable".
+            $cmdPattern .= ' || [[ "${?}" == "1" ]]';
+        }
+
+        $tasks['runCodeception'] = $this->taskExec(vsprintf($cmdPattern, $cmdArgs));
 
         /** @var \Robo\Collection\CollectionBuilder $cb */
         $cb = $this->collectionBuilder();
-        $cb->addTaskList([
-            'prepareCoverageDir' => $this->taskFilesystemStack()->mkdir("$reportsDir/coverage"),
-            'runCodeception' => $this->taskExec(vsprintf($cmd_pattern, $cmd_args)),
-        ]);
 
-        return $cb;
+        return $cb->addTaskList($tasks);
     }
 
     /**
@@ -239,37 +263,32 @@ class RoboFile extends \Robo\Tasks implements ContainerAwareInterface
             ],
         ];
 
-        if ($env === 'ci') {
-            $checkstyleLintReporter = new CheckstyleReporter();
-            $checkstyleLintReporter->setDestination('tests/_output/checkstyle/phpcs.psr2.xml');
-            $options['lintReporters']['lintCheckstyleReporter'] = $checkstyleLintReporter;
+        if ($env === 'jenkins') {
+            $options['failOn'] = 'never';
+
+            $options['lintReporters']['lintCheckstyleReporter'] = (new CheckstyleReporter())
+                ->setDestination('tests/_output/checkstyle/phpcs.psr2.xml');
         }
 
-        if ($env === 'ci' || $env === 'dev') {
+        if ($env !== 'git-hook') {
             return $this->taskPhpcsLintFiles($options + ['files' => $files]);
         }
 
         /** @var \Robo\Collection\CollectionBuilder $cb */
         $cb = $this->collectionBuilder();
+        $assetJar = new Cheppers\AssetJar\AssetJar();
 
-        if ($env === 'git-hook') {
-            $assetJar = new Cheppers\AssetJar\AssetJar();
-
-            $cb->addTaskList([
-                'git.staged' => $this
-                    ->taskGitReadStagedFiles()
-                    ->setAssetJar($assetJar)
-                    ->setAssetJarMap('files', ['files'])
-                    ->setPaths($files),
-                'phpcs.psr2' => $this
-                    ->taskPhpcsLintInput($options)
-                    ->setAssetJar($assetJar)
-                    ->setAssetJarMap('files', ['files'])
-                    ->setAssetJarMap('report', ['report']),
-            ]);
-        }
-
-        return $cb;
+        return $cb->addTaskList([
+            'git.readStagedFiles' => $this
+                ->taskGitReadStagedFiles()
+                ->setAssetJar($assetJar)
+                ->setAssetJarMap('files', ['files'])
+                ->setPaths($files),
+            'lint.phpcs.psr2' => $this
+                ->taskPhpcsLintInput($options)
+                ->setAssetJar($assetJar)
+                ->setAssetJarMap('files', ['files']),
+        ]);
     }
 
     /**
@@ -288,5 +307,17 @@ class RoboFile extends \Robo\Tasks implements ContainerAwareInterface
         }
 
         return in_array($extension, explode("\n", $process->getOutput()));
+    }
+
+    /**
+     * @return string
+     */
+    protected function getLogDir()
+    {
+        $this->initCodeceptionInfo();
+
+        return !empty($this->codeceptionInfo['paths']['log']) ?
+            $this->codeceptionInfo['paths']['log']
+            : 'tests/_output';
     }
 }

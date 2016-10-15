@@ -4,8 +4,8 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "33fb36ca22d2175cc3375c171412eca9",
-    "content-hash": "b234a51573fdb4ed5e58a6f7a448c82b",
+    "hash": "96099e8cba12ac3c1053b29dfb25111b",
+    "content-hash": "319f2f01a8693ab4ecab42f16bb72455",
     "packages": [
         {
             "name": "cheppers/asset-jar",
@@ -79,19 +79,20 @@
         },
         {
             "name": "consolidation/annotated-command",
-            "version": "1.4.1",
+            "version": "2.0.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/consolidation/annotated-command.git",
-                "reference": "c2dc2464e1edf0498bf97a99f34cac5805d00946"
+                "reference": "2a6ef0b39ed904dabefd796eeaf5f8feeaa881c4"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/consolidation/annotated-command/zipball/c2dc2464e1edf0498bf97a99f34cac5805d00946",
-                "reference": "c2dc2464e1edf0498bf97a99f34cac5805d00946",
+                "url": "https://api.github.com/repos/consolidation/annotated-command/zipball/2a6ef0b39ed904dabefd796eeaf5f8feeaa881c4",
+                "reference": "2a6ef0b39ed904dabefd796eeaf5f8feeaa881c4",
                 "shasum": ""
             },
             "require": {
+                "consolidation/output-formatters": "~2",
                 "php": ">=5.4.0",
                 "phpdocumentor/reflection-docblock": "^2.0|^3.0.2",
                 "psr/log": "~1.0",
@@ -100,7 +101,6 @@
                 "symfony/finder": "~2.5|~3.0"
             },
             "require-dev": {
-                "consolidation/output-formatters": "~1",
                 "phpunit/phpunit": "4.*",
                 "satooshi/php-coveralls": "^1.0",
                 "squizlabs/php_codesniffer": "2.*"
@@ -108,7 +108,7 @@
             "type": "library",
             "extra": {
                 "branch-alias": {
-                    "dev-master": "1.x-dev"
+                    "dev-master": "2.x-dev"
                 }
             },
             "autoload": {
@@ -127,7 +127,7 @@
                 }
             ],
             "description": "Initialize Symfony Console commands from annotated command class methods.",
-            "time": "2016-09-13 21:37:50"
+            "time": "2016-10-05 04:09:14"
         },
         {
             "name": "consolidation/log",
@@ -178,21 +178,22 @@
         },
         {
             "name": "consolidation/output-formatters",
-            "version": "1.1.0",
+            "version": "2.0.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/consolidation/output-formatters.git",
-                "reference": "aadb1ed2deb72bc1351bb6f3b3ddd328222e9261"
+                "reference": "8bce15438a97afba5dcf036a71d961977b64fa3e"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/consolidation/output-formatters/zipball/aadb1ed2deb72bc1351bb6f3b3ddd328222e9261",
-                "reference": "aadb1ed2deb72bc1351bb6f3b3ddd328222e9261",
+                "url": "https://api.github.com/repos/consolidation/output-formatters/zipball/8bce15438a97afba5dcf036a71d961977b64fa3e",
+                "reference": "8bce15438a97afba5dcf036a71d961977b64fa3e",
                 "shasum": ""
             },
             "require": {
                 "php": ">=5.4.0",
-                "symfony/console": "~2.5|~3.0"
+                "symfony/console": "~2.5|~3.0",
+                "symfony/finder": "~2.5|~3.0"
             },
             "require-dev": {
                 "phpunit/phpunit": "4.*",
@@ -202,7 +203,7 @@
             "type": "library",
             "extra": {
                 "branch-alias": {
-                    "dev-master": "1.x-dev"
+                    "dev-master": "2.x-dev"
                 }
             },
             "autoload": {
@@ -221,26 +222,26 @@
                 }
             ],
             "description": "Format text by applying transformations provided by plug-in formatters.",
-            "time": "2016-09-14 23:51:08"
+            "time": "2016-10-05 04:05:17"
         },
         {
             "name": "consolidation/robo",
-            "version": "1.0.0-RC2",
+            "version": "1.0.0-RC3",
             "source": {
                 "type": "git",
                 "url": "https://github.com/consolidation/Robo.git",
-                "reference": "abdae8e8e6d0872df9b02031c6d2f1b7364f3113"
+                "reference": "e180cc705a27c3d5999dba54b0137eb3779777fe"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/consolidation/Robo/zipball/abdae8e8e6d0872df9b02031c6d2f1b7364f3113",
-                "reference": "abdae8e8e6d0872df9b02031c6d2f1b7364f3113",
+                "url": "https://api.github.com/repos/consolidation/Robo/zipball/e180cc705a27c3d5999dba54b0137eb3779777fe",
+                "reference": "e180cc705a27c3d5999dba54b0137eb3779777fe",
                 "shasum": ""
             },
             "require": {
-                "consolidation/annotated-command": "^1.2",
+                "consolidation/annotated-command": "~2",
                 "consolidation/log": "~1",
-                "consolidation/output-formatters": "~1",
+                "consolidation/output-formatters": "~2",
                 "league/container": "^2.2",
                 "php": ">=5.5.0",
                 "symfony/console": "~2.5|~3.0",
@@ -253,15 +254,15 @@
                 "codegyre/robo": "< 1.0"
             },
             "require-dev": {
-                "codeception/aspect-mock": "0.5.4",
+                "codeception/aspect-mock": "~1",
                 "codeception/base": "^2.1.5",
-                "codeception/verify": "0.2.*",
+                "codeception/verify": "^0.3.2",
                 "henrikbjorn/lurker": "~1",
                 "natxet/cssmin": "~3",
-                "patchwork/jsqueeze": "~1",
+                "patchwork/jsqueeze": "~2",
                 "pear/archive_tar": "~1",
-                "phpunit/php-code-coverage": "~2",
-                "satooshi/php-coveralls": "^1",
+                "phpunit/php-code-coverage": "~4",
+                "satooshi/php-coveralls": "~1",
                 "squizlabs/php_codesniffer": "~2"
             },
             "suggest": {
@@ -295,7 +296,7 @@
                 }
             ],
             "description": "Modern task runner",
-            "time": "2016-08-29 20:03:54"
+            "time": "2016-10-10 16:22:54"
         },
         {
             "name": "container-interop/container-interop",
@@ -536,16 +537,16 @@
         },
         {
             "name": "psr/log",
-            "version": "1.0.1",
+            "version": "1.0.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/php-fig/log.git",
-                "reference": "5277094ed527a1c4477177d102fe4c53551953e0"
+                "reference": "4ebe3a8bf773a19edfe0a84b6585ba3d401b724d"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/php-fig/log/zipball/5277094ed527a1c4477177d102fe4c53551953e0",
-                "reference": "5277094ed527a1c4477177d102fe4c53551953e0",
+                "url": "https://api.github.com/repos/php-fig/log/zipball/4ebe3a8bf773a19edfe0a84b6585ba3d401b724d",
+                "reference": "4ebe3a8bf773a19edfe0a84b6585ba3d401b724d",
                 "shasum": ""
             },
             "require": {
@@ -579,7 +580,7 @@
                 "psr",
                 "psr-3"
             ],
-            "time": "2016-09-19 16:02:08"
+            "time": "2016-10-10 12:19:37"
         },
         {
             "name": "squizlabs/php_codesniffer",
@@ -1205,21 +1206,21 @@
         },
         {
             "name": "cheppers/git-hooks",
-            "version": "v0.0.8",
+            "version": "v0.0.9",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Cheppers/git-hooks.git",
-                "reference": "020ee34ccabe3083ae7e84ba27fabb52ed99470b"
+                "reference": "a846af41a1ea63d09bb8d49d9b1631e1a8eb63f8"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Cheppers/git-hooks/zipball/020ee34ccabe3083ae7e84ba27fabb52ed99470b",
-                "reference": "020ee34ccabe3083ae7e84ba27fabb52ed99470b",
+                "url": "https://api.github.com/repos/Cheppers/git-hooks/zipball/a846af41a1ea63d09bb8d49d9b1631e1a8eb63f8",
+                "reference": "a846af41a1ea63d09bb8d49d9b1631e1a8eb63f8",
                 "shasum": ""
             },
             "require-dev": {
                 "behat/behat": "~3.1",
-                "consolidation/robo": "dev-master#6af485e",
+                "consolidation/robo": "~1.0",
                 "pear/archive_tar": "~1.4",
                 "phpunit/phpunit": "~4.5",
                 "squizlabs/php_codesniffer": "~2.6",
@@ -1242,30 +1243,30 @@
                 "GPL-2.0"
             ],
             "description": "Provide a bridge between Git hooks and scripts under VCS.",
-            "time": "2016-07-10 07:41:08"
+            "time": "2016-10-15 10:06:14"
         },
         {
             "name": "cheppers/robo-git",
-            "version": "v0.0.1",
+            "version": "v0.0.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Cheppers/robo-git.git",
-                "reference": "fdc6e3bd5ceb1cc770cbbc833797a43c4b578e14"
+                "reference": "881fc493fed2913092754c28a2a04ff608560a0e"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Cheppers/robo-git/zipball/fdc6e3bd5ceb1cc770cbbc833797a43c4b578e14",
-                "reference": "fdc6e3bd5ceb1cc770cbbc833797a43c4b578e14",
+                "url": "https://api.github.com/repos/Cheppers/robo-git/zipball/881fc493fed2913092754c28a2a04ff608560a0e",
+                "reference": "881fc493fed2913092754c28a2a04ff608560a0e",
                 "shasum": ""
             },
             "require": {
                 "cheppers/asset-jar": "^0.0.1",
-                "consolidation/robo": "1.0.0-RC2"
+                "consolidation/robo": "^1.0.0"
             },
             "require-dev": {
                 "cheppers/git-hooks": "^0.0.8",
-                "cheppers/robo-phpcs": "^0.0.7",
-                "codeception/codeception": "^2.2"
+                "codeception/codeception": "^2.2",
+                "squizlabs/php_codesniffer": "^2.7"
             },
             "type": "library",
             "autoload": {
@@ -1278,7 +1279,7 @@
                 "GPL-2.0"
             ],
             "description": "Robo task to read the content of the staged files",
-            "time": "2016-10-09 12:15:11"
+            "time": "2016-10-15 09:27:04"
         },
         {
             "name": "codeception/codeception",

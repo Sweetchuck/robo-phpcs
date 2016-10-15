@@ -12,12 +12,12 @@
     "require": {
         "cheppers/asset-jar": "^0.0.1",
         "cheppers/lint-report": "^0.0.4",
-        "consolidation/robo": "1.0.0-RC2",
+        "consolidation/robo": "^1.0.0",
         "squizlabs/php_codesniffer": "^2.6"
     },
     "require-dev": {
-        "cheppers/git-hooks": "^0.0.8",
-        "cheppers/robo-git": "^0.0.1",
+        "cheppers/git-hooks": "^0.0.9",
+        "cheppers/robo-git": "^0.0.2",
         "codeception/codeception": "^2.2",
         "symfony/yaml": "^2.8 || ^3.1"
     },

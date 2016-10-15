@@ -9,9 +9,7 @@ use Cheppers\Robo\Phpcs\LintReportWrapper\ReportWrapper;
 use Cheppers\Robo\Phpcs\Utils;
 use League\Container\ContainerAwareInterface;
 use League\Container\ContainerAwareTrait;
-use Robo\Common\BuilderAwareTrait;
 use Robo\Common\IO;
-use Robo\Contract\BuilderAwareInterface;
 use Robo\Contract\OutputAwareInterface;
 use Robo\Result;
 use Robo\TaskAccessor;
@@ -28,12 +26,10 @@ use Symfony\Component\Process\Process;
  */
 abstract class PhpcsLint extends BaseTask implements
     AssetJarAwareInterface,
-    BuilderAwareInterface,
     ContainerAwareInterface,
     OutputAwareInterface
 {
     use AssetJarAware;
-    use BuilderAwareTrait;
     use ContainerAwareTrait;
     use FsLoadTasks;
     use FsShortCuts;
