@@ -5,10 +5,6 @@ namespace Cheppers\Robo\Phpcs\Task;
 use Cheppers\Robo\Phpcs\Utils;
 
 /**
- * Class PhpcsLintInput.
- *
- * @todo Disallow the "native" run mode.
- *
  * @package Cheppers\Robo\Phpcs\Task
  */
 class PhpcsLintInput extends PhpcsLint
@@ -54,6 +50,13 @@ class PhpcsLintInput extends PhpcsLint
         return $this;
     }
     //endregion
+
+    public function __construct(array $options = null)
+    {
+        $this->simpleOptions['stdinPath'] = 'stdin-path';
+
+        parent::__construct($options);
+    }
 
     /**
      * {@inheritdoc}
@@ -128,7 +131,7 @@ class PhpcsLintInput extends PhpcsLint
     protected function buildOptions()
     {
         return [
-            'stdinPath' => $this->getStdinPath(),
+            'stdinPath' => $this->currentFile['fileName'] ?: $this->getStdinPath(),
         ] + parent::buildOptions();
     }
 
@@ -141,8 +144,8 @@ class PhpcsLintInput extends PhpcsLint
     {
         $map = $this->getAssetJarMap($itemName);
         if ($map) {
-            $value = $this->getAssetJarValue($itemName);
-            if ($value !== null) {
+            $value = $this->getAssetJarValue($itemName, $keyExists);
+            if ($keyExists) {
                 return $value;
             }
         }
@@ -153,5 +156,23 @@ class PhpcsLintInput extends PhpcsLint
         }
 
         return null;
+    }
+
+    /**
+     * @return string
+     */
+    protected function getTaskInfoPattern()
+    {
+        return "{name} is linting <info>{count}</info> files with <info>{standard}</info> standard";
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    protected function getTaskContext($context = null)
+    {
+        return [
+            'count' => count($this->getJarValueOrLocal('files')),
+        ] + parent::getTaskContext($context);
     }
 }

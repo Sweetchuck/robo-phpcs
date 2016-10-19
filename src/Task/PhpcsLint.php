@@ -21,7 +21,7 @@ use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Process\Process;
 
 /**
- * Class TaskPhpcs.
+ * Class PhpcsLint.
  *
  * @package Cheppers\Robo\Phpcs\Task
  */
@@ -119,7 +119,6 @@ abstract class PhpcsLint extends BaseTask implements
         'severity' => 'severity',
         'errorSeverity' => 'error-severity',
         'warningSeverity' => 'warning-severity',
-        'stdinPath' => 'stdin-path',
     ];
 
     protected $listOptions = [
@@ -341,6 +340,7 @@ abstract class PhpcsLint extends BaseTask implements
         return $this;
     }
 
+    //region Options
     //region Option - colors
     /**
      * @var bool
@@ -697,6 +697,7 @@ abstract class PhpcsLint extends BaseTask implements
         return $this;
     }
     //endregion
+    //endregion
 
     /**
      * TaskPhpcs constructor.
@@ -762,9 +763,11 @@ abstract class PhpcsLint extends BaseTask implements
 
         if ($this->addFilesToCliCommand) {
             $files = $this->filterEnabled($this->getFiles());
-            $cmdPattern .= str_repeat(' %s', count($files));
-            foreach ($files as $file) {
-                $cmdArgs[] = Utils::escapeShellArgWithWildcard($file);
+            if ($files) {
+                $cmdPattern .= ' --' . str_repeat(' %s', count($files));
+                foreach ($files as $file) {
+                    $cmdArgs[] = Utils::escapeShellArgWithWildcard($file);
+                }
             }
         }
 
@@ -776,7 +779,7 @@ abstract class PhpcsLint extends BaseTask implements
      */
     protected function buildOptions()
     {
-        return [
+        $options = [
             'colors' => $this->getColors(),
             'standard' => $this->getStandard(),
             'reports' => $this->getReports(),
@@ -788,6 +791,13 @@ abstract class PhpcsLint extends BaseTask implements
             'sniffs' => $this->getSniffs(),
             'exclude' => $this->getExclude(),
         ];
+
+        $options['reports'] = array_diff_key(
+            $options['reports'],
+            array_flip(array_keys($options['reports'], false, true))
+        );
+
+        return $options;
     }
 
     /**
@@ -834,8 +844,7 @@ abstract class PhpcsLint extends BaseTask implements
      */
     protected function runHeader()
     {
-        $standard = $this->getStandard() ?: 'Default';
-        $this->printTaskInfo("PHP_CodeSniffer is linting with <info>{$standard}</info> standard");
+        $this->printTaskInfo(null, null);
 
         return $this;
     }
@@ -871,10 +880,6 @@ abstract class PhpcsLint extends BaseTask implements
         $this->lintExitCode = static::EXIT_CODE_OK;
 
         $options = $this->buildOptions();
-        $options['reports'] = array_diff_key(
-            $options['reports'],
-            array_flip(array_keys($options['reports'], false, true))
-        );
 
         if (!array_key_exists('json', $options['reports'])) {
             $this->isLintStdOutputPublic = array_search(null, $options['reports'], true) !== false;
@@ -938,8 +943,10 @@ abstract class PhpcsLint extends BaseTask implements
      */
     protected function runReleaseAssets()
     {
-        if ($this->isReportHasToBePutBackIntoJar()) {
-            $this->setAssetJarValue('report', $this->reportWrapper);
+        if ($this->isLintSuccess() && $this->hasAssetJar()) {
+            if ($this->getAssetJarMap('report')) {
+                $this->setAssetJarValue('report', $this->reportWrapper);
+            }
         }
 
         return $this;
@@ -961,6 +968,7 @@ abstract class PhpcsLint extends BaseTask implements
             $exitCode,
             $this->getExitMessage($exitCode),
             [
+                'workingDirectory' => $this->getWorkingDirectory(),
                 'report' => $this->reportWrapper,
             ]
         );
@@ -994,18 +1002,6 @@ abstract class PhpcsLint extends BaseTask implements
     protected function filterEnabled(array $items)
     {
         return gettype(reset($items)) === 'boolean' ? array_keys($items, true, true) : $items;
-    }
-
-    /**
-     * @return bool
-     */
-    protected function isReportHasToBePutBackIntoJar()
-    {
-        return (
-            $this->hasAssetJar()
-            && $this->getAssetJarMap('report')
-            && $this->isLintSuccess()
-        );
     }
 
     /**
@@ -1075,5 +1071,31 @@ abstract class PhpcsLint extends BaseTask implements
         }
 
         return 'Unknown outcome.';
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    protected function printTaskInfo($text, $context = null)
+    {
+        parent::printTaskInfo($text ?: $this->getTaskInfoPattern(), $context);
+    }
+
+    /**
+     * @return string
+     */
+    protected function getTaskInfoPattern()
+    {
+        return "{name} is linting with <info>{standard}</info> standard";
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    protected function getTaskContext($context = null)
+    {
+        return [
+            'standard' => $this->getStandard() ?: 'Default',
+        ] + parent::getTaskContext($context);
     }
 }
