@@ -31,12 +31,9 @@ class RoboFile extends \Robo\Tasks implements ContainerAwareInterface, ConfigAwa
     }
 
     /**
-     * @param string $runMode
-     *   Allowed values are: cli, native.
-     *
      * @return $this
      */
-    public function lintFilesAllInOne($runMode)
+    public function lintFilesAllInOne()
     {
         $reportsDir = 'actual';
 
@@ -49,7 +46,6 @@ class RoboFile extends \Robo\Tasks implements ContainerAwareInterface, ConfigAwa
             ->setDestination("$reportsDir/01.extra.summary.txt");
 
         return $this->taskPhpcsLintFiles()
-            ->setRunMode($runMode)
             ->setColors(false)
             ->setStandard('PSR2')
             ->setFiles(['fixtures/psr2.invalid.01.php'])
@@ -110,19 +106,5 @@ class RoboFile extends \Robo\Tasks implements ContainerAwareInterface, ConfigAwa
             ->setFiles([])
             ->setAssetJar($assetJar)
             ->setAssetJarMap('files', ['l1', 'l2']);
-    }
-
-    /**
-     * @param string $runMode
-     *
-     * @return $this
-     */
-    protected function validateRunMode($runMode)
-    {
-        if (!in_array($runMode, ['cli', 'native'])) {
-            throw new \InvalidArgumentException("Run mode is invalid: '$runMode'");
-        }
-
-        return $this;
     }
 }

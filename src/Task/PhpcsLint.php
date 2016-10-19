@@ -10,6 +10,7 @@ use Cheppers\Robo\Phpcs\Utils;
 use League\Container\ContainerAwareInterface;
 use League\Container\ContainerAwareTrait;
 use Robo\Common\IO;
+use Robo\Contract\CommandInterface;
 use Robo\Contract\OutputAwareInterface;
 use Robo\Result;
 use Robo\TaskAccessor;
@@ -27,7 +28,8 @@ use Symfony\Component\Process\Process;
 abstract class PhpcsLint extends BaseTask implements
     AssetJarAwareInterface,
     ContainerAwareInterface,
-    OutputAwareInterface
+    OutputAwareInterface,
+    CommandInterface
 {
     use AssetJarAware;
     use ContainerAwareTrait;
@@ -35,10 +37,6 @@ abstract class PhpcsLint extends BaseTask implements
     use FsShortCuts;
     use IO;
     use TaskAccessor;
-
-    const RUN_MODE_CLI = 'cli';
-
-    const RUN_MODE_NATIVE = 'native';
 
     const EXIT_CODE_OK = 0;
 
@@ -261,37 +259,6 @@ abstract class PhpcsLint extends BaseTask implements
     }
     //endregion
 
-    //region Property - runMode
-    /**
-     * @var string
-     */
-    protected $runMode = 'cli';
-
-    /**
-     * @return string
-     */
-    public function getRunMode()
-    {
-        return $this->runMode;
-    }
-
-    /**
-     * @param string $runMode
-     *
-     * @return $this
-     */
-    public function setRunMode($runMode)
-    {
-        if ($runMode !== static::RUN_MODE_NATIVE && $runMode !== static::RUN_MODE_CLI) {
-            throw new \InvalidArgumentException("Invalid argument: '$runMode'");
-        }
-
-        $this->runMode = $runMode;
-
-        return $this;
-    }
-    //endregion
-
     /**
      * @param array $options
      *
@@ -315,10 +282,6 @@ abstract class PhpcsLint extends BaseTask implements
 
                 case 'phpcsExecutable':
                     $this->setPhpcsExecutable($value);
-                    break;
-
-                case 'runMode':
-                    $this->setRunMode($value);
                     break;
 
                 case 'failOn':
@@ -828,45 +791,6 @@ abstract class PhpcsLint extends BaseTask implements
     }
 
     /**
-     * @param array $options
-     *
-     * @return array
-     */
-    public function getNormalizedOptions(array $options)
-    {
-        foreach (array_keys($this->triStateOptions) as $key) {
-            if (!isset($options[$key])) {
-                unset($options[$key]);
-            } else {
-                settype($options[$key], 'boolean');
-            }
-        }
-
-        foreach (array_keys($this->simpleOptions) as $key) {
-            if (!isset($options[$key])) {
-                unset($options[$key]);
-            }
-        }
-
-        foreach (array_keys($this->listOptions) as $key) {
-            if (!empty($options[$key])) {
-                $options[$key] = $this->filterEnabled($options[$key]);
-            } else {
-                unset($options[$key]);
-            }
-        }
-
-        $files = $this->getFiles();
-        if (!empty($files)) {
-            $options['files'] = $this->filterEnabled($files);
-        }
-
-        $options['verbosity'] = 0;
-
-        return $options;
-    }
-
-    /**
      * @param array $totals
      *
      * @return int
@@ -959,45 +883,15 @@ abstract class PhpcsLint extends BaseTask implements
                 : null;
         }
 
-        if ($this->runMode === static::RUN_MODE_CLI) {
-            /** @var Process $process */
-            $process = new $this->processClass($this->getCommand($options));
-            if ($this->workingDirectory) {
-                $process->setWorkingDirectory($this->workingDirectory);
-            }
-
-            $this->lintExitCode = $process->run();
-            $this->lintStdOutput = $process->getOutput();
-            $this->reportRaw = $this->lintStdOutput;
-        } elseif ($this->runMode === static::RUN_MODE_NATIVE) {
-            $cwd = getcwd();
-            if ($this->workingDirectory) {
-                chdir($this->workingDirectory);
-            }
-
-            /** @var \PHP_CodeSniffer_CLI $phpcsCli */
-            $phpcsCli = new $this->phpCodeSnifferCliClass();
-
-            if ($options['reports']['json'] === null) {
-                ob_start();
-            }
-
-            try {
-                $phpcsCli->process($this->getNormalizedOptions($options));
-            } catch (\Exception $e) {
-                $this->lintExitCode = static::EXIT_CODE_UNKNOWN;
-            }
-
-            if ($options['reports']['json'] === null) {
-                $this->lintStdOutput = ob_get_contents();
-                ob_end_clean();
-                $this->reportRaw = $this->lintStdOutput;
-            }
-
-            if ($this->workingDirectory) {
-                chdir($cwd);
-            }
+        /** @var Process $process */
+        $process = new $this->processClass($this->getCommand($options));
+        if ($this->workingDirectory) {
+            $process->setWorkingDirectory($this->workingDirectory);
         }
+
+        $this->lintExitCode = $process->run();
+        $this->lintStdOutput = $process->getOutput();
+        $this->reportRaw = $this->lintStdOutput;
 
         if ($this->isLintSuccess()
             && $options['reports']['json'] !== null
