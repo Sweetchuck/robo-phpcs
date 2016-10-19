@@ -61,25 +61,6 @@ class PhpcsLintFilesTest extends \Codeception\Test\Unit
         $this->assertEquals('b', $task->getPhpcsExecutable(), 'normal');
     }
 
-    public function testGetSetRunMode()
-    {
-        $task = new PhpcsLintFiles();
-        $this->assertEquals('cli', $task->getRunMode(), 'default value');
-
-        $task = new PhpcsLintFiles(['runMode' => 'native']);
-        $this->assertEquals('native', $task->getRunMode(), 'set in constructor');
-
-        $task->setRunMode('cli');
-        $this->assertEquals('cli', $task->getRunMode(), 'normal');
-
-        try {
-            $task->setRunMode('invalid');
-            $this->fail('Run mode not protected');
-        } catch (\InvalidArgumentException $e) {
-            $this->assertEquals("Invalid argument: 'invalid'", $e->getMessage());
-        }
-    }
-
     public function testGetSetAssetJar()
     {
         $task = new PhpcsLintFiles();
@@ -379,124 +360,9 @@ class PhpcsLintFilesTest extends \Codeception\Test\Unit
      */
     public function testGetCommand($expected, array $options)
     {
-        $options += ['phpcsExecutable' => 'phpcs'];
-        /** @var \Cheppers\Robo\Phpcs\Task\PhpcsLintFiles $task */
-        $task = Stub::construct(
-            PhpcsLintFiles::class,
-            [$options, []]
-        );
+        $task = new PhpcsLintFiles($options + ['phpcsExecutable' => 'phpcs']);
 
         static::assertEquals($expected, $task->getCommand());
-    }
-
-    public function testRunMode()
-    {
-        /** @var \Cheppers\Robo\Phpcs\Task\PhpcsLintFiles $task */
-        $task = Stub::construct(PhpcsLintFiles::class);
-        try {
-            $task->setRunMode('none');
-            static::fail('TaskPhpcsLint::runMode() did not throw an exception.');
-        } catch (\InvalidArgumentException $e) {
-            static::assertEquals("Invalid argument: 'none'", $e->getMessage());
-        }
-    }
-
-    /**
-     * @return array
-     */
-    public function casesGetNormalizedConfig()
-    {
-        return [
-            'colors-null' => [
-                [],
-                [
-                    'colors' => null,
-                ],
-            ],
-            'colors-true' => [
-                [
-                    'colors' => true
-                ],
-                [
-                    'colors' => true,
-                ],
-            ],
-            'standard-null' => [
-                [],
-                [
-                    'standard' => null,
-                ],
-            ],
-            'standard-value' => [
-                [
-                    'standard' => 'foo',
-                ],
-                [
-                    'standard' => 'foo',
-                ],
-            ],
-            'extensions-empty' => [
-                [],
-                [
-                    'extensions' => [],
-                ],
-            ],
-            'extensions-1' => [
-                [
-                    'extensions' => ['foo', 'bar'],
-                ],
-                [
-                    'extensions' => ['foo' => true, 'bar' => true, 'zed' => false],
-                ],
-            ],
-            'extensions-2' => [
-                [
-                    'extensions' => ['foo', 'bar'],
-                ],
-                [
-                    'extensions' => ['foo', 'bar'],
-                ],
-            ],
-            'files-empty' => [
-                [
-                    'files' => [],
-                ],
-                [
-                    'files' => [],
-                ],
-            ],
-            'files-1' => [
-                [
-                    'files' => ['foo', 'bar'],
-                ],
-                [
-                    'files' => ['foo', 'bar'],
-                ],
-            ],
-            'files-2' => [
-                [
-                    'files' => ['foo', 'bar'],
-                ],
-                [
-                    'files' => ['foo', 'bar'],
-                ],
-            ],
-        ];
-    }
-
-    /**
-     * @dataProvider casesGetNormalizedConfig
-     *
-     * @param array $expected
-     * @param array $options
-     */
-    public function testGetNormalizedConfig(array $expected, array $options)
-    {
-        $expected['verbosity'] = 0;
-
-        /** @var \Cheppers\Robo\Phpcs\Task\PhpcsLintFiles $task */
-        $task = Stub::construct(PhpcsLintFiles::class);
-        static::assertEquals($expected, $task->getNormalizedOptions($options));
     }
 
     /**
@@ -539,7 +405,7 @@ class PhpcsLintFilesTest extends \Codeception\Test\Unit
             'fixable' => true,
         ];
 
-        $label_pattern = '%d; failOn: %s; E: %d; W: %d; exitCode: %d; runMode: %s; withJar: %s;';
+        $label_pattern = '%d; failOn: %s; E: %d; W: %d; exitCode: %d; withJar: %s;';
         $cases = [];
 
         $combinations = [
@@ -560,36 +426,33 @@ class PhpcsLintFilesTest extends \Codeception\Test\Unit
         ];
 
         $i = 0;
-        foreach (['cli', 'native'] as $runMode) {
-            foreach ([true, false] as $withJar) {
-                $withJarStr = $withJar ? 'true' : 'false';
-                foreach ($combinations as $c) {
-                    $i++;
-                    $report = $reportBase;
+        foreach ([true, false] as $withJar) {
+            $withJarStr = $withJar ? 'true' : 'false';
+            foreach ($combinations as $c) {
+                $i++;
+                $report = $reportBase;
 
-                    if ($c['e']) {
-                        $report['totals']['errors'] = 1;
-                        $report['files']['a.php']['errors'] = 1;
-                        $report['files']['a.php']['messages'][] = $messageError;
-                    }
-
-                    if ($c['w']) {
-                        $report['totals']['warnings'] = 1;
-                        $report['files']['a.php']['warnings'] = 1;
-                        $report['files']['a.php']['messages'][] = $messageWarning;
-                    }
-
-                    $label = sprintf($label_pattern, $i, $c['f'], $c['e'], $c['w'], $c['c'], $runMode, $withJarStr);
-                    $cases[$label] = [
-                        $c['c'],
-                        [
-                            'failOn' => $c['f'],
-                            'runMode' => $runMode,
-                        ],
-                        $withJar,
-                        json_encode($report)
-                    ];
+                if ($c['e']) {
+                    $report['totals']['errors'] = 1;
+                    $report['files']['a.php']['errors'] = 1;
+                    $report['files']['a.php']['messages'][] = $messageError;
                 }
+
+                if ($c['w']) {
+                    $report['totals']['warnings'] = 1;
+                    $report['files']['a.php']['warnings'] = 1;
+                    $report['files']['a.php']['messages'][] = $messageWarning;
+                }
+
+                $label = sprintf($label_pattern, $i, $c['f'], $c['e'], $c['w'], $c['c'], $withJarStr);
+                $cases[$label] = [
+                    $c['c'],
+                    [
+                        'failOn' => $c['f'],
+                    ],
+                    $withJar,
+                    json_encode($report)
+                ];
             }
         }
 
@@ -651,12 +514,10 @@ class PhpcsLintFilesTest extends \Codeception\Test\Unit
             'Exit code is different than the expected.'
         );
 
-        if ($options['runMode'] === 'cli') {
-            static::assertEquals(
-                $options['workingDirectory'],
-                \Helper\Dummy\Process::$instance->getWorkingDirectory()
-            );
-        }
+        static::assertEquals(
+            $options['workingDirectory'],
+            \Helper\Dummy\Process::$instance->getWorkingDirectory()
+        );
 
         if ($withJar) {
             /** @var \Cheppers\LintReport\ReportWrapperInterface $reportWrapper */
