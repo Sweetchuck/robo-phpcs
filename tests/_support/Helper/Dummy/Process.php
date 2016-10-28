@@ -11,24 +11,20 @@ class Process extends \Symfony\Component\Process\Process
 {
 
     /**
-     * @var int
+     * @var array
      */
-    public static $exitCode = 0;
+    public static $prophecy = [];
 
     /**
-     * @var string
+     * @var \Helper\Dummy\Process[]
      */
-    public static $stdOutput = '';
+    public static $instances = null;
 
-    /**
-     * @var string
-     */
-    public static $stdError = '';
-
-    /**
-     * @var \Helper\Dummy\Process
-     */
-    public static $instance = null;
+    public static function reset()
+    {
+        static::$prophecy = [];
+        static::$instances = [];
+    }
 
     /**
      * {@inheritdoc}
@@ -39,11 +35,11 @@ class Process extends \Symfony\Component\Process\Process
         array $env = null,
         $input = null,
         $timeout = 60,
-        array $options = array()
+        array $options = []
     ) {
         parent::__construct($commandline, $cwd, $env, $input, $timeout, $options);
 
-        static::$instance = $this;
+        static::$instances[] = $this;
     }
 
     /**
@@ -51,7 +47,9 @@ class Process extends \Symfony\Component\Process\Process
      */
     public function run($callback = null)
     {
-        return static::$exitCode;
+        $index = array_search($this, static::$instances);
+
+        return static::$prophecy[$index]['exitCode'];
     }
 
     /**
@@ -59,7 +57,9 @@ class Process extends \Symfony\Component\Process\Process
      */
     public function getExitCode()
     {
-        return static::$exitCode;
+        $index = array_search($this, static::$instances);
+
+        return static::$prophecy[$index]['exitCode'];
     }
 
     /**
@@ -67,7 +67,9 @@ class Process extends \Symfony\Component\Process\Process
      */
     public function getOutput()
     {
-        return static::$stdOutput;
+        $index = array_search($this, static::$instances);
+
+        return static::$prophecy[$index]['stdOutput'];
     }
 
     /**
@@ -75,6 +77,8 @@ class Process extends \Symfony\Component\Process\Process
      */
     public function getErrorOutput()
     {
-        return static::$stdError;
+        $index = array_search($this, static::$instances);
+
+        return static::$prophecy[$index]['stdError'];
     }
 }

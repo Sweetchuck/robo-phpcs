@@ -1,8 +1,8 @@
 <?php
 
 // @codingStandardsIgnoreStart
+use Cheppers\LintReport\Reporter\BaseReporter;
 use Cheppers\LintReport\Reporter\CheckstyleReporter;
-use League\Container\ContainerAwareInterface;
 use League\Container\ContainerInterface;
 use Symfony\Component\Process\Process;
 use Symfony\Component\Yaml\Yaml;
@@ -10,12 +10,11 @@ use Symfony\Component\Yaml\Yaml;
 /**
  * Class RoboFile.
  */
-class RoboFile extends \Robo\Tasks implements ContainerAwareInterface
+class RoboFile extends \Robo\Tasks
 // @codingStandardsIgnoreEnd
 {
     use \Cheppers\Robo\Git\Task\LoadTasks;
-    use \Cheppers\Robo\Phpcs\Task\LoadTasks;
-    use \League\Container\ContainerAwareTrait;
+    use \Cheppers\Robo\Phpcs\LoadPhpcsTasks;
 
     /**
      * @var array
@@ -73,7 +72,7 @@ class RoboFile extends \Robo\Tasks implements ContainerAwareInterface
      */
     public function setContainer(ContainerInterface $container)
     {
-        \Cheppers\LintReport\Reporter\BaseReporter::lintReportConfigureContainer($container);
+        BaseReporter::lintReportConfigureContainer($container);
 
         return parent::setContainer($container);
     }
@@ -185,13 +184,13 @@ class RoboFile extends \Robo\Tasks implements ContainerAwareInterface
         $logDir = $this->getLogDir();
 
         $cmdArgs = [];
-        if ($this->isPhpExtensionAvailable('xdebug')) {
-            $cmdPattern = '%s';
-            $cmdArgs[] = escapeshellcmd("{$this->binDir}/codecept");
-        } else {
+        if ($this->isPhpDbgAvailable() && !$this->isPhpExtensionAvailable('xdebug')) {
             $cmdPattern = '%s -qrr %s';
             $cmdArgs[] = escapeshellcmd($this->phpdbgExecutable);
             $cmdArgs[] = escapeshellarg("{$this->binDir}/codecept");
+        } else {
+            $cmdPattern = '%s';
+            $cmdArgs[] = escapeshellcmd("{$this->binDir}/codecept");
         }
 
         $cmdPattern .= ' --ansi';
@@ -257,6 +256,7 @@ class RoboFile extends \Robo\Tasks implements ContainerAwareInterface
         ];
 
         $options = [
+            'failOn' => 'warning',
             'standard' => 'PSR2',
             'lintReporters' => [
                 'lintVerboseReporter' => null,
@@ -281,6 +281,7 @@ class RoboFile extends \Robo\Tasks implements ContainerAwareInterface
         return $cb->addTaskList([
             'git.readStagedFiles' => $this
                 ->taskGitReadStagedFiles()
+                ->setCommandOnly(true)
                 ->setAssetJar($assetJar)
                 ->setAssetJarMap('files', ['files'])
                 ->setPaths($files),
@@ -307,6 +308,20 @@ class RoboFile extends \Robo\Tasks implements ContainerAwareInterface
         }
 
         return in_array($extension, explode("\n", $process->getOutput()));
+    }
+
+    /**
+     * @return bool
+     */
+    protected function isPhpDbgAvailable()
+    {
+        $command = sprintf(
+            '%s -i | grep -- %s',
+            escapeshellcmd($this->phpExecutable),
+            escapeshellarg('--enable-phpdbg')
+        );
+
+        return (new Process($command))->run() === 0;
     }
 
     /**

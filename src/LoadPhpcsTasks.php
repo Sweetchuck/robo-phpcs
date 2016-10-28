@@ -1,7 +1,9 @@
 <?php
 
-namespace Cheppers\Robo\Phpcs\Task;
+namespace Cheppers\Robo\Phpcs;
 
+use Cheppers\Robo\Phpcs\Task\PhpcsLintFiles;
+use Cheppers\Robo\Phpcs\Task\PhpcsLintInput;
 use League\Container\ContainerAwareInterface;
 use Robo\Contract\OutputAwareInterface;
 
@@ -10,7 +12,7 @@ use Robo\Contract\OutputAwareInterface;
  *
  * @package Cheppers\Robo\Phpcs\Task
  */
-trait LoadTasks
+trait LoadPhpcsTasks
 {
     /**
      * Expose phpcs-lint task.
@@ -22,7 +24,7 @@ trait LoadTasks
      */
     protected function taskPhpcsLintFiles(array $options = null)
     {
-        /** @var PhpcsLintFiles $task */
+        /** @var \Cheppers\Robo\Phpcs\Task\PhpcsLintFiles $task */
         $task = $this->task(PhpcsLintFiles::class, $options);
         if ($this instanceof ContainerAwareInterface) {
             $task->setContainer($this->getContainer());
@@ -42,7 +44,7 @@ trait LoadTasks
      */
     protected function taskPhpcsLintInput(array $options = null)
     {
-        /** @var PhpcsLintInput $task */
+        /** @var \Cheppers\Robo\Phpcs\Task\PhpcsLintInput $task */
         $task = $this->task(PhpcsLintInput::class, $options);
         if ($this instanceof ContainerAwareInterface) {
             $task->setContainer($this->getContainer());

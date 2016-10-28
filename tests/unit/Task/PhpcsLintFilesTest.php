@@ -15,6 +15,16 @@ class PhpcsLintFilesTest extends \Codeception\Test\Unit
 {
     // @codingStandardsIgnoreEnd
 
+    /**
+     * {@inheritdoc}
+     */
+    protected function setUp()
+    {
+        parent::setUp();
+
+        \Helper\Dummy\Process::reset();
+    }
+
     public function testGetSetLintReporters()
     {
         $task = new PhpcsLintFiles([
@@ -322,28 +332,28 @@ class PhpcsLintFilesTest extends \Codeception\Test\Unit
                 ],
             ],
             'files-single-1' => [
-                "phpcs --colors 'foo'",
+                "phpcs --colors -- 'foo'",
                 [
                     'colors' => true,
                     'files' => ['foo' => true],
                 ],
             ],
             'files-single-2' => [
-                "phpcs --colors 'foo'",
+                "phpcs --colors -- 'foo'",
                 [
                     'colors' => true,
                     'files' => ['foo'],
                 ],
             ],
             'files-multi-1' => [
-                "phpcs --colors 'foo' 'bar'",
+                "phpcs --colors -- 'foo' 'bar'",
                 [
                     'colors' => true,
                     'files' => ['foo' => true, 'bar' => true, 'zed' => false],
                 ],
             ],
             'files-multi-2' => [
-                "phpcs --colors 'foo' 'bar'",
+                "phpcs --colors -- 'foo' 'bar'",
                 [
                     'colors' => true,
                     'files' => ['foo', 'bar'],
@@ -492,8 +502,13 @@ class PhpcsLintFilesTest extends \Codeception\Test\Unit
             ]
         );
 
-        \Helper\Dummy\Process::$exitCode = $exitCode;
-        \Helper\Dummy\Process::$stdOutput = $expectedStdOutput;
+        $processIndex = count(\Helper\Dummy\Process::$instances);
+
+        \Helper\Dummy\Process::$prophecy[$processIndex] = [
+            'exitCode' => $exitCode,
+            'stdOutput' => $expectedStdOutput,
+        ];
+
         \Helper\Dummy\PHP_CodeSniffer_CLI::$numOfErrors = $exitCode ? 42 : 0;
         \Helper\Dummy\PHP_CodeSniffer_CLI::$stdOutput = $expectedStdOutput;
 
@@ -516,7 +531,7 @@ class PhpcsLintFilesTest extends \Codeception\Test\Unit
 
         static::assertEquals(
             $options['workingDirectory'],
-            \Helper\Dummy\Process::$instance->getWorkingDirectory()
+            \Helper\Dummy\Process::$instances[$processIndex]->getWorkingDirectory()
         );
 
         if ($withJar) {

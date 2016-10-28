@@ -28,6 +28,16 @@ class PhpcsLintInputTest extends \Codeception\Test\Unit
      */
     protected $tester;
 
+    /**
+     * {@inheritdoc}
+     */
+    protected function setUp()
+    {
+        parent::setUp();
+
+        \Helper\Dummy\Process::reset();
+    }
+
     public function testGetSetOptions()
     {
         $options = [
@@ -114,6 +124,19 @@ class PhpcsLintInputTest extends \Codeception\Test\Unit
                     ],
                 ],
             ],
+            'non-exists' => [
+                null,
+                'non-exists',
+                [
+                    'files' => ['a.php', 'b.php'],
+                    'assetJarMapping' => ['files' => ['l1', 'l2']],
+                ],
+                [
+                    'l1' => [
+                        'l2' => ['c.php', 'd.php'],
+                    ],
+                ],
+            ],
         ];
     }
 
@@ -137,5 +160,187 @@ class PhpcsLintInputTest extends \Codeception\Test\Unit
         $task->setAssetJar(new AssetJar($jarValue));
 
         $this->tester->assertEquals($expected, $method->invoke($task, $itemName));
+    }
+
+    /**
+     * @return array
+     */
+    public function casesRun()
+    {
+        $files = [
+            'empty' => [
+                'totals' => [
+                    'errors' => 0,
+                    'warnings' => 0,
+                    'fixable' => 0,
+                ],
+                'files' => [],
+            ],
+            'w1' => [
+                'totals' => [
+                    'errors' => 0,
+                    'warnings' => 1,
+                    'fixable' => 0,
+                ],
+                'files' => [
+                    'w1.js' => [
+                        'errors' => 0,
+                        'warnings' => 1,
+                        'messages' => [
+                            [
+                                'column' => 1,
+                                'fixable' => false,
+                                'line' => 3,
+                                'message' => 'Dummy error message',
+                                'severity' => 4,
+                                'source' => 'PSR1.Classes.ClassDeclaration.MissingNamespace',
+                                'type' => 'WARNING',
+                            ]
+                        ],
+                    ],
+                ],
+            ],
+            'w2' => [
+                'totals' => [
+                    'errors' => 0,
+                    'warnings' => 1,
+                    'fixable' => 0,
+                ],
+                'files' => [
+                    'w2.js' => [
+                        'errors' => 0,
+                        'warnings' => 1,
+                        'messages' => [
+                            [
+                                'column' => 1,
+                                'fixable' => false,
+                                'line' => 3,
+                                'message' => 'Dummy error message',
+                                'severity' => 4,
+                                'source' => 'PSR1.Classes.ClassDeclaration.MissingNamespace',
+                                'type' => 'WARNING',
+                            ]
+                        ],
+                    ],
+                ],
+            ],
+            'e1' => [
+                'totals' => [
+                    'errors' => 1,
+                    'warnings' => 0,
+                    'fixable' => 0,
+                ],
+                'files' => [
+                    'e1.js' => [
+                        'errors' => 1,
+                        'warnings' => 0,
+                        'messages' => [
+                            [
+                                'column' => 1,
+                                'fixable' => false,
+                                'line' => 3,
+                                'message' => 'Dummy error message',
+                                'severity' => 5,
+                                'source' => 'PSR1.Classes.ClassDeclaration.MissingNamespace',
+                                'type' => 'ERROR',
+                            ]
+                        ],
+                    ],
+                ],
+            ],
+        ];
+
+        return [
+            'empty' => [
+                [
+                    'exitCode' => 0,
+                    'report' => $files['empty'],
+                    'files' => [],
+                ],
+                [
+                    'format' => 'json',
+                    'failOn' => 'warning',
+                ],
+                [],
+            ],
+            'w0 never' => [
+                [
+                    'exitCode' => 0,
+                    'report' => [
+                        'totals' => [
+                            'errors' => $files['w1']['totals']['errors'] + $files['w2']['totals']['errors'],
+                            'warnings' => $files['w1']['totals']['warnings'] + $files['w2']['totals']['warnings'],
+                            'fixable' => $files['w1']['totals']['fixable'] + $files['w2']['totals']['fixable'],
+                        ],
+                        'files' => $files['w1']['files'] + $files['w2']['files'],
+                    ],
+                ],
+                [
+                    'format' => 'json',
+                    'failOn' => 'never',
+                    'files' => [
+                        'w1.js' => '',
+                        'w2.js' => '',
+                    ],
+                ],
+                [
+                    'w1.js' => [
+                        'lintExitCode' => 1,
+                        'lintStdOutput' => json_encode($files['w1'], true),
+                        'report' => $files['w1'],
+                    ],
+                    'w2.js' => [
+                        'lintExitCode' => 1,
+                        'lintStdOutput' => json_encode($files['w2'], true),
+                        'report' => $files['w2'],
+                    ],
+                ],
+            ],
+        ];
+    }
+
+    /**
+     * @dataProvider casesRun
+     *
+     * @param array $expected
+     * @param array $options
+     * @param array $properties
+     */
+    public function testRun(array $expected, array $options, array $files, array $properties = [])
+    {
+        $container = \Robo\Robo::createDefaultContainer();
+        \Robo\Robo::setContainer($container);
+
+        $mainStdOutput = new \Helper\Dummy\Output();
+
+        $properties += ['processClass' => \Helper\Dummy\Process::class];
+
+        /** @var \Cheppers\Robo\Phpcs\Task\PhpcsLintInput $task */
+        $task = Stub::construct(
+            PhpcsLintInput::class,
+            [$options, []],
+            $properties
+        );
+
+        $processIndex = count(\Helper\Dummy\Process::$instances);
+        foreach ($files as $file) {
+            \Helper\Dummy\Process::$prophecy[$processIndex] = [
+                'exitCode' => $file['lintExitCode'],
+                'stdOutput' => $file['lintStdOutput'],
+            ];
+
+            $processIndex++;
+        }
+
+        $task->setLogger($container->get('logger'));
+        $task->setOutput($mainStdOutput);
+
+        $result = $task->run();
+
+        $this->tester->assertEquals($expected['exitCode'], $result->getExitCode());
+
+        /** @var \Cheppers\LintReport\ReportWrapperInterface $reportWrapper */
+        $reportWrapper = $result['report'];
+        $this->tester->assertEquals($expected['report'], $reportWrapper->getReport());
     }
 }

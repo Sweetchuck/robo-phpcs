@@ -17,7 +17,7 @@ use Robo\Contract\OutputAwareInterface;
 class RoboFile extends \Robo\Tasks implements ContainerAwareInterface, ConfigAwareInterface
 {
     // @codingStandardsIgnoreEnd
-    use \Cheppers\Robo\Phpcs\Task\LoadTasks;
+    use \Cheppers\Robo\Phpcs\LoadPhpcsTasks;
     use \League\Container\ContainerAwareTrait;
     use \Robo\Common\ConfigAwareTrait;
 
@@ -57,8 +57,14 @@ class RoboFile extends \Robo\Tasks implements ContainerAwareInterface, ConfigAwa
             ->addLintReporter('summary:file', $summaryFile);
     }
 
-    public function lintInputWithoutJar()
-    {
+    /**
+     * @return \Cheppers\Robo\Phpcs\Task\PhpcsLintInput
+     */
+    public function lintInputWithoutJar(
+        $options = [
+            'command-only' => false,
+        ]
+    ) {
         $fixturesDir = 'fixtures';
         $reportsDir = 'actual';
 
@@ -74,18 +80,27 @@ class RoboFile extends \Robo\Tasks implements ContainerAwareInterface, ConfigAwa
             ->setFilePathStyle('relative')
             ->setDestination("$reportsDir/02-03.extra.checkstyle.xml");
 
+        $files = [
+            'psr2.invalid.02.php' => [
+                'fileName' => 'psr2.invalid.02.php',
+                'command' => "cat $fixturesDir/psr2.invalid.02.php",
+                'content' => null,
+            ],
+            'psr2.invalid.03.php' => [
+                'fileName' => 'psr2.invalid.03.php',
+                'command' => "cat $fixturesDir/psr2.invalid.03.php",
+                'content' => null,
+            ],
+        ];
+
+        if (!$options['command-only']) {
+            $files['psr2.invalid.02.php']['content'] = file_get_contents("$fixturesDir/psr2.invalid.02.php");
+            $files['psr2.invalid.03.php']['content'] = file_get_contents("$fixturesDir/psr2.invalid.03.php");
+        }
+
         return $this->taskPhpcsLintInput()
             ->setStandard('PSR2')
-            ->setFiles([
-                'psr2.invalid.02.php' => [
-                    'fileName' => 'psr2.invalid.02.php',
-                    'content' => file_get_contents("$fixturesDir/psr2.invalid.02.php"),
-                ],
-                'psr2.invalid.03.php' => [
-                    'fileName' => 'psr2.invalid.02.php',
-                    'content' => file_get_contents("$fixturesDir/psr2.invalid.03.php"),
-                ],
-            ])
+            ->setFiles($files)
             ->addLintReporter('verbose:StdOutput', 'lintVerboseReporter')
             ->addLintReporter('verbose:file', $verboseFile)
             ->addLintReporter('summary:StdOutput', 'lintSummaryReporter')
@@ -93,9 +108,15 @@ class RoboFile extends \Robo\Tasks implements ContainerAwareInterface, ConfigAwa
             ->addLintReporter('checkstyle:file', $checkstyleFile);
     }
 
-    public function lintInputWithJar()
-    {
-        $task = $this->lintInputWithoutJar();
+    /**
+     * @return \Cheppers\Robo\Phpcs\Task\PhpcsLintInput
+     */
+    public function lintInputWithJar(
+        $options = [
+            'command-only' => false,
+        ]
+    ) {
+        $task = $this->lintInputWithoutJar($options);
         $assetJar = new AssetJar([
             'l1' => [
                 'l2' => $task->getFiles(),
