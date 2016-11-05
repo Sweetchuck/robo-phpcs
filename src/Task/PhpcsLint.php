@@ -128,6 +128,10 @@ abstract class PhpcsLint extends BaseTask implements
         'ignored' => 'ignore',
     ];
 
+    protected $flagOptions = [
+        'showProgress' => 'p'
+    ];
+
     //region Property - workingDirectory
     /**
      * @var string
@@ -333,6 +337,10 @@ abstract class PhpcsLint extends BaseTask implements
 
                 case 'files':
                     $this->setFiles($value);
+                    break;
+
+                case 'showProgress':
+                    $this->setShowProgress($value);
                     break;
             }
         }
@@ -697,6 +705,37 @@ abstract class PhpcsLint extends BaseTask implements
         return $this;
     }
     //endregion
+
+    //region Option - showProgress
+    /**
+     * @var bool
+     */
+    protected $showProgress = false;
+
+    /**
+     * @return bool
+     */
+    public function getShowProgress()
+    {
+        return $this->showProgress;
+    }
+
+    /**
+     * Show progress.
+     *
+     * @param bool $value
+     *   Show or hide the progress.
+     *
+     * @return $this
+     *   The called object.
+     */
+    public function setShowProgress($value)
+    {
+      $this->showProgress = $value;
+
+      return $this;
+    }
+    //endregion
     //endregion
 
     /**
@@ -723,6 +762,12 @@ abstract class PhpcsLint extends BaseTask implements
         $cmdArgs = [
             escapeshellcmd($this->phpcsExecutable),
         ];
+
+        foreach ($this->flagOptions as $config => $option) {
+            if (isset($options[$config]) && $options[$config]) {
+                $cmdPattern .= " -{$option}";
+            }
+        }
 
         foreach ($this->triStateOptions as $config => $option) {
             if (isset($options[$config])) {
@@ -790,6 +835,7 @@ abstract class PhpcsLint extends BaseTask implements
             'extensions' => $this->getExtensions(),
             'sniffs' => $this->getSniffs(),
             'exclude' => $this->getExclude(),
+            'showProgress' => $this->getShowProgress(),
         ];
 
         $options['reports'] = array_diff_key(
