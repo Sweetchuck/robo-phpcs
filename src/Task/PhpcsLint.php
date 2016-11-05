@@ -132,6 +132,11 @@ abstract class PhpcsLint extends BaseTask implements
         'showProgress' => 'p'
     ];
 
+    /**
+     * @var string
+     */
+    protected $printed;
+
     //region Property - workingDirectory
     /**
      * @var string
@@ -940,8 +945,21 @@ abstract class PhpcsLint extends BaseTask implements
             $process->setWorkingDirectory($this->workingDirectory);
         }
 
-        $this->lintExitCode = $process->run();
-        $this->lintStdOutput = $process->getOutput();
+        $this->printed = '';
+        if ($this->getShowProgress()) {
+            $this->lintExitCode = $process->run(function ($type, $buffer) {
+                // Print only progress output, avoid final output.
+                if ($buffer[0] !== '{') {
+                    print $buffer;
+                    // Save already printed progress.
+                    $this->printed .= $buffer;
+                }
+            });
+        } else {
+            $this->lintExitCode = $process->run();
+        }
+
+        $this->lintStdOutput = substr($process->getOutput(), strlen($this->printed));
         $this->reportRaw = $this->lintStdOutput;
 
         if ($this->isLintSuccess()
