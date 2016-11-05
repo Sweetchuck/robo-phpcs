@@ -125,7 +125,7 @@ abstract class PhpcsLint extends BaseTask implements
         'extensions' => 'extensions',
         'sniffs' => 'sniffs',
         'exclude' => 'exclude',
-        'ignored' => 'ignore',
+        'ignore' => 'ignore',
     ];
 
     //region Property - workingDirectory
@@ -329,6 +329,10 @@ abstract class PhpcsLint extends BaseTask implements
 
                 case 'exclude':
                     $this->setExclude($value);
+                    break;
+
+                case 'ignore':
+                    $this->setIgnore($value);
                     break;
 
                 case 'files':
@@ -667,6 +671,33 @@ abstract class PhpcsLint extends BaseTask implements
     }
     //endregion
 
+    //region Option - ignore
+    /**
+     * @var array
+     */
+    protected $ignore = [];
+
+    /**
+     * @return array
+     */
+    public function getIgnore()
+    {
+        return $this->ignore;
+    }
+
+    /**
+     * @param array $value
+     *
+     * @return $this
+     */
+    public function setIgnore(array $value)
+    {
+        $this->ignore = $value;
+
+        return $this;
+    }
+    //endregion
+
     //region Option - files
     /**
      * @var array
@@ -790,6 +821,7 @@ abstract class PhpcsLint extends BaseTask implements
             'extensions' => $this->getExtensions(),
             'sniffs' => $this->getSniffs(),
             'exclude' => $this->getExclude(),
+            'ignore' => $this->getIgnore(),
         ];
 
         $options['reports'] = array_diff_key(
