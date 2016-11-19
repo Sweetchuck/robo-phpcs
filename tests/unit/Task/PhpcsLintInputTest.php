@@ -94,7 +94,6 @@ class PhpcsLintInputTest extends \Codeception\Test\Unit
                 'currentFile' => $currentFile,
             ]
         );
-        $method = static::getMethod('getCommand');
 
         $this->tester->assertEquals($expected, $task->getCommand());
     }
@@ -141,12 +140,12 @@ class PhpcsLintInputTest extends \Codeception\Test\Unit
     }
 
     /**
-     * @dataProvider casesGetJarValueOrLocal
-     *
      * @param mixed $expected
      * @param string $itemName
      * @param array $options
      * @param array $jarValue
+     *
+     * @dataProvider casesGetJarValueOrLocal
      */
     public function testGetJarValueOrLocal($expected, $itemName, array $options, array $jarValue)
     {
@@ -300,11 +299,11 @@ class PhpcsLintInputTest extends \Codeception\Test\Unit
     }
 
     /**
-     * @dataProvider casesRun
-     *
      * @param array $expected
      * @param array $options
      * @param array $properties
+     *
+     * @dataProvider casesRun
      */
     public function testRun(array $expected, array $options, array $files, array $properties = [])
     {
