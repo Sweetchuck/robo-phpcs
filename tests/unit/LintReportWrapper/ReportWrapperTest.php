@@ -202,10 +202,10 @@ class ReportWrapperTest extends \Codeception\Test\Unit
     {
         $rw = new ReportWrapper($report);
 
-        $this->assertEquals($expected['countFiles'], $rw->countFiles());
-        $this->assertEquals($expected['numOfErrors'], $rw->numOfErrors());
-        $this->assertEquals($expected['numOfWarnings'], $rw->numOfWarnings());
-        $this->assertEquals($expected['highestSeverity'], $rw->highestSeverity());
+        $this->tester->assertEquals($expected['countFiles'], $rw->countFiles());
+        $this->tester->assertEquals($expected['numOfErrors'], $rw->numOfErrors());
+        $this->tester->assertEquals($expected['numOfWarnings'], $rw->numOfWarnings());
+        $this->tester->assertEquals($expected['highestSeverity'], $rw->highestSeverity());
 
         /**
          * @var string $filePath
@@ -213,11 +213,11 @@ class ReportWrapperTest extends \Codeception\Test\Unit
          */
         foreach ($rw->yieldFiles() as $filePath => $fw) {
             $file = array_shift($report['files']);
-            $this->assertEquals($file['filePath'], $fw->filePath());
-            $this->assertEquals($file['errors'], $fw->numOfErrors());
-            $this->assertEquals($file['warnings'], $fw->numOfWarnings());
-            $this->assertEquals($file['__highestSeverity'], $fw->highestSeverity());
-            $this->assertEquals($file['__stats'], $fw->stats());
+            $this->tester->assertEquals($file['filePath'], $fw->filePath());
+            $this->tester->assertEquals($file['errors'], $fw->numOfErrors());
+            $this->tester->assertEquals($file['warnings'], $fw->numOfWarnings());
+            $this->tester->assertEquals($file['__highestSeverity'], $fw->highestSeverity());
+            $this->tester->assertEquals($file['__stats'], $fw->stats());
 
             /**
              * @var int $i
@@ -225,11 +225,11 @@ class ReportWrapperTest extends \Codeception\Test\Unit
              */
             foreach ($fw->yieldFailures() as $i => $failureWrapper) {
                 $message = $file['messages'][$i];
-                $this->assertEquals($message['type'], $failureWrapper->severity());
-                $this->assertEquals($message['source'], $failureWrapper->source());
-                $this->assertEquals($message['line'], $failureWrapper->line());
-                $this->assertEquals($message['column'], $failureWrapper->column());
-                $this->assertEquals($message['message'], $failureWrapper->message());
+                $this->tester->assertEquals($message['type'], $failureWrapper->severity());
+                $this->tester->assertEquals($message['source'], $failureWrapper->source());
+                $this->tester->assertEquals($message['line'], $failureWrapper->line());
+                $this->tester->assertEquals($message['column'], $failureWrapper->column());
+                $this->tester->assertEquals($message['message'], $failureWrapper->message());
             }
         }
     }

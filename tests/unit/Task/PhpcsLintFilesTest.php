@@ -3,7 +3,6 @@
 use Cheppers\AssetJar\AssetJar;
 use Cheppers\Robo\Phpcs\Task\PhpcsLintFiles;
 use Codeception\Util\Stub;
-use Robo\Robo;
 
 /**
  * Class TaskPhpcsLintTest.
@@ -14,6 +13,11 @@ use Robo\Robo;
 class PhpcsLintFilesTest extends \Codeception\Test\Unit
 {
     // @codingStandardsIgnoreEnd
+
+    /**
+     * @var \UnitTester
+     */
+    protected $tester;
 
     /**
      * {@inheritdoc}
@@ -38,7 +42,7 @@ class PhpcsLintFilesTest extends \Codeception\Test\Unit
             ->addLintReporter('cKey', 'cValue')
             ->removeLintReporter('bKey');
 
-        $this->assertEquals(
+        $this->tester->assertEquals(
             [
                 'aKey' => 'aValue',
                 'cKey' => 'cValue',
@@ -50,51 +54,51 @@ class PhpcsLintFilesTest extends \Codeception\Test\Unit
     public function testGetSetWorkingDirectory()
     {
         $task = new PhpcsLintFiles();
-        $this->assertNull($task->getWorkingDirectory());
+        $this->tester->assertNull($task->getWorkingDirectory());
 
         $task = new PhpcsLintFiles(['workingDirectory' => 'a']);
-        $this->assertEquals('a', $task->getWorkingDirectory());
+        $this->tester->assertEquals('a', $task->getWorkingDirectory());
 
         $task->setWorkingDirectory('b');
-        $this->assertEquals('b', $task->getWorkingDirectory());
+        $this->tester->assertEquals('b', $task->getWorkingDirectory());
     }
 
     public function testGetSetPhpcsExecutable()
     {
         $task = new PhpcsLintFiles();
-        $this->assertEquals('bin/phpcs', $task->getPhpcsExecutable(), 'default value');
+        $this->tester->assertEquals('bin/phpcs', $task->getPhpcsExecutable(), 'default value');
 
         $task = new PhpcsLintFiles(['phpcsExecutable' => 'a']);
-        $this->assertEquals('a', $task->getPhpcsExecutable(), 'set in constructor');
+        $this->tester->assertEquals('a', $task->getPhpcsExecutable(), 'set in constructor');
 
         $task->setPhpcsExecutable('b');
-        $this->assertEquals('b', $task->getPhpcsExecutable(), 'normal');
+        $this->tester->assertEquals('b', $task->getPhpcsExecutable(), 'normal');
     }
 
     public function testGetSetAssetJar()
     {
         $task = new PhpcsLintFiles();
-        $this->assertNull($task->getAssetJar(), 'default value');
+        $this->tester->assertNull($task->getAssetJar(), 'default value');
 
         $assetJar1 = new AssetJar();
         $task = new PhpcsLintFiles(['assetJar' => $assetJar1]);
-        $this->assertEquals($assetJar1, $task->getAssetJar(), 'set in constructor');
+        $this->tester->assertEquals($assetJar1, $task->getAssetJar(), 'set in constructor');
 
         $assetJar2 = new AssetJar();
         $task->setAssetJar($assetJar2);
-        $this->assertEquals($assetJar2, $task->getAssetJar(), 'normal');
+        $this->tester->assertEquals($assetJar2, $task->getAssetJar(), 'normal');
     }
 
     public function testGetSetReport()
     {
         $task = new PhpcsLintFiles();
-        $this->assertNull($task->getReport('full'), 'default value');
+        $this->tester->assertNull($task->getReport('full'), 'default value');
 
         $task = new PhpcsLintFiles(['reports' => ['full' => 'a']]);
-        $this->assertEquals('a', $task->getReport('full'), 'set in constructor');
+        $this->tester->assertEquals('a', $task->getReport('full'), 'set in constructor');
 
         $task->setReport('full', 'b');
-        $this->assertEquals('b', $task->getReport('full'), 'normal');
+        $this->tester->assertEquals('b', $task->getReport('full'), 'normal');
     }
 
     /**
@@ -363,16 +367,16 @@ class PhpcsLintFilesTest extends \Codeception\Test\Unit
     }
 
     /**
-     * @dataProvider casesGetCommand
-     *
      * @param string $expected
      * @param array $options
+     *
+     * @dataProvider casesGetCommand
      */
     public function testGetCommand($expected, array $options)
     {
         $task = new PhpcsLintFiles($options + ['phpcsExecutable' => 'phpcs']);
 
-        static::assertEquals($expected, $task->getCommand());
+        $this->tester->assertEquals($expected, $task->getCommand());
     }
 
     /**
@@ -470,12 +474,12 @@ class PhpcsLintFilesTest extends \Codeception\Test\Unit
     }
 
     /**
-     * @dataProvider casesRun
-     *
      * @param int $exitCode
      * @param array $options
      * @param bool $withJar
      * @param string $expectedStdOutput
+     *
+     * @dataProvider casesRun
      */
     public function testRun($exitCode, $options, $withJar, $expectedStdOutput)
     {
@@ -523,13 +527,13 @@ class PhpcsLintFilesTest extends \Codeception\Test\Unit
 
         $result = $task->run();
 
-        static::assertEquals(
+        $this->tester->assertEquals(
             $exitCode,
             $result->getExitCode(),
             'Exit code is different than the expected.'
         );
 
-        static::assertEquals(
+        $this->tester->assertEquals(
             $options['workingDirectory'],
             \Helper\Dummy\Process::$instances[$processIndex]->getWorkingDirectory()
         );
@@ -537,13 +541,13 @@ class PhpcsLintFilesTest extends \Codeception\Test\Unit
         if ($withJar) {
             /** @var \Cheppers\LintReport\ReportWrapperInterface $reportWrapper */
             $reportWrapper = $assetJar->getValue(['phpcsLintRun', 'report']);
-            static::assertEquals(
+            $this->tester->assertEquals(
                 json_decode($expectedStdOutput, true),
                 $reportWrapper->getReport(),
                 'Output equals'
             );
         } else {
-            static::assertContains(
+            $this->tester->assertContains(
                 $expectedStdOutput,
                 $mainStdOutput->output,
                 'Output contains'

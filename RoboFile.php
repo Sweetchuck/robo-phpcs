@@ -98,14 +98,13 @@ class RoboFile extends \Robo\Tasks
     {
         $this->environment = 'git-hook';
 
-        /** @var \Robo\Collection\CollectionBuilder $cb */
-        $cb = $this->collectionBuilder();
-
-        return $cb->addTaskList([
-            'lint.composer.lock' => $this->taskComposerValidate(),
-            'lint.phpcs.psr2' => $this->getTaskPhpcsLint(),
-            'codecept' => $this->getTaskCodecept(),
-        ]);
+        return $this
+            ->collectionBuilder()
+            ->addTaskList([
+                'lint.composer.lock' => $this->taskComposerValidate(),
+                'lint.phpcs.psr2' => $this->getTaskPhpcsLint(),
+                'codecept' => $this->getTaskCodecept(),
+            ]);
     }
 
     /**
@@ -123,13 +122,12 @@ class RoboFile extends \Robo\Tasks
      */
     public function lint()
     {
-        /** @var \Robo\Collection\CollectionBuilder $cb */
-        $cb = $this->collectionBuilder();
-
-        return $cb->addTaskList([
-            'lint.composer.lock' => $this->taskComposerValidate(),
-            'lint.phpcs.psr2' => $this->getTaskPhpcsLint(),
-        ]);
+        return $this
+            ->collectionBuilder()
+            ->addTaskList([
+                'lint.composer.lock' => $this->taskComposerValidate(),
+                'lint.phpcs.psr2' => $this->getTaskPhpcsLint(),
+            ]);
     }
 
     /**
@@ -233,14 +231,13 @@ class RoboFile extends \Robo\Tasks
 
         $tasks['runCodeception'] = $this->taskExec(vsprintf($cmdPattern, $cmdArgs));
 
-        /** @var \Robo\Collection\CollectionBuilder $cb */
-        $cb = $this->collectionBuilder();
-
-        return $cb->addTaskList($tasks);
+        return $this
+            ->collectionBuilder()
+            ->addTaskList($tasks);
     }
 
     /**
-     * @return \Cheppers\Robo\Phpcs\Task\PhpcsLintFiles | \Robo\Collection\CollectionBuilder
+     * @return \Cheppers\Robo\Phpcs\Task\PhpcsLintFiles|\Robo\Collection\CollectionBuilder
      */
     protected function getTaskPhpcsLint()
     {
@@ -274,22 +271,22 @@ class RoboFile extends \Robo\Tasks
             return $this->taskPhpcsLintFiles($options + ['files' => $files]);
         }
 
-        /** @var \Robo\Collection\CollectionBuilder $cb */
-        $cb = $this->collectionBuilder();
         $assetJar = new Cheppers\AssetJar\AssetJar();
 
-        return $cb->addTaskList([
-            'git.readStagedFiles' => $this
-                ->taskGitReadStagedFiles()
-                ->setCommandOnly(true)
-                ->setAssetJar($assetJar)
-                ->setAssetJarMap('files', ['files'])
-                ->setPaths($files),
-            'lint.phpcs.psr2' => $this
-                ->taskPhpcsLintInput($options)
-                ->setAssetJar($assetJar)
-                ->setAssetJarMap('files', ['files']),
-        ]);
+        return $this
+            ->collectionBuilder()
+            ->addTaskList([
+                'git.readStagedFiles' => $this
+                    ->taskGitReadStagedFiles()
+                    ->setCommandOnly(true)
+                    ->setAssetJar($assetJar)
+                    ->setAssetJarMap('files', ['files'])
+                    ->setPaths($files),
+                'lint.phpcs.psr2' => $this
+                    ->taskPhpcsLintInput($options)
+                    ->setAssetJar($assetJar)
+                    ->setAssetJarMap('files', ['files']),
+            ]);
     }
 
     /**

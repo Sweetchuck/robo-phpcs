@@ -41,12 +41,12 @@ class UtilsTest extends \Codeception\Test\Unit
     }
 
     /**
+     * @param string $expected
+     * @param string $arg
+     *
      * @dataProvider casesEscapeShellArgWithWildcard
      *
      * @covers ::escapeShellArgWithWildcard
-     *
-     * @param string $expected
-     * @param string $arg
      */
     public function testEscapeShellArgWithWildcard($expected, $arg)
     {
@@ -101,10 +101,10 @@ class UtilsTest extends \Codeception\Test\Unit
     }
 
     /**
-     * @dataProvider casesMergeReports
-     *
      * @param array $expected
      * @param array $args
+     *
+     * @dataProvider casesMergeReports
      */
     public function testMergeReports(array $expected, array $args)
     {
