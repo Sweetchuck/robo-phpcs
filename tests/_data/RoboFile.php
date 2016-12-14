@@ -14,12 +14,10 @@ use Robo\Contract\OutputAwareInterface;
  * Class RoboFile.
  */
 // @codingStandardsIgnoreStart
-class RoboFile extends \Robo\Tasks implements ContainerAwareInterface, ConfigAwareInterface
+class RoboFile extends \Robo\Tasks
 {
     // @codingStandardsIgnoreEnd
-    use \Cheppers\Robo\Phpcs\LoadPhpcsTasks;
-    use \League\Container\ContainerAwareTrait;
-    use \Robo\Common\ConfigAwareTrait;
+    use \Cheppers\Robo\Phpcs\PhpcsTaskLoader;
 
     public function setContainer(ContainerInterface $container)
     {

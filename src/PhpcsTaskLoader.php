@@ -12,7 +12,7 @@ use Robo\Contract\OutputAwareInterface;
  *
  * @package Cheppers\Robo\Phpcs\Task
  */
-trait LoadPhpcsTasks
+trait PhpcsTaskLoader
 {
     /**
      * Expose phpcs-lint task.
