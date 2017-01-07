@@ -54,13 +54,6 @@ abstract class PhpcsLint extends BaseTask implements
     protected $processClass = Process::class;
 
     /**
-     * @todo Some kind of dependency injection would be awesome.
-     *
-     * @var string
-     */
-    protected $phpCodeSnifferCliClass = \PHP_CodeSniffer_CLI::class;
-
-    /**
      * @var int
      */
     protected $lintExitCode = 0;
@@ -93,11 +86,6 @@ abstract class PhpcsLint extends BaseTask implements
      * @var bool
      */
     protected $addFilesToCliCommand = true;
-
-    /**
-     * @var string
-     */
-    protected $lintOutput = '';
 
     /**
      * @var array

@@ -1,22 +1,21 @@
 <?php
 
+namespace Cheppers\Robo\Phpcs\Tests\Unit\Task;
+
 use Cheppers\AssetJar\AssetJar;
 use Cheppers\Robo\Phpcs\Task\PhpcsLintInput;
 use Codeception\Util\Stub;
 
-// @codingStandardsIgnoreStart
 class PhpcsLintInputTest extends \Codeception\Test\Unit
-    // @codingStandardsIgnoreEnd
 {
-
     /**
      * @param string $name
      *
-     * @return ReflectionMethod
+     * @return \ReflectionMethod
      */
     protected static function getMethod($name)
     {
-        $class = new ReflectionClass(PhpcsLintInput::class);
+        $class = new \ReflectionClass(PhpcsLintInput::class);
         $method = $class->getMethod($name);
         $method->setAccessible(true);
 

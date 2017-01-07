@@ -1,12 +1,11 @@
 <?php
 
-// @codingStandardsIgnoreStart
+namespace Cheppers\Robo\Phpcs\Tests\Unit\LintReportWrapper;
+
 use Cheppers\Robo\Phpcs\LintReportWrapper\ReportWrapper;
 
 class ReportWrapperTest extends \Codeception\Test\Unit
 {
-    // @codingStandardsIgnoreEnd
-
     /**
      * @var \UnitTester
      */
