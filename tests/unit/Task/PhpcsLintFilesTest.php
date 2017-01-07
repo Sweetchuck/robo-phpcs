@@ -1,19 +1,13 @@
 <?php
 
+namespace Cheppers\Robo\Phpcs\Tests\Unit\Task;
+
 use Cheppers\AssetJar\AssetJar;
 use Cheppers\Robo\Phpcs\Task\PhpcsLintFiles;
 use Codeception\Util\Stub;
 
-/**
- * Class TaskPhpcsLintTest.
- *
- * @package Cheppers\Robo\Test\Task
- */
-// @codingStandardsIgnoreStart
 class PhpcsLintFilesTest extends \Codeception\Test\Unit
 {
-    // @codingStandardsIgnoreEnd
-
     /**
      * @var \UnitTester
      */

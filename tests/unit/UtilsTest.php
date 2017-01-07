@@ -1,16 +1,14 @@
 <?php
+
+namespace Cheppers\Robo\Phpcs\Tests\Unit;
+
 use Cheppers\Robo\Phpcs\Utils;
 
 /**
- * Class UtilsTest.
- *
  * @coversDefaultClass \Cheppers\Robo\Phpcs\Utils
  */
-// @codingStandardsIgnoreStart
 class UtilsTest extends \Codeception\Test\Unit
 {
-    // @codingStandardsIgnoreEnd
-
     /**
      * @var \UnitTester
      */
