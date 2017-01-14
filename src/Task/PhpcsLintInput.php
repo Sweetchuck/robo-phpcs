@@ -81,6 +81,8 @@ class PhpcsLintInput extends PhpcsLint
         $files = $this->getJarValueOrLocal('files');
         $backupFailOn = $this->getFailOn();
 
+        $ignorePatterns = $this->filterEnabled($this->getIgnore());
+
         $this->setFailOn('never');
         foreach ($files as $fileName => $file) {
             if (!is_array($file)) {
@@ -88,6 +90,10 @@ class PhpcsLintInput extends PhpcsLint
                     'fileName' => $fileName,
                     'content' => $file,
                 ];
+            }
+
+            if ($this->isIgnored($file['fileName'], $ignorePatterns)) {
+                continue;
             }
 
             $this->currentFile = $file;
@@ -153,6 +159,25 @@ class PhpcsLintInput extends PhpcsLint
         }
 
         return null;
+    }
+
+    protected function isIgnored(string $fileName, array $patterns): bool
+    {
+        foreach ($patterns as $pattern) {
+            if (fnmatch($pattern, $fileName)) {
+                return true;
+            }
+
+            if (preg_match('@/$@u', $pattern) && strpos($fileName, $pattern) === 0) {
+                return true;
+            }
+
+            if ($fileName === $pattern) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     /**
