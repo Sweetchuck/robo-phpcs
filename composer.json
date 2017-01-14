@@ -10,6 +10,7 @@
         "sort-packages": true
     },
     "require": {
+        "php": ">=7.1",
         "cheppers/asset-jar": "^0.0",
         "cheppers/lint-report": "^0.0",
         "consolidation/robo": "^1.0",

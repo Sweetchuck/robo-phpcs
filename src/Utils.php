@@ -2,21 +2,12 @@
 
 namespace Cheppers\Robo\Phpcs;
 
-/**
- * Class Utils.
- *
- * @package Cheppers\Robo\Phpcs
- */
 class Utils
 {
     /**
      * Escapes a shell argument which contains a wildcard (* or ?).
-     *
-     * @param string $arg
-     *
-     * @return string
      */
-    public static function escapeShellArgWithWildcard($arg)
+    public static function escapeShellArgWithWildcard(string $arg): string
     {
         $parts = preg_split('@([\*\?]+)@', $arg, -1, PREG_SPLIT_DELIM_CAPTURE | PREG_SPLIT_NO_EMPTY);
         $escaped = '';
@@ -28,12 +19,7 @@ class Utils
         return $escaped ?: "''";
     }
 
-    /**
-     * @param array $reports
-     *
-     * @return array
-     */
-    public static function mergeReports(array $reports)
+    public static function mergeReports(array $reports): array
     {
         if (func_num_args() > 1) {
             $reports = func_get_args();

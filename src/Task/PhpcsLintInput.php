@@ -26,24 +26,19 @@ class PhpcsLintInput extends PhpcsLint
 
     //region Option - stdinPath
     /**
-     * @var string|null
+     * @var null|string
      */
     protected $stdinPath = null;
 
-    /**
-     * @return mixed|null
-     */
-    public function getStdinPath()
+    public function getStdinPath(): ?string
     {
         return $this->stdinPath;
     }
 
     /**
-     * @param string $value
-     *
      * @return $this
      */
-    public function setStdinPath($value)
+    public function setStdinPath(?string $value)
     {
         $this->stdinPath = $value;
 
@@ -51,7 +46,7 @@ class PhpcsLintInput extends PhpcsLint
     }
     //endregion
 
-    public function __construct(array $options = null)
+    public function __construct(array $options = [])
     {
         $this->simpleOptions['stdinPath'] = 'stdin-path';
 
@@ -66,11 +61,15 @@ class PhpcsLintInput extends PhpcsLint
         parent::setOptions($options);
         foreach ($options as $name => $value) {
             switch ($name) {
+                // @codingStandardsIgnoreStart
                 case 'stdinPath':
+                // @codingStandardsIgnoreEnd
                     $this->setStdinPath($value);
                     break;
             }
         }
+
+        return $this;
     }
 
     /**
@@ -128,19 +127,17 @@ class PhpcsLintInput extends PhpcsLint
     /**
      * {@inheritdoc}
      */
-    protected function buildOptions()
+    protected function getCommandOptions(): array
     {
         return [
             'stdinPath' => $this->currentFile['fileName'] ?: $this->getStdinPath(),
-        ] + parent::buildOptions();
+        ] + parent::getCommandOptions();
     }
 
     /**
-     * @param string $itemName
-     *
-     * @return mixed|null
+     * @return mixed
      */
-    protected function getJarValueOrLocal($itemName)
+    protected function getJarValueOrLocal(string $itemName)
     {
         $map = $this->getAssetJarMap($itemName);
         if ($map) {
@@ -159,9 +156,9 @@ class PhpcsLintInput extends PhpcsLint
     }
 
     /**
-     * @return string
+     * {@inheritdoc}
      */
-    protected function getTaskInfoPattern()
+    protected function getTaskInfoPattern(): string
     {
         return "{name} is linting <info>{count}</info> files with <info>{standard}</info> standard";
     }

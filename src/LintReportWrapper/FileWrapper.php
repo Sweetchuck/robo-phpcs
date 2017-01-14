@@ -5,11 +5,6 @@ namespace Cheppers\Robo\Phpcs\LintReportWrapper;
 use Cheppers\LintReport\FileWrapperInterface;
 use Cheppers\LintReport\ReportWrapperInterface;
 
-/**
- * Class FileWrapper.
- *
- * @package Cheppers\LintReport\Wrapper\Phpcs
- */
 class FileWrapper implements FileWrapperInterface
 {
     /**
@@ -107,9 +102,8 @@ class FileWrapper implements FileWrapperInterface
         return $this->stats;
     }
 
-
     /**
-     * @return string
+     * {@inheritdoc}
      */
     public function highestSeverity()
     {

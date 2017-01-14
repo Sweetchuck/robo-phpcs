@@ -14,10 +14,7 @@ class UtilsTest extends \Codeception\Test\Unit
      */
     protected $tester;
 
-    /**
-     * @return array
-     */
-    public function casesEscapeShellArgWithWildcard()
+    public function casesEscapeShellArgWithWildcard(): array
     {
         return [
             'empty' => ["''", ''],
@@ -39,19 +36,16 @@ class UtilsTest extends \Codeception\Test\Unit
     }
 
     /**
-     * @param string $expected
-     * @param string $arg
-     *
      * @dataProvider casesEscapeShellArgWithWildcard
      *
      * @covers ::escapeShellArgWithWildcard
      */
-    public function testEscapeShellArgWithWildcard($expected, $arg)
+    public function testEscapeShellArgWithWildcard(string $expected, string $arg): void
     {
         $this->tester->assertEquals($expected, Utils::escapeShellArgWithWildcard($arg));
     }
 
-    public function casesMergeReports()
+    public function casesMergeReports(): array
     {
         return [
             'empty' => [
@@ -99,12 +93,9 @@ class UtilsTest extends \Codeception\Test\Unit
     }
 
     /**
-     * @param array $expected
-     * @param array $args
-     *
      * @dataProvider casesMergeReports
      */
-    public function testMergeReports(array $expected, array $args)
+    public function testMergeReports(array $expected, array $args): void
     {
         $callable = Utils::class . '::mergeReports';
         $this->tester->assertEquals($expected, call_user_func_array($callable, $args));

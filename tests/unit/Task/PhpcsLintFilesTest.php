@@ -23,7 +23,7 @@ class PhpcsLintFilesTest extends \Codeception\Test\Unit
         \Helper\Dummy\Process::reset();
     }
 
-    public function testGetSetLintReporters()
+    public function testGetSetLintReporters(): void
     {
         $task = new PhpcsLintFiles([
             'lintReporters' => [
@@ -47,9 +47,6 @@ class PhpcsLintFilesTest extends \Codeception\Test\Unit
 
     public function testGetSetWorkingDirectory()
     {
-        $task = new PhpcsLintFiles();
-        $this->tester->assertNull($task->getWorkingDirectory());
-
         $task = new PhpcsLintFiles(['workingDirectory' => 'a']);
         $this->tester->assertEquals('a', $task->getWorkingDirectory());
 
@@ -57,7 +54,7 @@ class PhpcsLintFilesTest extends \Codeception\Test\Unit
         $this->tester->assertEquals('b', $task->getWorkingDirectory());
     }
 
-    public function testGetSetPhpcsExecutable()
+    public function testGetSetPhpcsExecutable(): void
     {
         $task = new PhpcsLintFiles();
         $this->tester->assertEquals('bin/phpcs', $task->getPhpcsExecutable(), 'default value');
@@ -69,7 +66,7 @@ class PhpcsLintFilesTest extends \Codeception\Test\Unit
         $this->tester->assertEquals('b', $task->getPhpcsExecutable(), 'normal');
     }
 
-    public function testGetSetAssetJar()
+    public function testGetSetAssetJar(): void
     {
         $task = new PhpcsLintFiles();
         $this->tester->assertNull($task->getAssetJar(), 'default value');
@@ -83,7 +80,7 @@ class PhpcsLintFilesTest extends \Codeception\Test\Unit
         $this->tester->assertEquals($assetJar2, $task->getAssetJar(), 'normal');
     }
 
-    public function testGetSetReport()
+    public function testGetSetReport(): void
     {
         $task = new PhpcsLintFiles();
         $this->tester->assertNull($task->getReport('full'), 'default value');
@@ -95,10 +92,7 @@ class PhpcsLintFilesTest extends \Codeception\Test\Unit
         $this->tester->assertEquals('b', $task->getReport('full'), 'normal');
     }
 
-    /**
-     * @return array
-     */
-    public function casesGetCommand()
+    public function casesGetCommand(): array
     {
         return [
             'empty' => [
@@ -146,14 +140,6 @@ class PhpcsLintFilesTest extends \Codeception\Test\Unit
                 "phpcs --report-width='80'",
                 ['reportWidth' => 80],
             ],
-            'severity-string-empty' => [
-                'phpcs',
-                ['severity' => ''],
-            ],
-            'severity-false' => [
-                'phpcs',
-                ['severity' => false],
-            ],
             'severity-null' => [
                 'phpcs',
                 ['severity' => null],
@@ -165,14 +151,6 @@ class PhpcsLintFilesTest extends \Codeception\Test\Unit
             'severity-string-zero' => [
                 "phpcs --severity='0'",
                 ['severity' => '0'],
-            ],
-            'warning-severity-string-empty' => [
-                'phpcs',
-                ['warningSeverity' => ''],
-            ],
-            'warning-severity-false' => [
-                'phpcs',
-                ['warningSeverity' => false],
             ],
             'warning-severity-null' => [
                 'phpcs',
@@ -361,22 +339,16 @@ class PhpcsLintFilesTest extends \Codeception\Test\Unit
     }
 
     /**
-     * @param string $expected
-     * @param array $options
-     *
      * @dataProvider casesGetCommand
      */
-    public function testGetCommand($expected, array $options)
+    public function testGetCommand(string $expected, array $options): void
     {
         $task = new PhpcsLintFiles($options + ['phpcsExecutable' => 'phpcs']);
 
         $this->tester->assertEquals($expected, $task->getCommand());
     }
 
-    /**
-     * @return array
-     */
-    public function casesRun()
+    public function casesRun(): array
     {
         $reportBase = [
             'totals' => [
@@ -468,14 +440,9 @@ class PhpcsLintFilesTest extends \Codeception\Test\Unit
     }
 
     /**
-     * @param int $exitCode
-     * @param array $options
-     * @param bool $withJar
-     * @param string $expectedStdOutput
-     *
      * @dataProvider casesRun
      */
-    public function testRun($exitCode, $options, $withJar, $expectedStdOutput)
+    public function testRun(int $exitCode, array $options, bool $withJar, string $expectedStdOutput): void
     {
         $container = \Robo\Robo::createDefaultContainer();
         \Robo\Robo::setContainer($container);

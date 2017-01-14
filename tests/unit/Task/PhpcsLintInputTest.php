@@ -5,15 +5,13 @@ namespace Cheppers\Robo\Phpcs\Tests\Unit\Task;
 use Cheppers\AssetJar\AssetJar;
 use Cheppers\Robo\Phpcs\Task\PhpcsLintInput;
 use Codeception\Util\Stub;
+use Helper\Dummy\Output as DummyOutput;
+use Helper\Dummy\Process as DummyProcess;
+use Robo\Robo;
 
 class PhpcsLintInputTest extends \Codeception\Test\Unit
 {
-    /**
-     * @param string $name
-     *
-     * @return \ReflectionMethod
-     */
-    protected static function getMethod($name)
+    protected static function getMethod(string $name): \ReflectionMethod
     {
         $class = new \ReflectionClass(PhpcsLintInput::class);
         $method = $class->getMethod($name);
@@ -34,10 +32,10 @@ class PhpcsLintInputTest extends \Codeception\Test\Unit
     {
         parent::setUp();
 
-        \Helper\Dummy\Process::reset();
+        DummyProcess::reset();
     }
 
-    public function testGetSetOptions()
+    public function testGetSetOptions(): void
     {
         $options = [
             'stdinPath' => 'abc',
@@ -47,10 +45,7 @@ class PhpcsLintInputTest extends \Codeception\Test\Unit
         $this->tester->assertEquals($options['stdinPath'], $task->getStdinPath());
     }
 
-    /**
-     * @return array
-     */
-    public function casesGetCommand()
+    public function casesGetCommand(): array
     {
         return [
             'with content' => [
@@ -83,7 +78,7 @@ class PhpcsLintInputTest extends \Codeception\Test\Unit
     /**
      * @dataProvider casesGetCommand
      */
-    public function testGetCommand($expected, array $options, array $currentFile)
+    public function testGetCommand($expected, array $options, array $currentFile): void
     {
         /** @var \Cheppers\Robo\Phpcs\Task\PhpcsLintInput $task */
         $task = Stub::construct(
@@ -97,10 +92,7 @@ class PhpcsLintInputTest extends \Codeception\Test\Unit
         $this->tester->assertEquals($expected, $task->getCommand());
     }
 
-    /**
-     * @return array
-     */
-    public function casesGetJarValueOrLocal()
+    public function casesGetJarValueOrLocal(): array
     {
         return [
             'without jar' => [
@@ -139,15 +131,14 @@ class PhpcsLintInputTest extends \Codeception\Test\Unit
     }
 
     /**
-     * @param mixed $expected
-     * @param string $itemName
-     * @param array $options
-     * @param array $jarValue
-     *
      * @dataProvider casesGetJarValueOrLocal
      */
-    public function testGetJarValueOrLocal($expected, $itemName, array $options, array $jarValue)
-    {
+    public function testGetJarValueOrLocal(
+        ?array $expected,
+        string $itemName,
+        array $options,
+        array $jarValue
+    ): void {
         /** @var \Cheppers\Robo\Phpcs\Task\PhpcsLintInput $task */
         $task = Stub::construct(
             PhpcsLintInput::class,
@@ -160,10 +151,7 @@ class PhpcsLintInputTest extends \Codeception\Test\Unit
         $this->tester->assertEquals($expected, $method->invoke($task, $itemName));
     }
 
-    /**
-     * @return array
-     */
-    public function casesRun()
+    public function casesRun(): array
     {
         $files = [
             'empty' => [
@@ -298,20 +286,16 @@ class PhpcsLintInputTest extends \Codeception\Test\Unit
     }
 
     /**
-     * @param array $expected
-     * @param array $options
-     * @param array $properties
-     *
      * @dataProvider casesRun
      */
-    public function testRun(array $expected, array $options, array $files, array $properties = [])
+    public function testRun(array $expected, array $options, array $files, array $properties = []): void
     {
-        $container = \Robo\Robo::createDefaultContainer();
-        \Robo\Robo::setContainer($container);
+        $container = Robo::createDefaultContainer();
+        Robo::setContainer($container);
 
-        $mainStdOutput = new \Helper\Dummy\Output();
+        $mainStdOutput = new DummyOutput();
 
-        $properties += ['processClass' => \Helper\Dummy\Process::class];
+        $properties += ['processClass' => DummyProcess::class];
 
         /** @var \Cheppers\Robo\Phpcs\Task\PhpcsLintInput $task */
         $task = Stub::construct(
@@ -320,9 +304,9 @@ class PhpcsLintInputTest extends \Codeception\Test\Unit
             $properties
         );
 
-        $processIndex = count(\Helper\Dummy\Process::$instances);
+        $processIndex = count(DummyProcess::$instances);
         foreach ($files as $file) {
-            \Helper\Dummy\Process::$prophecy[$processIndex] = [
+            DummyProcess::$prophecy[$processIndex] = [
                 'exitCode' => $file['lintExitCode'],
                 'stdOutput' => $file['lintStdOutput'],
             ];
