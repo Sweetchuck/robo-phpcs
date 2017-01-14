@@ -298,6 +298,11 @@ abstract class PhpcsLint extends BaseTask implements
                     $this->setExclude($value);
                     break;
 
+                case 'ignore':
+                case 'ignored':
+                    $this->setIgnore($value);
+                    break;
+
                 case 'files':
                     $this->setFiles($value);
                     break;
@@ -591,6 +596,37 @@ abstract class PhpcsLint extends BaseTask implements
     }
     //endregion
 
+    //region Option - ignore
+    /**
+     * @var string[]
+     */
+    protected $ignored = [];
+
+    /**
+     * @return array|null
+     */
+    public function getIgnore()
+    {
+        return $this->ignored;
+    }
+
+    /**
+     * Set patterns to ignore files.
+     *
+     * @param string[] $value
+     *   File patterns.
+     *
+     * @return $this
+     *   The called object.
+     */
+    public function setIgnore(array $value)
+    {
+        $this->ignored = $value;
+
+        return $this;
+    }
+    //endregion
+
     //region Option - files
     /**
      * @var array
@@ -709,6 +745,7 @@ abstract class PhpcsLint extends BaseTask implements
             'extensions' => $this->getExtensions(),
             'sniffs' => $this->getSniffs(),
             'exclude' => $this->getExclude(),
+            'ignored' => $this->getIgnore(),
         ];
 
         $options['reports'] = array_diff_key(
