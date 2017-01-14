@@ -182,7 +182,7 @@ class RoboFile extends \Robo\Tasks
         $logDir = $this->getLogDir();
 
         $cmdArgs = [];
-        if ($this->isPhpDbgAvailable() && !$this->isPhpExtensionAvailable('xdebug')) {
+        if ($this->isPhpDbgAvailable()) {
             $cmdPattern = '%s -qrr %s';
             $cmdArgs[] = escapeshellcmd($this->phpdbgExecutable);
             $cmdArgs[] = escapeshellarg("{$this->binDir}/codecept");
@@ -313,9 +313,8 @@ class RoboFile extends \Robo\Tasks
     protected function isPhpDbgAvailable()
     {
         $command = sprintf(
-            '%s -i | grep -- %s',
-            escapeshellcmd($this->phpExecutable),
-            escapeshellarg('--enable-phpdbg')
+            "%s -qrr ''",
+            escapeshellcmd($this->phpdbgExecutable)
         );
 
         return (new Process($command))->run() === 0;

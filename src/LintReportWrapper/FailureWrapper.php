@@ -4,11 +4,6 @@ namespace Cheppers\Robo\Phpcs\LintReportWrapper;
 
 use Cheppers\LintReport\FailureWrapperInterface;
 
-/**
- * Class FileWrapper.
- *
- * @package Cheppers\LintReport\Wrapper\Phpcs
- */
 class FailureWrapper implements FailureWrapperInterface
 {
     /**
@@ -34,7 +29,7 @@ class FailureWrapper implements FailureWrapperInterface
     }
 
     /**
-     * @return string
+     * {@inheritdoc}
      */
     public function severity()
     {
@@ -42,7 +37,7 @@ class FailureWrapper implements FailureWrapperInterface
     }
 
     /**
-     * @return string
+     * {@inheritdoc}
      */
     public function source()
     {
@@ -50,7 +45,7 @@ class FailureWrapper implements FailureWrapperInterface
     }
 
     /**
-     * @return int
+     * {@inheritdoc}
      */
     public function line()
     {
@@ -58,7 +53,7 @@ class FailureWrapper implements FailureWrapperInterface
     }
 
     /**
-     * @return int
+     * {@inheritdoc}
      */
     public function column()
     {
@@ -66,7 +61,7 @@ class FailureWrapper implements FailureWrapperInterface
     }
 
     /**
-     * @return string
+     * {@inheritdoc}
      */
     public function message()
     {

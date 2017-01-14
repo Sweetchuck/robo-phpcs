@@ -20,11 +20,6 @@ use Robo\Task\Filesystem\loadShortcuts as FsShortCuts;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Process\Process;
 
-/**
- * Class PhpcsLint.
- *
- * @package Cheppers\Robo\Phpcs\Task
- */
 abstract class PhpcsLint extends BaseTask implements
     AssetJarAwareInterface,
     ContainerAwareInterface,
@@ -120,19 +115,17 @@ abstract class PhpcsLint extends BaseTask implements
     /**
      * @var string
      */
-    protected $workingDirectory = null;
+    protected $workingDirectory = '';
 
-    public function getWorkingDirectory()
+    public function getWorkingDirectory(): string
     {
         return $this->workingDirectory;
     }
 
     /**
-     * @param string $workingDirectory
-     *
      * @return $this
      */
-    public function setWorkingDirectory($workingDirectory)
+    public function setWorkingDirectory(string $workingDirectory)
     {
         $this->workingDirectory = $workingDirectory;
 
@@ -146,20 +139,15 @@ abstract class PhpcsLint extends BaseTask implements
      */
     protected $phpcsExecutable = '';
 
-    /**
-     * @return string
-     */
-    public function getPhpcsExecutable()
+    public function getPhpcsExecutable(): string
     {
         return $this->phpcsExecutable;
     }
 
     /**
-     * @param string $phpcsExecutable
-     *
      * @return $this
      */
-    public function setPhpcsExecutable($phpcsExecutable)
+    public function setPhpcsExecutable(string $phpcsExecutable)
     {
         $this->phpcsExecutable = $phpcsExecutable;
 
@@ -173,20 +161,15 @@ abstract class PhpcsLint extends BaseTask implements
      */
     protected $failOn = 'error';
 
-    /**
-     * @return string
-     */
-    public function getFailOn()
+    public function getFailOn(): string
     {
         return $this->failOn;
     }
 
     /**
-     * @param string $failOn
-     *
      * @return $this
      */
-    public function setFailOn($value)
+    public function setFailOn(string $value)
     {
         $this->failOn = $value;
 
@@ -203,7 +186,7 @@ abstract class PhpcsLint extends BaseTask implements
     /**
      * @return \Cheppers\LintReport\ReporterInterface[]
      */
-    public function getLintReporters()
+    public function getLintReporters(): array
     {
         return $this->lintReporters;
     }
@@ -226,7 +209,7 @@ abstract class PhpcsLint extends BaseTask implements
      *
      * @return $this
      */
-    public function addLintReporter($id, $lintReporter = null)
+    public function addLintReporter(string $id, $lintReporter = null)
     {
         $this->lintReporters[$id] = $lintReporter;
 
@@ -234,11 +217,9 @@ abstract class PhpcsLint extends BaseTask implements
     }
 
     /**
-     * @param string $id
-     *
      * @return $this
      */
-    public function removeLintReporter($id)
+    public function removeLintReporter(string $id)
     {
         unset($this->lintReporters[$id]);
 
@@ -247,8 +228,6 @@ abstract class PhpcsLint extends BaseTask implements
     //endregion
 
     /**
-     * @param array $options
-     *
      * @return $this
      */
     public function setOptions(array $options)
@@ -331,14 +310,11 @@ abstract class PhpcsLint extends BaseTask implements
     //region Options
     //region Option - colors
     /**
-     * @var bool
+     * @var null|bool
      */
     protected $colors = null;
 
-    /**
-     * @return bool|null
-     */
-    public function getColors()
+    public function getColors(): ?bool
     {
         return $this->colors;
     }
@@ -346,13 +322,9 @@ abstract class PhpcsLint extends BaseTask implements
     /**
      * Use colors in output.
      *
-     * @param bool $value
-     *   Use or not to use colors in output.
-     *
      * @return $this
-     *   The called object.
      */
-    public function setColors($value)
+    public function setColors(?bool $value)
     {
         $this->colors = $value;
 
@@ -366,7 +338,7 @@ abstract class PhpcsLint extends BaseTask implements
      */
     protected $reports = [];
 
-    public function getReports()
+    public function getReports(): array
     {
         return $this->reports;
     }
@@ -389,12 +361,7 @@ abstract class PhpcsLint extends BaseTask implements
         return $this;
     }
 
-    /**
-     * @param string $reportName
-     *
-     * @return string|null
-     */
-    public function getReport($reportName)
+    public function getReport(string $reportName): ?string
     {
         $reports = $this->getReports();
 
@@ -412,7 +379,7 @@ abstract class PhpcsLint extends BaseTask implements
      * @return $this
      *   The called object.
      */
-    public function setReport($report, $fileName = null)
+    public function setReport(string $report, ?string $fileName = null)
     {
         $this->reports[$report] = $fileName;
 
@@ -422,12 +389,12 @@ abstract class PhpcsLint extends BaseTask implements
 
     //region Option - reportWidth
     /**
-     * @var int|null
+     * @var null|int|string
      */
     protected $reportWidth = null;
 
     /**
-     * @return int|string|null
+     * @return null|int|string
      */
     public function getReportWidth()
     {
@@ -437,7 +404,7 @@ abstract class PhpcsLint extends BaseTask implements
     /**
      * Report type.
      *
-     * @param int|string $width
+     * @param null|int|string $width
      *   How many columns wide screen reports should be printed or set to "auto"
      *   to use current screen width, where supported.
      *
@@ -454,24 +421,19 @@ abstract class PhpcsLint extends BaseTask implements
 
     //region Option - severity
     /**
-     * @var int|null
+     * @var null|int
      */
     protected $severity = null;
 
-    /**
-     * @return int|null
-     */
-    public function getSeverity()
+    public function getSeverity(): ?int
     {
         return $this->severity;
     }
 
     /**
-     * @param int $value
-     *
      * @return $this
      */
-    public function setSeverity($value)
+    public function setSeverity(?int $value)
     {
         $this->severity = $value;
 
@@ -508,24 +470,19 @@ abstract class PhpcsLint extends BaseTask implements
 
     //region Option - warningSeverity
     /**
-     * @var int|null
+     * @var null|int
      */
     protected $warningSeverity = null;
 
-    /**
-     * @return int|null
-     */
-    public function getWarningSeverity()
+    public function getWarningSeverity(): ?int
     {
         return $this->warningSeverity;
     }
 
     /**
-     * @param $value
-     *
      * @return $this
      */
-    public function setWarningSeverity($value)
+    public function setWarningSeverity(?int $value)
     {
         $this->warningSeverity = $value;
 
@@ -535,14 +492,11 @@ abstract class PhpcsLint extends BaseTask implements
 
     //region Option - standard
     /**
-     * @var string|null
+     * @var string
      */
-    protected $standard = null;
+    protected $standard = '';
 
-    /**
-     * @return string|null
-     */
-    public function getStandard()
+    public function getStandard(): string
     {
         return $this->standard;
     }
@@ -550,15 +504,11 @@ abstract class PhpcsLint extends BaseTask implements
     /**
      * Set the name or path of the coding standard to use.
      *
-     * @param string $value
-     *   The name or path of the coding standard to use.
-     *
      * @return $this
-     *   The called object.
      */
-    public function setStandard($value)
+    public function setStandard(string $name)
     {
-        $this->standard = $value;
+        $this->standard = $name;
 
         return $this;
     }
@@ -570,10 +520,7 @@ abstract class PhpcsLint extends BaseTask implements
      */
     protected $extensions = [];
 
-    /**
-     * @return array|null
-     */
-    public function getExtensions()
+    public function getExtensions(): array
     {
         return $this->extensions;
     }
@@ -589,7 +536,6 @@ abstract class PhpcsLint extends BaseTask implements
      *   File extensions.
      *
      * @return $this
-     *   The called object.
      *
      * @see \PHP_CodeSniffer::setAllowedFileExtensions
      */
@@ -607,22 +553,17 @@ abstract class PhpcsLint extends BaseTask implements
      */
     protected $sniffs = [];
 
-    /**
-     * @return array|null
-     */
-    public function getSniffs()
+    public function getSniffs(): array
     {
         return $this->sniffs;
     }
 
     /**
-     * @param array $value
-     *
      * @return $this
      */
-    public function setSniffs(array $value)
+    public function setSniffs(array $sniffNames)
     {
-        $this->sniffs = $value;
+        $this->sniffs = $sniffNames;
 
         return $this;
     }
@@ -634,17 +575,12 @@ abstract class PhpcsLint extends BaseTask implements
      */
     protected $exclude = [];
 
-    /**
-     * @return array|null
-     */
-    public function getExclude()
+    public function getExclude(): array
     {
         return $this->exclude;
     }
 
     /**
-     * @param array $value
-     *
      * @return $this
      */
     public function setExclude(array $value)
@@ -662,7 +598,7 @@ abstract class PhpcsLint extends BaseTask implements
     protected $files = [];
 
     /**
-     * @return array|null
+     * @return array
      */
     public function getFiles()
     {
@@ -690,7 +626,7 @@ abstract class PhpcsLint extends BaseTask implements
     /**
      * TaskPhpcs constructor.
      */
-    public function __construct(array $options = null)
+    public function __construct(array $options = [])
     {
         $this->setPhpcsExecutable($this->findPhpcs());
         if ($options) {
@@ -701,11 +637,9 @@ abstract class PhpcsLint extends BaseTask implements
     /**
      * {@inheritdoc}
      */
-    public function getCommand(array $options = null)
+    public function getCommand()
     {
-        if ($options === null) {
-            $options = $this->buildOptions();
-        }
+        $options = $this->getCommandOptions();
 
         $cmdPattern = '%s';
         $cmdArgs = [
@@ -762,10 +696,7 @@ abstract class PhpcsLint extends BaseTask implements
         return vsprintf($cmdPattern, $cmdArgs);
     }
 
-    /**
-     * @return array
-     */
-    protected function buildOptions()
+    protected function getCommandOptions(): array
     {
         $options = [
             'colors' => $this->getColors(),
@@ -788,12 +719,7 @@ abstract class PhpcsLint extends BaseTask implements
         return $options;
     }
 
-    /**
-     * @param array $totals
-     *
-     * @return int
-     */
-    public function getTaskExitCode(array $totals)
+    public function getTaskExitCode(array $totals): int
     {
         switch ($this->getFailOn()) {
             case 'never':
@@ -805,12 +731,9 @@ abstract class PhpcsLint extends BaseTask implements
                 }
 
                 return empty($totals['warnings']) ? static::EXIT_CODE_OK : static::EXIT_CODE_WARNING;
-
-            case 'error':
-                return empty($totals['errors']) ? static::EXIT_CODE_OK : static::EXIT_CODE_ERROR;
         }
 
-        return static::EXIT_CODE_OK;
+        return empty($totals['errors']) ? static::EXIT_CODE_OK : static::EXIT_CODE_ERROR;
     }
 
     /**
@@ -818,6 +741,15 @@ abstract class PhpcsLint extends BaseTask implements
      */
     public function run()
     {
+        $reports = $this->getReports();
+        if (!array_key_exists('json', $reports)) {
+            $this->isLintStdOutputPublic = array_search(null, $reports, true) !== false;
+            $jsonReportDestination = $this->isLintStdOutputPublic ?
+                tempnam(sys_get_temp_dir(), 'robo-phpcs')
+                : null;
+            $this->setReport('json', $jsonReportDestination);
+        }
+
         return $this
             ->runHeader()
             ->runPrepareReportDirectories()
@@ -862,22 +794,12 @@ abstract class PhpcsLint extends BaseTask implements
     protected function runLint()
     {
         $this->reportRaw = '';
-        $this->isLintStdOutputPublic = true;
         $this->report = [];
         $this->reportWrapper = null;
         $this->lintExitCode = static::EXIT_CODE_OK;
 
-        $options = $this->buildOptions();
-
-        if (!array_key_exists('json', $options['reports'])) {
-            $this->isLintStdOutputPublic = array_search(null, $options['reports'], true) !== false;
-            $options['reports']['json'] = $this->isLintStdOutputPublic ?
-                tempnam(sys_get_temp_dir(), 'robo-phpcs')
-                : null;
-        }
-
         /** @var Process $process */
-        $process = new $this->processClass($this->getCommand($options));
+        $process = new $this->processClass($this->getCommand());
         if ($this->workingDirectory) {
             $process->setWorkingDirectory($this->workingDirectory);
         }
@@ -886,11 +808,12 @@ abstract class PhpcsLint extends BaseTask implements
         $this->lintStdOutput = $process->getOutput();
         $this->reportRaw = $this->lintStdOutput;
 
+        $jsonReportDestination = $this->getReport('json');
         if ($this->isLintSuccess()
-            && $options['reports']['json'] !== null
-            && is_readable($options['reports']['json'])
+            && $jsonReportDestination !== null
+            && is_readable($jsonReportDestination)
         ) {
-            $this->reportRaw = file_get_contents($options['reports']['json']);
+            $this->reportRaw = file_get_contents($jsonReportDestination);
         }
 
         if ($this->reportRaw) {
@@ -940,10 +863,7 @@ abstract class PhpcsLint extends BaseTask implements
         return $this;
     }
 
-    /**
-     * @return \Robo\Result
-     */
-    protected function runReturn()
+    protected function runReturn(): Result
     {
         if ($this->lintExitCode && !$this->reportRaw) {
             $exitCode = static::EXIT_CODE_UNKNOWN;
@@ -962,10 +882,7 @@ abstract class PhpcsLint extends BaseTask implements
         );
     }
 
-    /**
-     * @return string
-     */
-    protected function findPhpcs()
+    protected function findPhpcs(): string
     {
         $suggestions = [
             dirname($_SERVER['argv'][0]) . '/phpcs',
@@ -983,11 +900,9 @@ abstract class PhpcsLint extends BaseTask implements
     }
 
     /**
-     * @param array $items
-     *
-     * @return array
+     * @todo Move to Utils::filterEnabled().
      */
-    protected function filterEnabled(array $items)
+    protected function filterEnabled(array $items): array
     {
         return gettype(reset($items)) === 'boolean' ? array_keys($items, true, true) : $items;
     }
@@ -996,10 +911,8 @@ abstract class PhpcsLint extends BaseTask implements
      * Returns true if the lint ran successfully.
      *
      * Returns true even if there was any code style error or warning.
-     *
-     * @return bool
      */
-    protected function isLintSuccess()
+    protected function isLintSuccess(): bool
     {
         return in_array($this->lintExitCode, $this->lintSuccessExitCodes());
     }
@@ -1007,7 +920,7 @@ abstract class PhpcsLint extends BaseTask implements
     /**
      * @return \Cheppers\LintReport\ReporterInterface[]
      */
-    protected function initLintReporters()
+    protected function initLintReporters(): array
     {
         $lintReporters = [];
         $c = $this->getContainer();
@@ -1038,7 +951,7 @@ abstract class PhpcsLint extends BaseTask implements
     /**
      * @return int[]
      */
-    protected function lintSuccessExitCodes()
+    protected function lintSuccessExitCodes(): array
     {
         return [
             static::EXIT_CODE_OK,
@@ -1047,12 +960,7 @@ abstract class PhpcsLint extends BaseTask implements
         ];
     }
 
-    /**
-     * @param int $exitCode
-     *
-     * @return string
-     */
-    protected function getExitMessage($exitCode)
+    protected function getExitMessage(int $exitCode): string
     {
         if (isset($this->exitMessages[$exitCode])) {
             return $this->exitMessages[$exitCode];
@@ -1069,10 +977,7 @@ abstract class PhpcsLint extends BaseTask implements
         parent::printTaskInfo($text ?: $this->getTaskInfoPattern(), $context);
     }
 
-    /**
-     * @return string
-     */
-    protected function getTaskInfoPattern()
+    protected function getTaskInfoPattern(): string
     {
         return "{name} is linting with <info>{standard}</info> standard";
     }

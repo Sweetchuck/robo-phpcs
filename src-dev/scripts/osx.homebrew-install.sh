@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 
 
-if [[ "$#" -eq 1 ]]; then
-    echo "Handling \"$1\" brew package..."
+if [[ "$#" -gt 0 ]]; then
+    echo "Handling '$1' brew package..."
 else
     echo "Brew failed - invalid $0 call"
 
@@ -10,6 +10,7 @@ else
 fi
 
 packageName="$1"
+shift
 
 if [[ $(brew ls --versions "$packageName") ]]; then
     if brew outdated "$packageName"; then
@@ -25,7 +26,7 @@ if [[ $(brew ls --versions "$packageName") ]]; then
     fi
 else
     echo "Package not available - installing..."
-    brew install "$packageName"
+    brew install "$packageName" $@
     if [ $? -ne 0 ]; then
         echo "Install failed"
 

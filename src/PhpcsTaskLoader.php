@@ -17,12 +17,9 @@ trait PhpcsTaskLoader
     /**
      * Expose phpcs-lint task.
      *
-     * @param array $options
-     *
-     * @return \Cheppers\Robo\Phpcs\Task\PhpcsLintFiles
-     *   The task handler.
+     * @return \Cheppers\Robo\Phpcs\Task\PhpcsLintFiles|\Robo\Collection\CollectionBuilder
      */
-    protected function taskPhpcsLintFiles(array $options = null)
+    protected function taskPhpcsLintFiles(array $options = [])
     {
         /** @var \Cheppers\Robo\Phpcs\Task\PhpcsLintFiles $task */
         $task = $this->task(PhpcsLintFiles::class, $options);
@@ -38,11 +35,9 @@ trait PhpcsTaskLoader
     }
 
     /**
-     * @param array|null $options
-     *
-     * @return \Cheppers\Robo\Phpcs\Task\PhpcsLintInput
+     * @return \Cheppers\Robo\Phpcs\Task\PhpcsLintInput|\Robo\Collection\CollectionBuilder
      */
-    protected function taskPhpcsLintInput(array $options = null)
+    protected function taskPhpcsLintInput(array $options = [])
     {
         /** @var \Cheppers\Robo\Phpcs\Task\PhpcsLintInput $task */
         $task = $this->task(PhpcsLintInput::class, $options);

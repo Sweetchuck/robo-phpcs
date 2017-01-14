@@ -4,11 +4,6 @@ namespace Cheppers\Robo\Phpcs\LintReportWrapper;
 
 use Cheppers\LintReport\ReportWrapperInterface;
 
-/**
- * Class ReportWrapper.
- *
- * @package Cheppers\LintReport\Wrapper\Phpcs
- */
 class ReportWrapper implements ReportWrapperInterface
 {
     /**
@@ -27,7 +22,7 @@ class ReportWrapper implements ReportWrapperInterface
     }
 
     /**
-     * @return array
+     * {@inheritdoc}
      */
     public function getReport()
     {
@@ -35,9 +30,7 @@ class ReportWrapper implements ReportWrapperInterface
     }
 
     /**
-     * @param array $report
-     *
-     * @return $this
+     * {@inheritdoc}
      */
     public function setReport($report)
     {
@@ -90,7 +83,7 @@ class ReportWrapper implements ReportWrapperInterface
     }
 
     /**
-     * @return string
+     * {@inheritdoc}
      */
     public function highestSeverity()
     {

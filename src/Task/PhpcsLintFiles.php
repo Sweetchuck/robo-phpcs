@@ -62,10 +62,10 @@ class PhpcsLintFiles extends PhpcsLint
     /**
      * {@inheritdoc}
      */
-    protected function buildOptions()
+    protected function getCommandOptions(): array
     {
         return [
             'ignored' => $this->getIgnore(),
-        ] + parent::buildOptions();
+        ] + parent::getCommandOptions();
     }
 }
