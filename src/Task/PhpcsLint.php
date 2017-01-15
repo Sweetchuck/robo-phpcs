@@ -1016,7 +1016,7 @@ abstract class PhpcsLint extends BaseTask implements
 
     protected function getTaskInfoPattern(): string
     {
-        return "{name} is linting with <info>{standard}</info> standard";
+        return "{name} runs <info>{command}</info>";
     }
 
     /**
@@ -1025,7 +1025,8 @@ abstract class PhpcsLint extends BaseTask implements
     protected function getTaskContext($context = null)
     {
         return [
-            'standard' => $this->getStandard() ?: 'Default',
+            'name' => 'PHP_CodeSniffer',
+            'command' => $this->getCommand(),
         ] + parent::getTaskContext($context);
     }
 }
