@@ -100,4 +100,81 @@ class UtilsTest extends \Codeception\Test\Unit
         $callable = Utils::class . '::mergeReports';
         $this->tester->assertEquals($expected, call_user_func_array($callable, $args));
     }
+
+    public function casesIsIgnored(): array
+    {
+        return [
+            'empty' => [
+                false,
+                'a.php',
+                '',
+            ],
+            'directory 1' => [
+                true,
+                'a/b.php',
+                'a/',
+            ],
+            'directory 2' => [
+                true,
+                'a/b/c.php',
+                'a/b/',
+            ],
+            'extension 1 true' => [
+                true,
+                'a.js',
+                '*.js',
+            ],
+            'extension 2 true' => [
+                true,
+                'a/b/c.js',
+                '*.js',
+            ],
+            'extension 1 false' => [
+                false,
+                'a.php',
+                '*.js',
+            ],
+            'extension 2 false' => [
+                false,
+                'a/a.js/c.php',
+                '*.js',
+            ],
+            'recursive extension 1 true' => [
+                true,
+                'c.js',
+                '**/*.js',
+            ],
+            'recursive extension 2 true' => [
+                true,
+                'ab/cd.js',
+                '**/*.js',
+            ],
+            'recursive extension 3 true' => [
+                true,
+                'ab/cd/ef.js',
+                '**/*.js',
+            ],
+            'recursive extension 1 false' => [
+                false,
+                'a.php',
+                '**/*.js',
+            ],
+            'recursive extension 2 false' => [
+                false,
+                'a/b.js/c.php',
+                '**/*.js',
+            ],
+        ];
+    }
+
+    /**
+     * @dataProvider casesIsIgnored
+     */
+    public function testIsIgnored(bool $expected, string $fileName, string $pattern): void
+    {
+        $this->tester->assertEquals($expected, Utils::isIgnored(
+            $fileName,
+            ($pattern ? [$pattern] : [])
+        ));
+    }
 }

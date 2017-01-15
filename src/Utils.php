@@ -44,4 +44,30 @@ class Utils
 
         return $merged;
     }
+
+    public static function isIgnored(string $fileName, array $patterns): bool
+    {
+        foreach ($patterns as $pattern) {
+            if (fnmatch($pattern, $fileName)) {
+                return true;
+            }
+
+            if (preg_match('@/$@u', $pattern) && strpos($fileName, $pattern) === 0) {
+                return true;
+            }
+
+            if (strpos($pattern, '**/') === 0
+                && strpos($fileName, '/') === false
+                && fnmatch($pattern, "a/$fileName")
+            ) {
+                return true;
+            }
+
+            if ($fileName === $pattern) {
+                return true;
+            }
+        }
+
+        return false;
+    }
 }
