@@ -1027,6 +1027,7 @@ abstract class PhpcsLint extends BaseTask implements
         return [
             'name' => 'PHP_CodeSniffer',
             'command' => $this->getCommand(),
+            'standard' => $this->getStandard(),
         ] + parent::getTaskContext($context);
     }
 }
