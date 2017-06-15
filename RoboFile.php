@@ -254,7 +254,7 @@ class RoboFile extends \Robo\Tasks
 
         $options = [
             'failOn' => 'warning',
-            'standard' => 'PSR2',
+            'standards' => ['PSR2'],
             'lintReporters' => [
                 'lintVerboseReporter' => null,
             ],

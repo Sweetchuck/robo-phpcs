@@ -97,7 +97,6 @@ abstract class PhpcsLint extends BaseTask implements
     ];
 
     protected $simpleOptions = [
-        'standard' => 'standard',
         'reportWidth' => 'report-width',
         'severity' => 'severity',
         'errorSeverity' => 'error-severity',
@@ -107,6 +106,7 @@ abstract class PhpcsLint extends BaseTask implements
     protected $listOptions = [
         'extensions' => 'extensions',
         'sniffs' => 'sniffs',
+        'standards' => 'standard',
         'exclude' => 'exclude',
         'ignored' => 'ignore',
     ];
@@ -282,8 +282,8 @@ abstract class PhpcsLint extends BaseTask implements
                     $this->setWarningSeverity($value);
                     break;
 
-                case 'standard':
-                    $this->setStandard($value);
+                case 'standards':
+                    $this->setStandards($value);
                     break;
 
                 case 'extensions':
@@ -497,13 +497,13 @@ abstract class PhpcsLint extends BaseTask implements
 
     //region Option - standard
     /**
-     * @var string
+     * @var bool[]
      */
-    protected $standard = '';
+    protected $standards = [];
 
-    public function getStandard(): string
+    public function getStandards(): array
     {
-        return $this->standard;
+        return $this->standards;
     }
 
     /**
@@ -511,9 +511,11 @@ abstract class PhpcsLint extends BaseTask implements
      *
      * @return $this
      */
-    public function setStandard(string $name)
+    public function setStandards(array $standards)
     {
-        $this->standard = $name;
+        $this->standards = gettype(reset($standards)) === 'boolean' ?
+            $standards
+            : array_fill_keys($standards, true);
 
         return $this;
     }
@@ -736,7 +738,7 @@ abstract class PhpcsLint extends BaseTask implements
     {
         $options = [
             'colors' => $this->getColors(),
-            'standard' => $this->getStandard(),
+            'standards' => $this->getStandards(),
             'reports' => $this->getReports(),
             'reportWidth' => $this->getReportWidth(),
             'severity' => $this->getSeverity(),
@@ -1027,7 +1029,7 @@ abstract class PhpcsLint extends BaseTask implements
         return [
             'name' => 'PHP_CodeSniffer',
             'command' => $this->getCommand(),
-            'standard' => $this->getStandard(),
+            'standard' => implode(',', $this->filterEnabled($this->getStandards())),
         ] + parent::getTaskContext($context);
     }
 }

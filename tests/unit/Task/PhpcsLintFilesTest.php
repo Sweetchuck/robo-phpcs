@@ -184,13 +184,17 @@ class PhpcsLintFilesTest extends \Codeception\Test\Unit
                 "phpcs --error-severity='0'",
                 ['errorSeverity' => '0'],
             ],
-            'standard-false' => [
+            'standards-empty' => [
                 'phpcs',
-                ['standard' => false],
+                ['standards' => []],
             ],
-            'standard-value' => [
-                "phpcs --standard='Drupal'",
-                ['standard' => 'Drupal'],
+            'standards-vector' => [
+                "phpcs --standard='a,b'",
+                ['standards' => ['a', 'b', 'a']],
+            ],
+            'standards-boolean' => [
+                "phpcs --standard='a,c'",
+                ['standards' => ['a' => true, 'b' => false, 'c' => true]],
             ],
             'extensions-empty' => [
                 "phpcs",
