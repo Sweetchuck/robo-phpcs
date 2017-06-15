@@ -45,7 +45,7 @@ class RoboFile extends \Robo\Tasks
 
         return $this->taskPhpcsLintFiles()
             ->setColors(false)
-            ->setStandard('PSR2')
+            ->setStandards(['PSR2'])
             ->setFiles(['fixtures/psr2.invalid.01.php'])
             ->setReport('full')
             ->setReport('checkstyle', "$reportsDir/01.native.checkstyle.xml")
@@ -97,7 +97,7 @@ class RoboFile extends \Robo\Tasks
         }
 
         return $this->taskPhpcsLintInput()
-            ->setStandard('PSR2')
+            ->setStandards(['PSR2'])
             ->setFiles($files)
             ->addLintReporter('verbose:StdOutput', 'lintVerboseReporter')
             ->addLintReporter('verbose:file', $verboseFile)
