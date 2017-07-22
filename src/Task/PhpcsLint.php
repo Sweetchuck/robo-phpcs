@@ -679,10 +679,17 @@ abstract class PhpcsLint extends BaseTask implements
     {
         $options = $this->getCommandOptions();
 
-        $cmdPattern = '%s';
-        $cmdArgs = [
-            escapeshellcmd($this->phpcsExecutable),
-        ];
+        $cmdPattern = '';
+        $cmdArgs = [];
+
+        $wd = $this->getWorkingDirectory();
+        if ($wd) {
+            $cmdPattern .= 'cd %s && ';
+            $cmdArgs[] = escapeshellarg($wd);
+        }
+
+        $cmdPattern .= '%s';
+        $cmdArgs[] = escapeshellcmd($this->phpcsExecutable);
 
         foreach ($this->triStateOptions as $config => $option) {
             if (isset($options[$config])) {
@@ -839,9 +846,6 @@ abstract class PhpcsLint extends BaseTask implements
 
         /** @var Process $process */
         $process = new $this->processClass($this->getCommand());
-        if ($this->workingDirectory) {
-            $process->setWorkingDirectory($this->workingDirectory);
-        }
 
         $this->lintExitCode = $process->run();
         $this->lintStdOutput = $process->getOutput();

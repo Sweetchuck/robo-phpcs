@@ -99,7 +99,12 @@ class PhpcsLintFilesTest extends \Codeception\Test\Unit
                 'phpcs',
                 [],
             ],
-
+            'workingDirectory' => [
+                "cd 'my/sub/dir' && phpcs",
+                [
+                    'workingDirectory' => 'my/sub/dir',
+                ],
+            ],
             'phpExecutable-string' => [
                 'my-phpcs --colors',
                 [
@@ -454,7 +459,6 @@ class PhpcsLintFilesTest extends \Codeception\Test\Unit
         $mainStdOutput = new \Helper\Dummy\Output();
 
         $options += [
-            'workingDirectory' => '.',
             'assetJarMapping' => ['report' => ['phpcsLintRun', 'report']],
             'reports' => [
                 'json' => null,
@@ -496,11 +500,6 @@ class PhpcsLintFilesTest extends \Codeception\Test\Unit
             $exitCode,
             $result->getExitCode(),
             'Exit code is different than the expected.'
-        );
-
-        $this->tester->assertEquals(
-            $options['workingDirectory'],
-            \Helper\Dummy\Process::$instances[$processIndex]->getWorkingDirectory()
         );
 
         if ($withJar) {
