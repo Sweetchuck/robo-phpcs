@@ -25,16 +25,48 @@ class RunRoboTasksCest
 
     public function lintFilesAllInOneTask(AcceptanceTester $i)
     {
+        $id = __METHOD__;
         $roboTaskName = 'lint:files-all-in-one';
         $i->wantTo("Run Robo task '<comment>$roboTaskName</comment>'.");
-        $i
-            ->runRoboTask($roboTaskName)
-            ->expectTheExitCodeToBe(2)
-            ->seeThisTextInTheStdOutput(file_get_contents("{$this->expectedDir}/01.native.full.txt"))
-            ->seeThisTextInTheStdOutput(file_get_contents("{$this->expectedDir}/01.extra.verbose.txt"))
-            ->seeThisTextInTheStdOutput(file_get_contents("{$this->expectedDir}/01.extra.summary.txt"))
-            ->seeThisTextInTheStdError('PHP Code Sniffer found some errors :-(')
-            ->haveAValidCheckstyleReport('actual/01.native.checkstyle.xml');
+
+        $cwd = getcwd();
+        chdir(codecept_data_dir());
+        $i->runRoboTask(
+            $id,
+            \PhpcsRoboFile::class,
+            $roboTaskName
+        );
+        chdir($cwd);
+
+        $stdOutput = $i->getRoboTaskStdOutput($id);
+        $stdError = $i->getRoboTaskStdError($id);
+        $exitCode = $i->getRoboTaskExitCode($id);
+
+        $reports = [
+            'native.full',
+            'extra.verbose',
+            'extra.summary',
+        ];
+        foreach ($reports as $report) {
+            $i->assertContains(
+                file_get_contents("{$this->expectedDir}/01.$report.txt"),
+                $stdOutput,
+                "StdOutput contains the $report report"
+            );
+        }
+        $i->haveAValidCheckstyleReport('actual/01.native.checkstyle.xml');
+
+        $i->assertContains(
+            'PHP Code Sniffer found some errors :-(',
+            $stdError,
+            'StdError contains a general message'
+        );
+
+        $i->assertEquals(
+            2,
+            $exitCode,
+            'Robo task exitCode'
+        );
     }
 
     public function lintInputWithoutJarTaskCommandOnlyFalse(AcceptanceTester $i)
@@ -44,7 +76,7 @@ class RunRoboTasksCest
 
     public function lintInputWithoutJarTaskCommandOnlyTrue(AcceptanceTester $i)
     {
-        $this->lintInput($i, 'lint:input-without-jar', [], ['command-only' => null]);
+        $this->lintInput($i, 'lint:input-without-jar', ['--command-only']);
     }
 
     public function lintInputWithJarTaskCommandOnlyFalse(AcceptanceTester $i)
@@ -54,16 +86,10 @@ class RunRoboTasksCest
 
     public function lintInputWithJarTaskCommandOnlyTrue(AcceptanceTester $i)
     {
-        $this->lintInput($i, 'lint:input-with-jar', [], ['command-only' => null]);
+        $this->lintInput($i, 'lint:input-with-jar', ['--command-only']);
     }
 
-    /**
-     * @param AcceptanceTester $i
-     * @param string $roboTaskName
-     * @param array $args
-     * @param array $options
-     */
-    protected function lintInput(AcceptanceTester $i, $roboTaskName, array $args = [], array $options = [])
+    protected function lintInput(AcceptanceTester $i, string $roboTaskName, array $argsAndOptions = [])
     {
         // @todo https://github.com/Sweetchuck/robo-phpcs/issues/6
         if (getenv('TRAVIS_OS_NAME') === 'osx') {
@@ -72,33 +98,27 @@ class RunRoboTasksCest
             return;
         }
 
-        $cmdPattern = '%s';
-        $cmdArgs = [
-            escapeshellarg($roboTaskName),
-        ];
+        static $callCounter = 1;
 
-        foreach ($options as $option => $value) {
-            $cmdPattern .= " --$option";
-            if ($value !== null) {
-                $cmdPattern .= '=%s';
-                $cmdArgs[] = escapeshellarg($value);
-            }
-        }
+        $id = __METHOD__ . ':' . $callCounter++;
 
-        $cmdPattern .= str_repeat(' %s', count($args));
-        foreach ($args as $arg) {
-            $cmdArgs[] = escapeshellarg($arg);
-        }
-
-        $command = vsprintf($cmdPattern, $cmdArgs);
-
+        $command = "$roboTaskName " . implode(' ', $argsAndOptions);
         $i->wantTo("Run Robo task '<comment>$command</comment>'.");
-        $i
-            ->runRoboTask($roboTaskName)
-            ->expectTheExitCodeToBe(2)
-            ->haveAFileLikeThis('02-03.extra.checkstyle.xml')
-            ->haveAFileLikeThis('02-03.extra.summary.txt')
-            ->haveAFileLikeThis('02-03.extra.verbose.txt')
-            ->seeThisTextInTheStdError('PHP Code Sniffer found some errors :-(');
+
+        $cwd = getcwd();
+        chdir(codecept_data_dir());
+        $i->runRoboTask(
+            $id,
+            \PhpcsRoboFile::class,
+            $roboTaskName,
+            ...$argsAndOptions
+        );
+        chdir($cwd);
+
+        $i->assertEquals(2, $i->getRoboTaskExitCode($id));
+        $i->haveAFileLikeThis('02-03.extra.checkstyle.xml');
+        $i->haveAFileLikeThis('02-03.extra.summary.txt');
+        $i->haveAFileLikeThis('02-03.extra.verbose.txt');
+        $i->assertContains('PHP Code Sniffer found some errors :-(', $i->getRoboTaskStdError($id));
     }
 }
