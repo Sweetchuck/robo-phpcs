@@ -2,5 +2,6 @@
 class_name: 'AcceptanceTester'
 modules:
     enabled:
-        - '\Sweetchuck\Robo\Phpcs\Test\Helper\Module\Cli'
+        - 'Asserts'
+        - '\Sweetchuck\Codeception\Module\RoboTaskRunner\RoboTaskRunner'
         - '\Sweetchuck\Robo\Phpcs\Test\Helper\Acceptance'

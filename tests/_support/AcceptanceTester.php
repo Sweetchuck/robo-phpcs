@@ -3,7 +3,7 @@
 namespace Sweetchuck\Robo\Phpcs\Test;
 
 use Codeception\Actor;
-use \PHPUnit_Framework_Assert as Assert;
+use PHPUnit\Framework\Assert;
 use Sweetchuck\Robo\Phpcs\Test\_generated\AcceptanceTesterActions;
 use Symfony\Component\Finder\Finder;
 
@@ -48,35 +48,6 @@ class AcceptanceTester extends Actor
     /**
      * @return $this
      */
-    public function runRoboTask(string $taskName, array $args = [], array $options = [])
-    {
-        $cmdPattern = 'cd %s && ../../bin/robo %s';
-        $cmdArgs = [
-            escapeshellarg(codecept_data_dir()),
-            escapeshellarg($taskName),
-        ];
-
-        foreach ($options as $option => $value) {
-            $cmdPattern .= " --$option";
-            if ($value !== null) {
-                $cmdPattern .= '=%s';
-                $cmdArgs[] = escapeshellarg($value);
-            }
-        }
-
-        $cmdPattern .= str_repeat(' %s', count($args));
-        foreach ($args as $arg) {
-            $cmdArgs[] = escapeshellarg($arg);
-        }
-
-        $this->runShellCommand(vsprintf($cmdPattern, $cmdArgs));
-
-        return $this;
-    }
-
-    /**
-     * @return $this
-     */
     public function haveAFileLikeThis(string $fileName)
     {
         $expectedDir = codecept_data_dir('expected');
@@ -101,36 +72,6 @@ class AcceptanceTester extends Actor
         $xpath = new \DOMXPath($doc);
         $rootElement = $xpath->query('/checkstyle');
         Assert::assertEquals(1, $rootElement->length, 'Root element of the Checkstyle XML is exists.');
-
-        return $this;
-    }
-
-    /**
-     * @return $this
-     */
-    public function seeThisTextInTheStdOutput(string $expected)
-    {
-        Assert::assertContains($expected, $this->getStdOutput());
-
-        return $this;
-    }
-
-    /**
-     * @return $this
-     */
-    public function seeThisTextInTheStdError(string $expected)
-    {
-        Assert::assertContains($expected, $this->getStdError());
-
-        return $this;
-    }
-
-    /**
-     * @return $this
-     */
-    public function expectTheExitCodeToBe(int $expected)
-    {
-        Assert::assertEquals($expected, $this->getExitCode());
 
         return $this;
     }

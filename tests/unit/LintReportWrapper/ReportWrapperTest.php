@@ -7,7 +7,7 @@ use Sweetchuck\Robo\Phpcs\LintReportWrapper\ReportWrapper;
 class ReportWrapperTest extends \Codeception\Test\Unit
 {
     /**
-     * @var \UnitTester
+     * @var \Sweetchuck\Robo\Phpcs\Test\UnitTester
      */
     protected $tester;
 

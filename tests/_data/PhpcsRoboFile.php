@@ -6,12 +6,14 @@ use Sweetchuck\LintReport\Reporter\CheckstyleReporter;
 use Sweetchuck\LintReport\Reporter\SummaryReporter;
 use Sweetchuck\LintReport\Reporter\VerboseReporter;
 use League\Container\ContainerInterface;
+use Sweetchuck\Robo\Phpcs\PhpcsTaskLoader;
+use Webmozart\PathUtil\Path;
 
 // @codingStandardsIgnoreStart
-class RoboFile extends \Robo\Tasks
+class PhpcsRoboFile extends \Robo\Tasks
 {
     // @codingStandardsIgnoreEnd
-    use \Sweetchuck\Robo\Phpcs\PhpcsTaskLoader;
+    use PhpcsTaskLoader;
 
     /**
      * @return $this
@@ -40,7 +42,9 @@ class RoboFile extends \Robo\Tasks
             ->setFilePathStyle('relative')
             ->setDestination("$reportsDir/01.extra.summary.txt");
 
-        return $this->taskPhpcsLintFiles()
+        return $this
+            ->taskPhpcsLintFiles()
+            ->setPhpcsExecutable($this->getPhpcsExecutable())
             ->setColors(false)
             ->setStandards(['PSR2'])
             ->setFiles(['fixtures/psr2.invalid.01.php'])
@@ -93,7 +97,9 @@ class RoboFile extends \Robo\Tasks
             $files['psr2.invalid.03.php']['content'] = file_get_contents("$fixturesDir/psr2.invalid.03.php");
         }
 
-        return $this->taskPhpcsLintInput()
+        return $this
+            ->taskPhpcsLintInput()
+            ->setPhpcsExecutable($this->getPhpcsExecutable())
             ->setStandards(['PSR2'])
             ->setFiles($files)
             ->addLintReporter('verbose:StdOutput', 'lintVerboseReporter')
@@ -122,5 +128,18 @@ class RoboFile extends \Robo\Tasks
             ->setFiles([])
             ->setAssetJar($assetJar)
             ->setAssetJarMap('files', ['l1', 'l2']);
+    }
+
+    protected function getPhpcsExecutable(): string
+    {
+        $phpcsExecutable = Path::join(
+            __DIR__,
+            '..',
+            '..',
+            'bin',
+            'phpcs'
+        );
+
+        return Path::makeRelative($phpcsExecutable, getcwd());
     }
 }

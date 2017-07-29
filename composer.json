@@ -18,10 +18,12 @@
         "squizlabs/php_codesniffer": "^2.6"
     },
     "require-dev": {
+        "codeception/codeception": "^2.2",
+        "sweetchuck/codeception-module-robo-task-runner": "^0.0",
         "sweetchuck/git-hooks": "^0.0",
         "sweetchuck/robo-git": "^0.0",
-        "codeception/codeception": "^2.2",
-        "symfony/yaml": "^2.8 || ^3.1"
+        "symfony/yaml": "^2.8 || ^3.1",
+        "webmozart/path-util": "^2.3"
     },
     "autoload": {
         "psr-4": {
@@ -33,7 +35,10 @@
             "Sweetchuck\\Robo\\Phpcs\\Test\\Helper\\": "tests/_support/Helper/",
             "Sweetchuck\\Robo\\Phpcs\\Tests\\Acceptance\\": "tests/acceptance/",
             "Sweetchuck\\Robo\\Phpcs\\Tests\\Unit\\": "tests/unit/"
-        }
+        },
+        "classmap": [
+            "tests/_data/PhpcsRoboFile.php"
+        ]
     },
     "scripts": {
         "post-install-cmd": [

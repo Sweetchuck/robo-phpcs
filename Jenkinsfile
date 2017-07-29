@@ -9,7 +9,7 @@ node {
     wrap([$class: 'AnsiColorBuildWrapper']) {
       stage('Build') {
         checkout scm
-        sh 'composer install'
+        sh 'composer install --no-progress'
       }
 
       stage('QA') {

@@ -23,7 +23,7 @@ before_install:
     - 'src-dev/scripts/travis/before_install.sh'
 
 install:
-    - 'composer install'
+    - 'composer install --no-progress'
 
 script:
     - './bin/robo --ansi lint'
