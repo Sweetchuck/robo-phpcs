@@ -1,8 +1,8 @@
 <?php
 
-namespace Cheppers\Robo\Phpcs\LintReportWrapper;
+namespace Sweetchuck\Robo\Phpcs\LintReportWrapper;
 
-use Cheppers\LintReport\ReportWrapperInterface;
+use Sweetchuck\LintReport\ReportWrapperInterface;
 
 class ReportWrapper implements ReportWrapperInterface
 {
@@ -24,7 +24,7 @@ class ReportWrapper implements ReportWrapperInterface
     /**
      * {@inheritdoc}
      */
-    public function getReport()
+    public function getReport(): array
     {
         return $this->report;
     }
@@ -32,7 +32,7 @@ class ReportWrapper implements ReportWrapperInterface
     /**
      * {@inheritdoc}
      */
-    public function setReport($report)
+    public function setReport(array $report)
     {
         $this->report = $report;
         $this->report += [
@@ -50,7 +50,7 @@ class ReportWrapper implements ReportWrapperInterface
     /**
      * {@inheritdoc}
      */
-    public function countFiles()
+    public function countFiles(): int
     {
         return count($this->report['files']);
     }
@@ -69,7 +69,7 @@ class ReportWrapper implements ReportWrapperInterface
     /**
      * {@inheritdoc}
      */
-    public function numOfErrors()
+    public function numOfErrors(): int
     {
         return $this->report['totals']['errors'];
     }
@@ -77,7 +77,7 @@ class ReportWrapper implements ReportWrapperInterface
     /**
      * {@inheritdoc}
      */
-    public function numOfWarnings()
+    public function numOfWarnings(): int
     {
         return $this->report['totals']['warnings'];
     }
@@ -85,7 +85,7 @@ class ReportWrapper implements ReportWrapperInterface
     /**
      * {@inheritdoc}
      */
-    public function highestSeverity()
+    public function highestSeverity(): string
     {
         if ($this->numOfErrors()) {
             return ReportWrapperInterface::SEVERITY_ERROR;

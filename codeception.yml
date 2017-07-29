@@ -1,4 +1,6 @@
 
+namespace: Sweetchuck\Robo\Phpcs\Test
+
 actor: Tester
 
 paths:

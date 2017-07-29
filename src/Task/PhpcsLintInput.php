@@ -1,11 +1,11 @@
 <?php
 
-namespace Cheppers\Robo\Phpcs\Task;
+namespace Sweetchuck\Robo\Phpcs\Task;
 
-use Cheppers\Robo\Phpcs\Utils;
+use Sweetchuck\Robo\Phpcs\Utils;
 
 /**
- * @package Cheppers\Robo\Phpcs\Task
+ * @package Sweetchuck\Robo\Phpcs\Task
  */
 class PhpcsLintInput extends PhpcsLint
 {

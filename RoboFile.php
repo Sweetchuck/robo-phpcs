@@ -1,8 +1,8 @@
 <?php
 
 // @codingStandardsIgnoreStart
-use Cheppers\LintReport\Reporter\BaseReporter;
-use Cheppers\LintReport\Reporter\CheckstyleReporter;
+use Sweetchuck\LintReport\Reporter\BaseReporter;
+use Sweetchuck\LintReport\Reporter\CheckstyleReporter;
 use League\Container\ContainerInterface;
 use Symfony\Component\Process\Process;
 use Symfony\Component\Yaml\Yaml;
@@ -13,8 +13,8 @@ use Symfony\Component\Yaml\Yaml;
 class RoboFile extends \Robo\Tasks
 // @codingStandardsIgnoreEnd
 {
-    use \Cheppers\Robo\Git\GitTaskLoader;
-    use \Cheppers\Robo\Phpcs\PhpcsTaskLoader;
+    use \Sweetchuck\Robo\Git\GitTaskLoader;
+    use \Sweetchuck\Robo\Phpcs\PhpcsTaskLoader;
 
     /**
      * @var array
@@ -237,7 +237,7 @@ class RoboFile extends \Robo\Tasks
     }
 
     /**
-     * @return \Cheppers\Robo\Phpcs\Task\PhpcsLintFiles|\Robo\Collection\CollectionBuilder
+     * @return \Sweetchuck\Robo\Phpcs\Task\PhpcsLintFiles|\Robo\Collection\CollectionBuilder
      */
     protected function getTaskPhpcsLint()
     {
@@ -271,7 +271,7 @@ class RoboFile extends \Robo\Tasks
             return $this->taskPhpcsLintFiles($options + ['files' => $files]);
         }
 
-        $assetJar = new Cheppers\AssetJar\AssetJar();
+        $assetJar = new Sweetchuck\AssetJar\AssetJar();
 
         return $this
             ->collectionBuilder()

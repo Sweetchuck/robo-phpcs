@@ -1,8 +1,8 @@
 <?php
 
-namespace Cheppers\Robo\Phpcs\Tests\Unit\LintReportWrapper;
+namespace Sweetchuck\Robo\Phpcs\Tests\Unit\LintReportWrapper;
 
-use Cheppers\Robo\Phpcs\LintReportWrapper\ReportWrapper;
+use Sweetchuck\Robo\Phpcs\LintReportWrapper\ReportWrapper;
 
 class ReportWrapperTest extends \Codeception\Test\Unit
 {
@@ -208,7 +208,7 @@ class ReportWrapperTest extends \Codeception\Test\Unit
 
         /**
          * @var string $filePath
-         * @var \Cheppers\Robo\Phpcs\LintReportWrapper\FileWrapper $fw
+         * @var \Sweetchuck\Robo\Phpcs\LintReportWrapper\FileWrapper $fw
          */
         foreach ($rw->yieldFiles() as $filePath => $fw) {
             $file = array_shift($report['files']);
@@ -220,7 +220,7 @@ class ReportWrapperTest extends \Codeception\Test\Unit
 
             /**
              * @var int $i
-             * @var \Cheppers\LintReport\FailureWrapperInterface $failureWrapper
+             * @var \Sweetchuck\LintReport\FailureWrapperInterface $failureWrapper
              */
             foreach ($fw->yieldFailures() as $i => $failureWrapper) {
                 $message = $file['messages'][$i];

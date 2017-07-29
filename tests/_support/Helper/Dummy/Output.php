@@ -1,12 +1,7 @@
 <?php
 
-namespace Helper\Dummy;
+namespace Sweetchuck\Robo\Phpcs\Test\Helper\Dummy;
 
-/**
- * Class Output.
- *
- * @package Helper\Dummy
- */
 class Output extends \Symfony\Component\Console\Output\Output
 {
 

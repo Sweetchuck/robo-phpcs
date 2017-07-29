@@ -1,6 +1,6 @@
 <?php
 
-namespace Cheppers\Robo\Phpcs;
+namespace Sweetchuck\Robo\Phpcs;
 
 class Utils
 {
