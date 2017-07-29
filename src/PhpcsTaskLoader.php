@@ -7,11 +7,6 @@ use Sweetchuck\Robo\Phpcs\Task\PhpcsLintInput;
 use League\Container\ContainerAwareInterface;
 use Robo\Contract\OutputAwareInterface;
 
-/**
- * Class PhpcsTask.
- *
- * @package Sweetchuck\Robo\Phpcs\Task
- */
 trait PhpcsTaskLoader
 {
     /**

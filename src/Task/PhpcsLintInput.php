@@ -4,9 +4,6 @@ namespace Sweetchuck\Robo\Phpcs\Task;
 
 use Sweetchuck\Robo\Phpcs\Utils;
 
-/**
- * @package Sweetchuck\Robo\Phpcs\Task
- */
 class PhpcsLintInput extends PhpcsLint
 {
     //region Properties
@@ -78,7 +75,7 @@ class PhpcsLintInput extends PhpcsLint
     protected function runLint()
     {
         $reports = [];
-        $files = $this->getJarValueOrLocal('files');
+        $files = $this->getFiles();
         $backupFailOn = $this->getFailOn();
 
         $ignorePatterns = $this->filterEnabled($this->getIgnore());
@@ -141,27 +138,6 @@ class PhpcsLintInput extends PhpcsLint
     }
 
     /**
-     * @return mixed
-     */
-    protected function getJarValueOrLocal(string $itemName)
-    {
-        $map = $this->getAssetJarMap($itemName);
-        if ($map) {
-            $value = $this->getAssetJarValue($itemName, $keyExists);
-            if ($keyExists) {
-                return $value;
-            }
-        }
-
-        switch ($itemName) {
-            case 'files':
-                return $this->getFiles();
-        }
-
-        return null;
-    }
-
-    /**
      * {@inheritdoc}
      */
     protected function getTaskInfoPattern(): string
@@ -175,7 +151,7 @@ class PhpcsLintInput extends PhpcsLint
     protected function getTaskContext($context = null)
     {
         return [
-            'count' => count($this->getJarValueOrLocal('files')),
+            'count' => $this->getFiles(),
         ] + parent::getTaskContext($context);
     }
 }

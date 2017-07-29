@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "content-hash": "a4c890e2b00bf4de7f17df20d72740c1",
+    "content-hash": "dd1e87edf69d25c5965ef317958a9885",
     "packages": [
         {
             "name": "consolidation/annotated-command",
@@ -806,41 +806,6 @@
             "time": "2017-05-22T02:43:20+00:00"
         },
         {
-            "name": "sweetchuck/asset-jar",
-            "version": "v0.0.2",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/Sweetchuck/asset-jar.git",
-                "reference": "a6d4d67db8eef018aa10779b3906fb109bcb6508"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/Sweetchuck/asset-jar/zipball/a6d4d67db8eef018aa10779b3906fb109bcb6508",
-                "reference": "a6d4d67db8eef018aa10779b3906fb109bcb6508",
-                "shasum": ""
-            },
-            "require": {
-                "php": ">=7.1"
-            },
-            "require-dev": {
-                "phpunit/php-code-coverage": "^4.0",
-                "phpunit/phpunit": "^5.4",
-                "squizlabs/php_codesniffer": "^2.6"
-            },
-            "type": "library",
-            "autoload": {
-                "psr-4": {
-                    "Sweetchuck\\AssetJar\\": "src/"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "GPL-2.0+"
-            ],
-            "description": "Provides a very simple, shared, in-memory data storage.",
-            "time": "2017-07-29T07:37:14+00:00"
-        },
-        {
             "name": "sweetchuck/lint-report",
             "version": "v0.0.6",
             "source": {
@@ -1438,39 +1403,6 @@
                 "parser"
             ],
             "time": "2016-10-30T11:50:56+00:00"
-        },
-        {
-            "name": "cheppers/asset-jar",
-            "version": "v0.0.1",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/Cheppers/asset-jar.git",
-                "reference": "ef34273299c55defb0da78090b92a44125cf8ab2"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/Cheppers/asset-jar/zipball/ef34273299c55defb0da78090b92a44125cf8ab2",
-                "reference": "ef34273299c55defb0da78090b92a44125cf8ab2",
-                "shasum": ""
-            },
-            "require-dev": {
-                "phpunit/php-code-coverage": "^4.0",
-                "phpunit/phpunit": "^5.4",
-                "squizlabs/php_codesniffer": "^2.6"
-            },
-            "type": "library",
-            "autoload": {
-                "psr-4": {
-                    "Cheppers\\AssetJar\\": "src/"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "GPL-2.0+"
-            ],
-            "description": "Provides a very simple, shared, in-memory data storage.",
-            "abandoned": "sweetchuck/asset-jar",
-            "time": "2016-07-30T09:09:38+00:00"
         },
         {
             "name": "codeception/codeception",
@@ -3107,6 +3039,41 @@
             ],
             "description": "Automatic BASH completion for Symfony Console Component based applications.",
             "time": "2016-02-24T05:08:54+00:00"
+        },
+        {
+            "name": "sweetchuck/asset-jar",
+            "version": "v0.0.2",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/Sweetchuck/asset-jar.git",
+                "reference": "a6d4d67db8eef018aa10779b3906fb109bcb6508"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/Sweetchuck/asset-jar/zipball/a6d4d67db8eef018aa10779b3906fb109bcb6508",
+                "reference": "a6d4d67db8eef018aa10779b3906fb109bcb6508",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=7.1"
+            },
+            "require-dev": {
+                "phpunit/php-code-coverage": "^4.0",
+                "phpunit/phpunit": "^5.4",
+                "squizlabs/php_codesniffer": "^2.6"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Sweetchuck\\AssetJar\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "GPL-2.0+"
+            ],
+            "description": "Provides a very simple, shared, in-memory data storage.",
+            "time": "2017-07-29T07:37:14+00:00"
         },
         {
             "name": "sweetchuck/codeception-module-robo-task-runner",

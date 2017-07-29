@@ -59,7 +59,7 @@ class PhpcsRoboFile extends \Robo\Tasks
     /**
      * @return \Sweetchuck\Robo\Phpcs\Task\PhpcsLintInput|\Robo\Collection\CollectionBuilder
      */
-    public function lintInputWithoutJar(
+    public function lintInput(
         array $options = [
             'command-only' => false,
         ]
@@ -107,27 +107,6 @@ class PhpcsRoboFile extends \Robo\Tasks
             ->addLintReporter('summary:StdOutput', 'lintSummaryReporter')
             ->addLintReporter('summary:file', $summaryFile)
             ->addLintReporter('checkstyle:file', $checkstyleFile);
-    }
-
-    /**
-     * @return \Sweetchuck\Robo\Phpcs\Task\PhpcsLintInput|\Robo\Collection\CollectionBuilder
-     */
-    public function lintInputWithJar(
-        $options = [
-            'command-only' => false,
-        ]
-    ) {
-        $task = $this->lintInputWithoutJar($options);
-        $assetJar = new AssetJar([
-            'l1' => [
-                'l2' => $task->getFiles(),
-            ],
-        ]);
-
-        return $task
-            ->setFiles([])
-            ->setAssetJar($assetJar)
-            ->setAssetJarMap('files', ['l1', 'l2']);
     }
 
     protected function getPhpcsExecutable(): string

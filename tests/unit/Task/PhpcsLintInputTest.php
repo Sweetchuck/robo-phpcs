@@ -92,65 +92,6 @@ class PhpcsLintInputTest extends \Codeception\Test\Unit
         $this->tester->assertEquals($expected, $task->getCommand());
     }
 
-    public function casesGetJarValueOrLocal(): array
-    {
-        return [
-            'without jar' => [
-                ['a.php', 'b.php'],
-                'files',
-                ['files' => ['a.php', 'b.php']],
-                [],
-            ],
-            'with jar' => [
-                ['c.php', 'd.php'],
-                'files',
-                [
-                    'files' => ['a.php', 'b.php'],
-                    'assetJarMapping' => ['files' => ['l1', 'l2']],
-                ],
-                [
-                    'l1' => [
-                        'l2' => ['c.php', 'd.php'],
-                    ],
-                ],
-            ],
-            'non-exists' => [
-                null,
-                'non-exists',
-                [
-                    'files' => ['a.php', 'b.php'],
-                    'assetJarMapping' => ['files' => ['l1', 'l2']],
-                ],
-                [
-                    'l1' => [
-                        'l2' => ['c.php', 'd.php'],
-                    ],
-                ],
-            ],
-        ];
-    }
-
-    /**
-     * @dataProvider casesGetJarValueOrLocal
-     */
-    public function testGetJarValueOrLocal(
-        ?array $expected,
-        string $itemName,
-        array $options,
-        array $jarValue
-    ): void {
-        /** @var \Sweetchuck\Robo\Phpcs\Task\PhpcsLintInput $task */
-        $task = Stub::construct(
-            PhpcsLintInput::class,
-            [$options],
-            []
-        );
-        $method = static::getMethod('getJarValueOrLocal');
-        $task->setAssetJar(new AssetJar($jarValue));
-
-        $this->tester->assertEquals($expected, $method->invoke($task, $itemName));
-    }
-
     public function casesRun(): array
     {
         $files = [
@@ -321,8 +262,14 @@ class PhpcsLintInputTest extends \Codeception\Test\Unit
 
         $this->tester->assertEquals($expected['exitCode'], $result->getExitCode());
 
+        $assetNamePrefix = $options['assetNamePrefix'] ?? '';
+
         /** @var \Sweetchuck\LintReport\ReportWrapperInterface $reportWrapper */
-        $reportWrapper = $result['report'];
-        $this->tester->assertEquals($expected['report'], $reportWrapper->getReport());
+        $reportWrapper = $result["{$assetNamePrefix}report"];
+        $this->tester->assertEquals(
+            $expected['report'],
+            $reportWrapper->getReport(),
+            'Native report array'
+        );
     }
 }

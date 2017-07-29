@@ -2,8 +2,6 @@
 
 namespace Sweetchuck\Robo\Phpcs\Task;
 
-use Sweetchuck\AssetJar\AssetJarAware;
-use Sweetchuck\AssetJar\AssetJarAwareInterface;
 use Sweetchuck\LintReport\ReportWrapperInterface;
 use Sweetchuck\Robo\Phpcs\LintReportWrapper\ReportWrapper;
 use Sweetchuck\Robo\Phpcs\Utils;
@@ -21,12 +19,10 @@ use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Process\Process;
 
 abstract class PhpcsLint extends BaseTask implements
-    AssetJarAwareInterface,
     ContainerAwareInterface,
     OutputAwareInterface,
     CommandInterface
 {
-    use AssetJarAware;
     use ContainerAwareTrait;
     use FsLoadTasks;
     use FsShortCuts;
@@ -110,6 +106,30 @@ abstract class PhpcsLint extends BaseTask implements
         'exclude' => 'exclude',
         'ignored' => 'ignore',
     ];
+
+    //region Properties.
+
+    // region Option - assetNamePrefix.
+    /**
+     * @var string
+     */
+    protected $assetNamePrefix = '';
+
+    public function getAssetNamePrefix(): string
+    {
+        return $this->assetNamePrefix;
+    }
+
+    /**
+     * @return $this
+     */
+    public function setAssetNamePrefix(string $value)
+    {
+        $this->assetNamePrefix = $value;
+
+        return $this;
+    }
+    // endregion
 
     //region Property - workingDirectory
     /**
@@ -226,6 +246,7 @@ abstract class PhpcsLint extends BaseTask implements
         return $this;
     }
     //endregion
+    //endregion
 
     /**
      * @return $this
@@ -234,12 +255,8 @@ abstract class PhpcsLint extends BaseTask implements
     {
         foreach ($options as $name => $value) {
             switch ($name) {
-                case 'assetJar':
-                    $this->setAssetJar($value);
-                    break;
-
-                case 'assetJarMapping':
-                    $this->setAssetJarMapping($value);
+                case 'assetNamePrefix':
+                    $this->setAssetNamePrefix($value);
                     break;
 
                 case 'workingDirectory':
@@ -733,7 +750,7 @@ abstract class PhpcsLint extends BaseTask implements
             if ($files) {
                 $cmdPattern .= ' --' . str_repeat(' %s', count($files));
                 foreach ($files as $file) {
-                    $cmdArgs[] = Utils::escapeShellArgWithWildcard($file);
+                    $cmdArgs[] = Utils::escapeShellArgWithWildcard((string) $file);
                 }
             }
         }
@@ -801,7 +818,6 @@ abstract class PhpcsLint extends BaseTask implements
             ->runPrepareReportDirectories()
             ->runLint()
             ->runReleaseLintReports()
-            ->runReleaseAssets()
             ->runReturn();
     }
 
@@ -892,20 +908,6 @@ abstract class PhpcsLint extends BaseTask implements
         return $this;
     }
 
-    /**
-     * @return $this
-     */
-    protected function runReleaseAssets()
-    {
-        if ($this->isLintSuccess() && $this->hasAssetJar()) {
-            if ($this->getAssetJarMap('report')) {
-                $this->setAssetJarValue('report', $this->reportWrapper);
-            }
-        }
-
-        return $this;
-    }
-
     protected function runReturn(): Result
     {
         if ($this->lintExitCode && !$this->reportRaw) {
@@ -914,13 +916,15 @@ abstract class PhpcsLint extends BaseTask implements
             $exitCode = $this->getTaskExitCode($this->report['totals']);
         }
 
+        $assetNamePrefix = $this->getAssetNamePrefix();
+
         return new Result(
             $this,
             $exitCode,
             $this->getExitMessage($exitCode),
             [
-                'workingDirectory' => $this->getWorkingDirectory(),
-                'report' => $this->reportWrapper,
+                "{$assetNamePrefix}workingDirectory" => $this->getWorkingDirectory(),
+                "{$assetNamePrefix}report" => $this->reportWrapper,
             ]
         );
     }
