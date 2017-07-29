@@ -1,6 +1,6 @@
 
-class_name: UnitTester
+class_name: 'UnitTester'
 modules:
     enabled:
-        - Asserts
-        - \Helper\Unit
+        - 'Asserts'
+        - '\Sweetchuck\Robo\Phpcs\Test\Helper\Unit'

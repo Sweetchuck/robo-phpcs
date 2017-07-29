@@ -1,24 +1,21 @@
 <?php
 
-use Cheppers\AssetJar\AssetJar;
-use Cheppers\LintReport\Reporter\BaseReporter;
-use Cheppers\LintReport\Reporter\CheckstyleReporter;
-use Cheppers\LintReport\Reporter\SummaryReporter;
-use Cheppers\LintReport\Reporter\VerboseReporter;
-use League\Container\ContainerAwareInterface;
+use Sweetchuck\AssetJar\AssetJar;
+use Sweetchuck\LintReport\Reporter\BaseReporter;
+use Sweetchuck\LintReport\Reporter\CheckstyleReporter;
+use Sweetchuck\LintReport\Reporter\SummaryReporter;
+use Sweetchuck\LintReport\Reporter\VerboseReporter;
 use League\Container\ContainerInterface;
-use Robo\Contract\ConfigAwareInterface;
-use Robo\Contract\OutputAwareInterface;
 
-/**
- * Class RoboFile.
- */
 // @codingStandardsIgnoreStart
 class RoboFile extends \Robo\Tasks
 {
     // @codingStandardsIgnoreEnd
-    use \Cheppers\Robo\Phpcs\PhpcsTaskLoader;
+    use \Sweetchuck\Robo\Phpcs\PhpcsTaskLoader;
 
+    /**
+     * @return $this
+     */
     public function setContainer(ContainerInterface $container)
     {
         $this->container = $container;
@@ -29,7 +26,7 @@ class RoboFile extends \Robo\Tasks
     }
 
     /**
-     * @return $this
+     * @return \Sweetchuck\Robo\Phpcs\Task\PhpcsLintFiles|\Robo\Collection\CollectionBuilder
      */
     public function lintFilesAllInOne()
     {
@@ -56,10 +53,10 @@ class RoboFile extends \Robo\Tasks
     }
 
     /**
-     * @return \Cheppers\Robo\Phpcs\Task\PhpcsLintInput
+     * @return \Sweetchuck\Robo\Phpcs\Task\PhpcsLintInput|\Robo\Collection\CollectionBuilder
      */
     public function lintInputWithoutJar(
-        $options = [
+        array $options = [
             'command-only' => false,
         ]
     ) {
@@ -107,7 +104,7 @@ class RoboFile extends \Robo\Tasks
     }
 
     /**
-     * @return \Cheppers\Robo\Phpcs\Task\PhpcsLintInput
+     * @return \Sweetchuck\Robo\Phpcs\Task\PhpcsLintInput|\Robo\Collection\CollectionBuilder
      */
     public function lintInputWithJar(
         $options = [

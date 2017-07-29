@@ -1,6 +1,6 @@
 <?php
 
-namespace Helper\Dummy;
+namespace Sweetchuck\Robo\Phpcs\Test\Helper\Dummy;
 
 /**
  * Class Process.

@@ -1,6 +1,6 @@
 
-class_name: AcceptanceTester
+class_name: 'AcceptanceTester'
 modules:
     enabled:
-        - \Helper\Module\Cli
-        - \Helper\Acceptance
+        - '\Sweetchuck\Robo\Phpcs\Test\Helper\Module\Cli'
+        - '\Sweetchuck\Robo\Phpcs\Test\Helper\Acceptance'

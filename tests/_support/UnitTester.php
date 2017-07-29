@@ -1,5 +1,9 @@
 <?php
 
+namespace Sweetchuck\Robo\Phpcs\Test;
+
+use Sweetchuck\Robo\Phpcs\Test\_generated\UnitTesterActions;
+
 /**
  * Inherited Methods
  * @method void wantToTest($text)
@@ -17,9 +21,5 @@
  */
 class UnitTester extends \Codeception\Actor
 {
-    use _generated\UnitTesterActions;
-
-    /**
-     * Define custom actions here
-     */
+    use UnitTesterActions;
 }

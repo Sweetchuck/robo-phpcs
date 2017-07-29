@@ -1,6 +1,11 @@
 <?php
 
+namespace Sweetchuck\Robo\Phpcs\Test;
+
+use Codeception\Actor;
 use \PHPUnit_Framework_Assert as Assert;
+use Sweetchuck\Robo\Phpcs\Test\_generated\AcceptanceTesterActions;
+use Symfony\Component\Finder\Finder;
 
 /**
  * Inherited Methods
@@ -17,9 +22,9 @@ use \PHPUnit_Framework_Assert as Assert;
  *
  * @SuppressWarnings(PHPMD)
 */
-class AcceptanceTester extends \Codeception\Actor
+class AcceptanceTester extends Actor
 {
-    use _generated\AcceptanceTesterActions;
+    use AcceptanceTesterActions;
 
     /**
      * @return $this
@@ -28,9 +33,11 @@ class AcceptanceTester extends \Codeception\Actor
     {
         $reportsDir = codecept_data_dir('actual');
         if (is_dir($reportsDir)) {
-            $finder = new \Symfony\Component\Finder\Finder();
-            $finder->in($reportsDir);
-            foreach ($finder->files() as $file) {
+            $finder = (new Finder())
+                ->in($reportsDir)
+                ->files();
+            /** @var \Symfony\Component\Finder\SplFileInfo $file */
+            foreach ($finder as $file) {
                 unlink($file->getPathname());
             }
         }
@@ -39,11 +46,9 @@ class AcceptanceTester extends \Codeception\Actor
     }
 
     /**
-     * @param string $taskName
-     *
      * @return $this
      */
-    public function runRoboTask($taskName, array $args = [], array $options = [])
+    public function runRoboTask(string $taskName, array $args = [], array $options = [])
     {
         $cmdPattern = 'cd %s && ../../bin/robo %s';
         $cmdArgs = [
@@ -61,7 +66,7 @@ class AcceptanceTester extends \Codeception\Actor
 
         $cmdPattern .= str_repeat(' %s', count($args));
         foreach ($args as $arg) {
-          $cmdArgs[] = escapeshellarg($arg);
+            $cmdArgs[] = escapeshellarg($arg);
         }
 
         $this->runShellCommand(vsprintf($cmdPattern, $cmdArgs));
@@ -70,11 +75,10 @@ class AcceptanceTester extends \Codeception\Actor
     }
 
     /**
-     * @param string $fileName
-     *
      * @return $this
      */
-    public function haveAFileLikeThis($fileName) {
+    public function haveAFileLikeThis(string $fileName)
+    {
         $expectedDir = codecept_data_dir('expected');
         $actualDir = codecept_data_dir('actual');
 
@@ -86,12 +90,15 @@ class AcceptanceTester extends \Codeception\Actor
         return $this;
     }
 
-    public function haveAValidCheckstyleReport($fileName)
+    /**
+     * @return $this
+     */
+    public function haveAValidCheckstyleReport(string $fileName)
     {
         $fileName = "tests/_data/$fileName";
         $doc = new \DOMDocument();
         $doc->loadXML(file_get_contents($fileName));
-        $xpath = new DOMXPath($doc);
+        $xpath = new \DOMXPath($doc);
         $rootElement = $xpath->query('/checkstyle');
         Assert::assertEquals(1, $rootElement->length, 'Root element of the Checkstyle XML is exists.');
 
@@ -99,11 +106,9 @@ class AcceptanceTester extends \Codeception\Actor
     }
 
     /**
-     * @param string $expected
-     *
      * @return $this
      */
-    public function seeThisTextInTheStdOutput($expected)
+    public function seeThisTextInTheStdOutput(string $expected)
     {
         Assert::assertContains($expected, $this->getStdOutput());
 
@@ -111,11 +116,9 @@ class AcceptanceTester extends \Codeception\Actor
     }
 
     /**
-     * @param string $expected
-     *
      * @return $this
      */
-    public function seeThisTextInTheStdError($expected)
+    public function seeThisTextInTheStdError(string $expected)
     {
         Assert::assertContains($expected, $this->getStdError());
 
@@ -123,11 +126,9 @@ class AcceptanceTester extends \Codeception\Actor
     }
 
     /**
-     * @param int $expected
-     *
      * @return $this
      */
-    public function expectTheExitCodeToBe($expected)
+    public function expectTheExitCodeToBe(int $expected)
     {
         Assert::assertEquals($expected, $this->getExitCode());
 

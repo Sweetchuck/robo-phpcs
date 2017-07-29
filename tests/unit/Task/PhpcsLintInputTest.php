@@ -1,12 +1,12 @@
 <?php
 
-namespace Cheppers\Robo\Phpcs\Tests\Unit\Task;
+namespace Sweetchuck\Robo\Phpcs\Tests\Unit\Task;
 
-use Cheppers\AssetJar\AssetJar;
-use Cheppers\Robo\Phpcs\Task\PhpcsLintInput;
+use Sweetchuck\AssetJar\AssetJar;
+use Sweetchuck\Robo\Phpcs\Task\PhpcsLintInput;
 use Codeception\Util\Stub;
-use Helper\Dummy\Output as DummyOutput;
-use Helper\Dummy\Process as DummyProcess;
+use Sweetchuck\Robo\Phpcs\Test\Helper\Dummy\Output as DummyOutput;
+use Sweetchuck\Robo\Phpcs\Test\Helper\Dummy\Process as DummyProcess;
 use Robo\Robo;
 
 class PhpcsLintInputTest extends \Codeception\Test\Unit
@@ -21,7 +21,7 @@ class PhpcsLintInputTest extends \Codeception\Test\Unit
     }
 
     /**
-     * @var \UnitTester
+     * @var \Sweetchuck\Robo\Phpcs\Test\UnitTester
      */
     protected $tester;
 
@@ -80,7 +80,7 @@ class PhpcsLintInputTest extends \Codeception\Test\Unit
      */
     public function testGetCommand($expected, array $options, array $currentFile): void
     {
-        /** @var \Cheppers\Robo\Phpcs\Task\PhpcsLintInput $task */
+        /** @var \Sweetchuck\Robo\Phpcs\Task\PhpcsLintInput $task */
         $task = Stub::construct(
             PhpcsLintInput::class,
             [$options],
@@ -139,7 +139,7 @@ class PhpcsLintInputTest extends \Codeception\Test\Unit
         array $options,
         array $jarValue
     ): void {
-        /** @var \Cheppers\Robo\Phpcs\Task\PhpcsLintInput $task */
+        /** @var \Sweetchuck\Robo\Phpcs\Task\PhpcsLintInput $task */
         $task = Stub::construct(
             PhpcsLintInput::class,
             [$options],
@@ -297,7 +297,7 @@ class PhpcsLintInputTest extends \Codeception\Test\Unit
 
         $properties += ['processClass' => DummyProcess::class];
 
-        /** @var \Cheppers\Robo\Phpcs\Task\PhpcsLintInput $task */
+        /** @var \Sweetchuck\Robo\Phpcs\Task\PhpcsLintInput $task */
         $task = Stub::construct(
             PhpcsLintInput::class,
             [$options, []],
@@ -321,7 +321,7 @@ class PhpcsLintInputTest extends \Codeception\Test\Unit
 
         $this->tester->assertEquals($expected['exitCode'], $result->getExitCode());
 
-        /** @var \Cheppers\LintReport\ReportWrapperInterface $reportWrapper */
+        /** @var \Sweetchuck\LintReport\ReportWrapperInterface $reportWrapper */
         $reportWrapper = $result['report'];
         $this->tester->assertEquals($expected['report'], $reportWrapper->getReport());
     }

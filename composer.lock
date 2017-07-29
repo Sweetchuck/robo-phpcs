@@ -4,90 +4,20 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "content-hash": "1550d1b23ee685b2dad2d14f6e5335f6",
+    "content-hash": "d5da50c1ccd4624a5f33b03448c1b22f",
     "packages": [
         {
-            "name": "cheppers/asset-jar",
-            "version": "v0.0.1",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/Cheppers/asset-jar.git",
-                "reference": "ef34273299c55defb0da78090b92a44125cf8ab2"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/Cheppers/asset-jar/zipball/ef34273299c55defb0da78090b92a44125cf8ab2",
-                "reference": "ef34273299c55defb0da78090b92a44125cf8ab2",
-                "shasum": ""
-            },
-            "require-dev": {
-                "phpunit/php-code-coverage": "^4.0",
-                "phpunit/phpunit": "^5.4",
-                "squizlabs/php_codesniffer": "^2.6"
-            },
-            "type": "library",
-            "autoload": {
-                "psr-4": {
-                    "Cheppers\\AssetJar\\": "src/"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "GPL-2.0+"
-            ],
-            "description": "Provides a very simple, shared, in-memory data storage.",
-            "time": "2016-07-30T09:09:38+00:00"
-        },
-        {
-            "name": "cheppers/lint-report",
-            "version": "v0.0.5",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/Cheppers/lint-report.git",
-                "reference": "adc7536bea7df3fa8de378e0dff5dcbb9b644af8"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/Cheppers/lint-report/zipball/adc7536bea7df3fa8de378e0dff5dcbb9b644af8",
-                "reference": "adc7536bea7df3fa8de378e0dff5dcbb9b644af8",
-                "shasum": ""
-            },
-            "require": {
-                "league/container": "^2.2",
-                "symfony/console": "^2.8 || ^3.1",
-                "symfony/filesystem": "^2.8 || ^3.1",
-                "symfony/yaml": "^2.8 || ^3.1"
-            },
-            "require-dev": {
-                "cheppers/git-hooks": "^0.0.8",
-                "codeception/codeception": "^2.2",
-                "squizlabs/php_codesniffer": "2.6.2"
-            },
-            "type": "library",
-            "autoload": {
-                "psr-4": {
-                    "Cheppers\\LintReport\\": "src/"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "GPL-2.0+"
-            ],
-            "description": "Generate reports from lint results",
-            "time": "2016-12-14T21:09:07+00:00"
-        },
-        {
             "name": "consolidation/annotated-command",
-            "version": "2.4.10",
+            "version": "2.4.11",
             "source": {
                 "type": "git",
                 "url": "https://github.com/consolidation/annotated-command.git",
-                "reference": "27daf5bd0f8cfb69130b55b80f3ac374fb19ab08"
+                "reference": "7fbf68dc6abf2f1f0746ceab0701dee1ee97516e"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/consolidation/annotated-command/zipball/27daf5bd0f8cfb69130b55b80f3ac374fb19ab08",
-                "reference": "27daf5bd0f8cfb69130b55b80f3ac374fb19ab08",
+                "url": "https://api.github.com/repos/consolidation/annotated-command/zipball/7fbf68dc6abf2f1f0746ceab0701dee1ee97516e",
+                "reference": "7fbf68dc6abf2f1f0746ceab0701dee1ee97516e",
                 "shasum": ""
             },
             "require": {
@@ -126,20 +56,20 @@
                 }
             ],
             "description": "Initialize Symfony Console commands from annotated command class methods.",
-            "time": "2017-07-21T19:24:23+00:00"
+            "time": "2017-07-27T20:29:17+00:00"
         },
         {
             "name": "consolidation/config",
-            "version": "1.0.0",
+            "version": "1.0.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/consolidation/config.git",
-                "reference": "b30571aa8f0eae40581ae8b8aeaa26706b444781"
+                "reference": "e3c7311f8926488fe2fbce0ec6af56be417da504"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/consolidation/config/zipball/b30571aa8f0eae40581ae8b8aeaa26706b444781",
-                "reference": "b30571aa8f0eae40581ae8b8aeaa26706b444781",
+                "url": "https://api.github.com/repos/consolidation/config/zipball/e3c7311f8926488fe2fbce0ec6af56be417da504",
+                "reference": "e3c7311f8926488fe2fbce0ec6af56be417da504",
                 "shasum": ""
             },
             "require": {
@@ -175,7 +105,7 @@
                 }
             ],
             "description": "Provide configuration services for a commandline tool.",
-            "time": "2017-06-28T18:24:02+00:00"
+            "time": "2017-07-28T18:05:53+00:00"
         },
         {
             "name": "consolidation/log",
@@ -275,21 +205,21 @@
         },
         {
             "name": "consolidation/robo",
-            "version": "1.1.1",
+            "version": "1.1.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/consolidation/Robo.git",
-                "reference": "b83f558a6d7efa8d4d1d3faaff90d6448a6d2716"
+                "reference": "46340c0ba2477e6f30a22ebaa072da0ba2b15bb1"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/consolidation/Robo/zipball/b83f558a6d7efa8d4d1d3faaff90d6448a6d2716",
-                "reference": "b83f558a6d7efa8d4d1d3faaff90d6448a6d2716",
+                "url": "https://api.github.com/repos/consolidation/Robo/zipball/46340c0ba2477e6f30a22ebaa072da0ba2b15bb1",
+                "reference": "46340c0ba2477e6f30a22ebaa072da0ba2b15bb1",
                 "shasum": ""
             },
             "require": {
                 "consolidation/annotated-command": "^2.2",
-                "consolidation/config": "^1",
+                "consolidation/config": "^1.0.1",
                 "consolidation/log": "~1",
                 "consolidation/output-formatters": "^3.1.5",
                 "league/container": "^2.2",
@@ -350,7 +280,7 @@
                 }
             ],
             "description": "Modern task runner",
-            "time": "2017-07-07T19:48:25+00:00"
+            "time": "2017-07-28T21:29:52+00:00"
         },
         {
             "name": "container-interop/container-interop",
@@ -874,6 +804,80 @@
                 "standards"
             ],
             "time": "2017-05-22T02:43:20+00:00"
+        },
+        {
+            "name": "sweetchuck/asset-jar",
+            "version": "v0.0.2",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/Sweetchuck/asset-jar.git",
+                "reference": "a6d4d67db8eef018aa10779b3906fb109bcb6508"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/Sweetchuck/asset-jar/zipball/a6d4d67db8eef018aa10779b3906fb109bcb6508",
+                "reference": "a6d4d67db8eef018aa10779b3906fb109bcb6508",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=7.1"
+            },
+            "require-dev": {
+                "phpunit/php-code-coverage": "^4.0",
+                "phpunit/phpunit": "^5.4",
+                "squizlabs/php_codesniffer": "^2.6"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Sweetchuck\\AssetJar\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "GPL-2.0+"
+            ],
+            "description": "Provides a very simple, shared, in-memory data storage.",
+            "time": "2017-07-29T07:37:14+00:00"
+        },
+        {
+            "name": "sweetchuck/lint-report",
+            "version": "v0.0.6",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/Sweetchuck/lint-report.git",
+                "reference": "ce77db1c44c8662e798b16605d53975d44a9b91c"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/Sweetchuck/lint-report/zipball/ce77db1c44c8662e798b16605d53975d44a9b91c",
+                "reference": "ce77db1c44c8662e798b16605d53975d44a9b91c",
+                "shasum": ""
+            },
+            "require": {
+                "league/container": "^2.2",
+                "php": ">=7.1",
+                "symfony/console": "^2.8 || ^3.1",
+                "symfony/filesystem": "^2.8 || ^3.1",
+                "symfony/yaml": "^2.8 || ^3.1"
+            },
+            "require-dev": {
+                "codeception/codeception": "^2.2",
+                "squizlabs/php_codesniffer": "2.6.2",
+                "sweetchuck/git-hooks": "^0.0.10"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Sweetchuck\\LintReport\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "GPL-2.0+"
+            ],
+            "description": "Generate reports from lint results",
+            "time": "2017-07-29T07:17:19+00:00"
         },
         {
             "name": "symfony/console",
@@ -1436,82 +1440,37 @@
             "time": "2016-10-30T11:50:56+00:00"
         },
         {
-            "name": "cheppers/git-hooks",
-            "version": "v0.0.9",
+            "name": "cheppers/asset-jar",
+            "version": "v0.0.1",
             "source": {
                 "type": "git",
-                "url": "https://github.com/Cheppers/git-hooks.git",
-                "reference": "a846af41a1ea63d09bb8d49d9b1631e1a8eb63f8"
+                "url": "https://github.com/Cheppers/asset-jar.git",
+                "reference": "ef34273299c55defb0da78090b92a44125cf8ab2"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Cheppers/git-hooks/zipball/a846af41a1ea63d09bb8d49d9b1631e1a8eb63f8",
-                "reference": "a846af41a1ea63d09bb8d49d9b1631e1a8eb63f8",
+                "url": "https://api.github.com/repos/Cheppers/asset-jar/zipball/ef34273299c55defb0da78090b92a44125cf8ab2",
+                "reference": "ef34273299c55defb0da78090b92a44125cf8ab2",
                 "shasum": ""
             },
             "require-dev": {
-                "behat/behat": "~3.1",
-                "consolidation/robo": "~1.0",
-                "pear/archive_tar": "~1.4",
-                "phpunit/phpunit": "~4.5",
-                "squizlabs/php_codesniffer": "~2.6",
-                "symfony/filesystem": "~3.1",
-                "symfony/process": "~3.1"
-            },
-            "type": "library",
-            "extra": {
-                "cheppers/git-hooks": {
-                    "symlink": true
-                }
-            },
-            "autoload": {
-                "psr-4": {
-                    "Cheppers\\GitHooks\\": "src/"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "GPL-2.0"
-            ],
-            "description": "Provide a bridge between Git hooks and scripts under VCS.",
-            "time": "2016-10-15T10:06:14+00:00"
-        },
-        {
-            "name": "cheppers/robo-git",
-            "version": "v0.0.5",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/Cheppers/robo-git.git",
-                "reference": "3c714e25cc2432dab4a73818f8373789db94bc7c"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/Cheppers/robo-git/zipball/3c714e25cc2432dab4a73818f8373789db94bc7c",
-                "reference": "3c714e25cc2432dab4a73818f8373789db94bc7c",
-                "shasum": ""
-            },
-            "require": {
-                "cheppers/asset-jar": "^0.0",
-                "consolidation/robo": "^1.0",
-                "php": ">=7.1"
-            },
-            "require-dev": {
-                "cheppers/git-hooks": "^0.0",
-                "codeception/codeception": "^2.2",
-                "squizlabs/php_codesniffer": "^2.7"
+                "phpunit/php-code-coverage": "^4.0",
+                "phpunit/phpunit": "^5.4",
+                "squizlabs/php_codesniffer": "^2.6"
             },
             "type": "library",
             "autoload": {
                 "psr-4": {
-                    "Cheppers\\Robo\\Git\\": "src/"
+                    "Cheppers\\AssetJar\\": "src/"
                 }
             },
             "notification-url": "https://packagist.org/downloads/",
             "license": [
-                "GPL-2.0"
+                "GPL-2.0+"
             ],
-            "description": "Robo task to read the content of the staged files",
-            "time": "2017-04-09T11:26:24+00:00"
+            "description": "Provides a very simple, shared, in-memory data storage.",
+            "abandoned": "sweetchuck/asset-jar",
+            "time": "2016-07-30T09:09:38+00:00"
         },
         {
             "name": "codeception/codeception",
@@ -1610,32 +1569,32 @@
         },
         {
             "name": "doctrine/instantiator",
-            "version": "1.0.5",
+            "version": "1.1.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/doctrine/instantiator.git",
-                "reference": "8e884e78f9f0eb1329e445619e04456e64d8051d"
+                "reference": "185b8868aa9bf7159f5f953ed5afb2d7fcdc3bda"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/doctrine/instantiator/zipball/8e884e78f9f0eb1329e445619e04456e64d8051d",
-                "reference": "8e884e78f9f0eb1329e445619e04456e64d8051d",
+                "url": "https://api.github.com/repos/doctrine/instantiator/zipball/185b8868aa9bf7159f5f953ed5afb2d7fcdc3bda",
+                "reference": "185b8868aa9bf7159f5f953ed5afb2d7fcdc3bda",
                 "shasum": ""
             },
             "require": {
-                "php": ">=5.3,<8.0-DEV"
+                "php": "^7.1"
             },
             "require-dev": {
                 "athletic/athletic": "~0.1.8",
                 "ext-pdo": "*",
                 "ext-phar": "*",
-                "phpunit/phpunit": "~4.0",
-                "squizlabs/php_codesniffer": "~2.0"
+                "phpunit/phpunit": "^6.2.3",
+                "squizlabs/php_codesniffer": "^3.0.2"
             },
             "type": "library",
             "extra": {
                 "branch-alias": {
-                    "dev-master": "1.0.x-dev"
+                    "dev-master": "1.2.x-dev"
                 }
             },
             "autoload": {
@@ -1660,7 +1619,7 @@
                 "constructor",
                 "instantiate"
             ],
-            "time": "2015-06-14T21:17:01+00:00"
+            "time": "2017-07-22T11:58:36+00:00"
         },
         {
             "name": "facebook/webdriver",
@@ -3148,6 +3107,84 @@
             ],
             "description": "Automatic BASH completion for Symfony Console Component based applications.",
             "time": "2016-02-24T05:08:54+00:00"
+        },
+        {
+            "name": "sweetchuck/git-hooks",
+            "version": "v0.0.10",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/Sweetchuck/git-hooks.git",
+                "reference": "59d66a1258c27101a63b35ad35d1bb4546e79071"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/Sweetchuck/git-hooks/zipball/59d66a1258c27101a63b35ad35d1bb4546e79071",
+                "reference": "59d66a1258c27101a63b35ad35d1bb4546e79071",
+                "shasum": ""
+            },
+            "require-dev": {
+                "behat/behat": "~3.1",
+                "consolidation/robo": "~1.0",
+                "php": ">=7.1",
+                "phpunit/phpunit": "^6.2",
+                "squizlabs/php_codesniffer": "~2.6",
+                "symfony/filesystem": "~3.1",
+                "symfony/process": "~3.1"
+            },
+            "type": "library",
+            "extra": {
+                "sweetchuck/git-hooks": {
+                    "symlink": true
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Sweetchuck\\GitHooks\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "GPL-2.0"
+            ],
+            "description": "Provide a bridge between Git hooks and scripts under VCS.",
+            "time": "2017-07-28T20:43:48+00:00"
+        },
+        {
+            "name": "sweetchuck/robo-git",
+            "version": "v0.0.6",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/Sweetchuck/robo-git.git",
+                "reference": "89d9a7465d925f87a651c0db4fb3140b6187b484"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/Sweetchuck/robo-git/zipball/89d9a7465d925f87a651c0db4fb3140b6187b484",
+                "reference": "89d9a7465d925f87a651c0db4fb3140b6187b484",
+                "shasum": ""
+            },
+            "require": {
+                "consolidation/robo": "^1.0",
+                "php": ">=7.1",
+                "sweetchuck/asset-jar": "^0.0"
+            },
+            "require-dev": {
+                "codeception/codeception": "^2.2",
+                "squizlabs/php_codesniffer": "^3.0",
+                "sweetchuck/git-hooks": "^0.0"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Sweetchuck\\Robo\\Git\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "GPL-2.0"
+            ],
+            "description": "Robo task to read the content of the staged files",
+            "time": "2017-07-29T09:25:43+00:00"
         },
         {
             "name": "symfony/browser-kit",

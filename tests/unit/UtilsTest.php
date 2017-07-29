@@ -1,11 +1,11 @@
 <?php
 
-namespace Cheppers\Robo\Phpcs\Tests\Unit;
+namespace Sweetchuck\Robo\Phpcs\Tests\Unit;
 
-use Cheppers\Robo\Phpcs\Utils;
+use Sweetchuck\Robo\Phpcs\Utils;
 
 /**
- * @coversDefaultClass \Cheppers\Robo\Phpcs\Utils
+ * @coversDefaultClass \Sweetchuck\Robo\Phpcs\Utils
  */
 class UtilsTest extends \Codeception\Test\Unit
 {

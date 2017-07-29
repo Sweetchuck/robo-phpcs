@@ -1,6 +1,6 @@
 <?php
 
-namespace Cheppers\Robo\Phpcs\Task;
+namespace Sweetchuck\Robo\Phpcs\Task;
 
 class PhpcsLintFiles extends PhpcsLint
 {

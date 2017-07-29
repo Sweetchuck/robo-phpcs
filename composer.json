@@ -1,5 +1,5 @@
 {
-    "name": "cheppers/robo-phpcs",
+    "name": "sweetchuck/robo-phpcs",
     "description": "Robo task wrapper for PHPCS",
     "type": "library",
     "license": "GPL-2.0+",
@@ -7,30 +7,32 @@
     "prefer-stable": true,
     "config": {
         "bin-dir": "bin",
-        "sort-packages": true
+        "sort-packages": true,
+        "optimize-autoloader": true
     },
     "require": {
         "php": ">=7.1",
-        "cheppers/asset-jar": "^0.0",
-        "cheppers/lint-report": "^0.0",
+        "sweetchuck/asset-jar": "^0.0",
+        "sweetchuck/lint-report": "^0.0",
         "consolidation/robo": "^1.0",
         "squizlabs/php_codesniffer": "^2.6"
     },
     "require-dev": {
-        "cheppers/git-hooks": "^0.0",
-        "cheppers/robo-git": "^0.0",
+        "sweetchuck/git-hooks": "^0.0",
+        "sweetchuck/robo-git": "^0.0",
         "codeception/codeception": "^2.2",
         "symfony/yaml": "^2.8 || ^3.1"
     },
     "autoload": {
         "psr-4": {
-            "Cheppers\\Robo\\Phpcs\\": "src/"
+            "Sweetchuck\\Robo\\Phpcs\\": "src/"
         }
     },
     "autoload-dev": {
         "psr-4": {
-            "Cheppers\\Robo\\Phpcs\\Tests\\Acceptance\\": "tests/acceptance/",
-            "Cheppers\\Robo\\Phpcs\\Tests\\Unit\\": "tests/unit/"
+            "Sweetchuck\\Robo\\Phpcs\\Test\\Helper\\": "tests/_support/Helper/",
+            "Sweetchuck\\Robo\\Phpcs\\Tests\\Acceptance\\": "tests/acceptance/",
+            "Sweetchuck\\Robo\\Phpcs\\Tests\\Unit\\": "tests/unit/"
         }
     },
     "scripts": {
@@ -40,6 +42,6 @@
         "post-update-cmd": [
             "@deploy-git-hooks"
         ],
-        "deploy-git-hooks": "\\Cheppers\\GitHooks\\Main::deploy"
+        "deploy-git-hooks": "\\Sweetchuck\\GitHooks\\Composer\\Scripts::deploy"
     }
 }

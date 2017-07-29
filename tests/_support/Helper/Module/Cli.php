@@ -1,6 +1,6 @@
 <?php
 
-namespace Helper\Module;
+namespace Sweetchuck\Robo\Phpcs\Test\Helper\Module;
 
 use Codeception\Module as CodeceptionModule;
 use Symfony\Component\Process\Process;

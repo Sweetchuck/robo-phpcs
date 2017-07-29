@@ -1,8 +1,8 @@
 <?php
 
-namespace Cheppers\Robo\Phpcs\Tests\Acceptance;
+namespace Sweetchuck\Robo\Phpcs\Tests\Acceptance;
 
-use AcceptanceTester;
+use \Sweetchuck\Robo\Phpcs\Test\AcceptanceTester;
 
 class RunRoboTasksCest
 {
@@ -65,7 +65,7 @@ class RunRoboTasksCest
      */
     protected function lintInput(AcceptanceTester $i, $roboTaskName, array $args = [], array $options = [])
     {
-        // @todo https://github.com/Cheppers/robo-phpcs/issues/6
+        // @todo https://github.com/Sweetchuck/robo-phpcs/issues/6
         if (getenv('TRAVIS_OS_NAME') === 'osx') {
             $i->wantTo("Skip the '$roboTaskName' task, because it does not work on OSX");
 

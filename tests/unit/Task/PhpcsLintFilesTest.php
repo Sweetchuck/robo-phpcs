@@ -1,15 +1,18 @@
 <?php
 
-namespace Cheppers\Robo\Phpcs\Tests\Unit\Task;
+namespace Sweetchuck\Robo\Phpcs\Tests\Unit\Task;
 
-use Cheppers\AssetJar\AssetJar;
-use Cheppers\Robo\Phpcs\Task\PhpcsLintFiles;
+use Sweetchuck\AssetJar\AssetJar;
+use Sweetchuck\Robo\Phpcs\Task\PhpcsLintFiles;
+use Sweetchuck\Robo\Phpcs\Test\Helper\Dummy\Output as DummyOutput;
+use Sweetchuck\Robo\Phpcs\Test\Helper\Dummy\Process as DummyProcess;
+use Sweetchuck\Robo\Phpcs\Test\Helper\Dummy\PHP_CodeSniffer_CLI as DummyPHP_CodeSniffer_CLI;
 use Codeception\Util\Stub;
 
 class PhpcsLintFilesTest extends \Codeception\Test\Unit
 {
     /**
-     * @var \UnitTester
+     * @var \Sweetchuck\Robo\Phpcs\Test\UnitTester
      */
     protected $tester;
 
@@ -20,7 +23,7 @@ class PhpcsLintFilesTest extends \Codeception\Test\Unit
     {
         parent::setUp();
 
-        \Helper\Dummy\Process::reset();
+        DummyProcess::reset();
     }
 
     public function testGetSetLintReporters(): void
@@ -456,7 +459,7 @@ class PhpcsLintFilesTest extends \Codeception\Test\Unit
         $container = \Robo\Robo::createDefaultContainer();
         \Robo\Robo::setContainer($container);
 
-        $mainStdOutput = new \Helper\Dummy\Output();
+        $mainStdOutput = new DummyOutput();
 
         $options += [
             'assetJarMapping' => ['report' => ['phpcsLintRun', 'report']],
@@ -465,25 +468,25 @@ class PhpcsLintFilesTest extends \Codeception\Test\Unit
             ],
         ];
 
-        /** @var \Cheppers\Robo\Phpcs\Task\PhpcsLintFiles $task */
+        /** @var \Sweetchuck\Robo\Phpcs\Task\PhpcsLintFiles $task */
         $task = Stub::construct(
             PhpcsLintFiles::class,
             [$options, []],
             [
-                'processClass' => \Helper\Dummy\Process::class,
-                'phpCodeSnifferCliClass' => \Helper\Dummy\PHP_CodeSniffer_CLI::class,
+                'processClass' => DummyProcess::class,
+                'phpCodeSnifferCliClass' => DummyPHP_CodeSniffer_CLI::class,
             ]
         );
 
-        $processIndex = count(\Helper\Dummy\Process::$instances);
+        $processIndex = count(DummyProcess::$instances);
 
-        \Helper\Dummy\Process::$prophecy[$processIndex] = [
+        DummyProcess::$prophecy[$processIndex] = [
             'exitCode' => $exitCode,
             'stdOutput' => $expectedStdOutput,
         ];
 
-        \Helper\Dummy\PHP_CodeSniffer_CLI::$numOfErrors = $exitCode ? 42 : 0;
-        \Helper\Dummy\PHP_CodeSniffer_CLI::$stdOutput = $expectedStdOutput;
+        DummyPHP_CodeSniffer_CLI::$numOfErrors = $exitCode ? 42 : 0;
+        DummyPHP_CodeSniffer_CLI::$stdOutput = $expectedStdOutput;
 
         $task->setLogger($container->get('logger'));
         $task->setOutput($mainStdOutput);
@@ -503,7 +506,7 @@ class PhpcsLintFilesTest extends \Codeception\Test\Unit
         );
 
         if ($withJar) {
-            /** @var \Cheppers\LintReport\ReportWrapperInterface $reportWrapper */
+            /** @var \Sweetchuck\LintReport\ReportWrapperInterface $reportWrapper */
             $reportWrapper = $assetJar->getValue(['phpcsLintRun', 'report']);
             $this->tester->assertEquals(
                 json_decode($expectedStdOutput, true),

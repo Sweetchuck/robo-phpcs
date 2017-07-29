@@ -1,12 +1,12 @@
 <?php
 
-namespace Cheppers\Robo\Phpcs\Task;
+namespace Sweetchuck\Robo\Phpcs\Task;
 
-use Cheppers\AssetJar\AssetJarAware;
-use Cheppers\AssetJar\AssetJarAwareInterface;
-use Cheppers\LintReport\ReportWrapperInterface;
-use Cheppers\Robo\Phpcs\LintReportWrapper\ReportWrapper;
-use Cheppers\Robo\Phpcs\Utils;
+use Sweetchuck\AssetJar\AssetJarAware;
+use Sweetchuck\AssetJar\AssetJarAwareInterface;
+use Sweetchuck\LintReport\ReportWrapperInterface;
+use Sweetchuck\Robo\Phpcs\LintReportWrapper\ReportWrapper;
+use Sweetchuck\Robo\Phpcs\Utils;
 use League\Container\ContainerAwareInterface;
 use League\Container\ContainerAwareTrait;
 use Robo\Common\IO;
@@ -179,12 +179,12 @@ abstract class PhpcsLint extends BaseTask implements
 
     //region Property - lintReporters
     /**
-     * @var \Cheppers\LintReport\ReporterInterface[]
+     * @var \Sweetchuck\LintReport\ReporterInterface[]
      */
     protected $lintReporters = [];
 
     /**
-     * @return \Cheppers\LintReport\ReporterInterface[]
+     * @return \Sweetchuck\LintReport\ReporterInterface[]
      */
     public function getLintReporters(): array
     {
@@ -192,7 +192,7 @@ abstract class PhpcsLint extends BaseTask implements
     }
 
     /**
-     * @param \Cheppers\LintReport\ReporterInterface[] $lintReporters
+     * @param \Sweetchuck\LintReport\ReporterInterface[] $lintReporters
      *
      * @return $this
      */
@@ -205,7 +205,7 @@ abstract class PhpcsLint extends BaseTask implements
 
     /**
      * @param string $id
-     * @param \Cheppers\LintReport\ReporterInterface|null $lintReporter
+     * @param \Sweetchuck\LintReport\ReporterInterface|null $lintReporter
      *
      * @return $this
      */
@@ -961,7 +961,7 @@ abstract class PhpcsLint extends BaseTask implements
     }
 
     /**
-     * @return \Cheppers\LintReport\ReporterInterface[]
+     * @return \Sweetchuck\LintReport\ReporterInterface[]
      */
     protected function initLintReporters(): array
     {
@@ -978,7 +978,7 @@ abstract class PhpcsLint extends BaseTask implements
                 $lintReporter = $c->get($lintReporter);
             }
 
-            if ($lintReporter instanceof \Cheppers\LintReport\ReporterInterface) {
+            if ($lintReporter instanceof \Sweetchuck\LintReport\ReporterInterface) {
                 $lintReporters[$id] = $lintReporter;
                 if (!$lintReporter->getDestination()) {
                     $lintReporter
