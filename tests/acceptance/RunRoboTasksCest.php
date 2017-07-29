@@ -69,24 +69,14 @@ class RunRoboTasksCest
         );
     }
 
-    public function lintInputWithoutJarTaskCommandOnlyFalse(AcceptanceTester $i)
+    public function lintInputTaskCommandOnlyFalse(AcceptanceTester $i)
     {
-        $this->lintInput($i, 'lint:input-without-jar');
+        $this->lintInput($i, 'lint:input');
     }
 
-    public function lintInputWithoutJarTaskCommandOnlyTrue(AcceptanceTester $i)
+    public function lintInputTaskCommandOnlyTrue(AcceptanceTester $i)
     {
-        $this->lintInput($i, 'lint:input-without-jar', ['--command-only']);
-    }
-
-    public function lintInputWithJarTaskCommandOnlyFalse(AcceptanceTester $i)
-    {
-        $this->lintInput($i, 'lint:input-with-jar');
-    }
-
-    public function lintInputWithJarTaskCommandOnlyTrue(AcceptanceTester $i)
-    {
-        $this->lintInput($i, 'lint:input-with-jar', ['--command-only']);
+        $this->lintInput($i, 'lint:input', ['--command-only']);
     }
 
     protected function lintInput(AcceptanceTester $i, string $roboTaskName, array $argsAndOptions = [])

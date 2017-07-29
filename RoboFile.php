@@ -7,9 +7,6 @@ use League\Container\ContainerInterface;
 use Symfony\Component\Process\Process;
 use Symfony\Component\Yaml\Yaml;
 
-/**
- * Class RoboFile.
- */
 class RoboFile extends \Robo\Tasks
 // @codingStandardsIgnoreEnd
 {
@@ -271,22 +268,15 @@ class RoboFile extends \Robo\Tasks
             return $this->taskPhpcsLintFiles($options + ['files' => $files]);
         }
 
-        $assetJar = new Sweetchuck\AssetJar\AssetJar();
-
         return $this
             ->collectionBuilder()
-            ->addTaskList([
-                'git.readStagedFiles' => $this
-                    ->taskGitReadStagedFiles()
-                    ->setCommandOnly(true)
-                    ->setAssetJar($assetJar)
-                    ->setAssetJarMap('files', ['files'])
-                    ->setPaths($files),
-                'lint.phpcs.psr2' => $this
-                    ->taskPhpcsLintInput($options)
-                    ->setAssetJar($assetJar)
-                    ->setAssetJarMap('files', ['files']),
-            ]);
+            ->addTask($this
+                ->taskGitReadStagedFiles()
+                ->setCommandOnly(true)
+                ->setPaths($files))
+            ->addTask($this
+                ->taskPhpcsLintInput($options)
+                ->deferTaskConfiguration('setFiles', 'files'));
     }
 
     /**

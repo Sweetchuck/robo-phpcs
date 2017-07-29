@@ -2,7 +2,7 @@
 
 namespace Sweetchuck\Robo\Phpcs\Tests\Unit\Task;
 
-use Sweetchuck\AssetJar\AssetJar;
+use Robo\Robo;
 use Sweetchuck\Robo\Phpcs\Task\PhpcsLintFiles;
 use Sweetchuck\Robo\Phpcs\Test\Helper\Dummy\Output as DummyOutput;
 use Sweetchuck\Robo\Phpcs\Test\Helper\Dummy\Process as DummyProcess;
@@ -48,6 +48,15 @@ class PhpcsLintFilesTest extends \Codeception\Test\Unit
         );
     }
 
+    public function testGetSetAssetNamePrefix()
+    {
+        $task = new PhpcsLintFiles(['assetNamePrefix' => 'a']);
+        $this->tester->assertEquals('a', $task->getAssetNamePrefix());
+
+        $task->setAssetNamePrefix('b');
+        $this->tester->assertEquals('b', $task->getAssetNamePrefix());
+    }
+
     public function testGetSetWorkingDirectory()
     {
         $task = new PhpcsLintFiles(['workingDirectory' => 'a']);
@@ -67,20 +76,6 @@ class PhpcsLintFilesTest extends \Codeception\Test\Unit
 
         $task->setPhpcsExecutable('b');
         $this->tester->assertEquals('b', $task->getPhpcsExecutable(), 'normal');
-    }
-
-    public function testGetSetAssetJar(): void
-    {
-        $task = new PhpcsLintFiles();
-        $this->tester->assertNull($task->getAssetJar(), 'default value');
-
-        $assetJar1 = new AssetJar();
-        $task = new PhpcsLintFiles(['assetJar' => $assetJar1]);
-        $this->tester->assertEquals($assetJar1, $task->getAssetJar(), 'set in constructor');
-
-        $assetJar2 = new AssetJar();
-        $task->setAssetJar($assetJar2);
-        $this->tester->assertEquals($assetJar2, $task->getAssetJar(), 'normal');
     }
 
     public function testGetSetReport(): void
@@ -397,7 +392,7 @@ class PhpcsLintFilesTest extends \Codeception\Test\Unit
             'fixable' => true,
         ];
 
-        $label_pattern = '%d; failOn: %s; E: %d; W: %d; exitCode: %d; withJar: %s;';
+        $labelPattern = '%d; failOn: %s; E: %d; W: %d; exitCode: %d;';
         $cases = [];
 
         $combinations = [
@@ -418,34 +413,31 @@ class PhpcsLintFilesTest extends \Codeception\Test\Unit
         ];
 
         $i = 0;
-        foreach ([true, false] as $withJar) {
-            $withJarStr = $withJar ? 'true' : 'false';
-            foreach ($combinations as $c) {
-                $i++;
-                $report = $reportBase;
 
-                if ($c['e']) {
-                    $report['totals']['errors'] = 1;
-                    $report['files']['a.php']['errors'] = 1;
-                    $report['files']['a.php']['messages'][] = $messageError;
-                }
+        foreach ($combinations as $c) {
+            $i++;
+            $report = $reportBase;
 
-                if ($c['w']) {
-                    $report['totals']['warnings'] = 1;
-                    $report['files']['a.php']['warnings'] = 1;
-                    $report['files']['a.php']['messages'][] = $messageWarning;
-                }
-
-                $label = sprintf($label_pattern, $i, $c['f'], $c['e'], $c['w'], $c['c'], $withJarStr);
-                $cases[$label] = [
-                    $c['c'],
-                    [
-                        'failOn' => $c['f'],
-                    ],
-                    $withJar,
-                    json_encode($report)
-                ];
+            if ($c['e']) {
+                $report['totals']['errors'] = 1;
+                $report['files']['a.php']['errors'] = 1;
+                $report['files']['a.php']['messages'][] = $messageError;
             }
+
+            if ($c['w']) {
+                $report['totals']['warnings'] = 1;
+                $report['files']['a.php']['warnings'] = 1;
+                $report['files']['a.php']['messages'][] = $messageWarning;
+            }
+
+            $label = sprintf($labelPattern, $i, $c['f'], $c['e'], $c['w'], $c['c']);
+            $cases[$label] = [
+                $c['c'],
+                [
+                    'failOn' => $c['f'],
+                ],
+                json_encode($report)
+            ];
         }
 
         return $cases;
@@ -454,15 +446,14 @@ class PhpcsLintFilesTest extends \Codeception\Test\Unit
     /**
      * @dataProvider casesRun
      */
-    public function testRun(int $exitCode, array $options, bool $withJar, string $expectedStdOutput): void
+    public function testRun(int $exitCode, array $options, string $expectedStdOutput): void
     {
-        $container = \Robo\Robo::createDefaultContainer();
-        \Robo\Robo::setContainer($container);
+        $container = Robo::createDefaultContainer();
+        Robo::setContainer($container);
 
         $mainStdOutput = new DummyOutput();
 
         $options += [
-            'assetJarMapping' => ['report' => ['phpcsLintRun', 'report']],
             'reports' => [
                 'json' => null,
             ],
@@ -474,7 +465,6 @@ class PhpcsLintFilesTest extends \Codeception\Test\Unit
             [$options, []],
             [
                 'processClass' => DummyProcess::class,
-                'phpCodeSnifferCliClass' => DummyPHP_CodeSniffer_CLI::class,
             ]
         );
 
@@ -485,17 +475,8 @@ class PhpcsLintFilesTest extends \Codeception\Test\Unit
             'stdOutput' => $expectedStdOutput,
         ];
 
-        DummyPHP_CodeSniffer_CLI::$numOfErrors = $exitCode ? 42 : 0;
-        DummyPHP_CodeSniffer_CLI::$stdOutput = $expectedStdOutput;
-
         $task->setLogger($container->get('logger'));
         $task->setOutput($mainStdOutput);
-
-        $assetJar = null;
-        if ($withJar) {
-            $assetJar = new AssetJar();
-            $task->setAssetJar($assetJar);
-        }
 
         $result = $task->run();
 
@@ -505,20 +486,20 @@ class PhpcsLintFilesTest extends \Codeception\Test\Unit
             'Exit code is different than the expected.'
         );
 
-        if ($withJar) {
-            /** @var \Sweetchuck\LintReport\ReportWrapperInterface $reportWrapper */
-            $reportWrapper = $assetJar->getValue(['phpcsLintRun', 'report']);
-            $this->tester->assertEquals(
-                json_decode($expectedStdOutput, true),
-                $reportWrapper->getReport(),
-                'Output equals'
-            );
-        } else {
-            $this->tester->assertContains(
-                $expectedStdOutput,
-                $mainStdOutput->output,
-                'Output contains'
-            );
-        }
+        $assetNamePrefix = $options['assetNamePrefix'] ?? '';
+
+        /** @var \Sweetchuck\LintReport\ReportWrapperInterface $reportWrapper */
+        $reportWrapper = $result["{$assetNamePrefix}report"];
+        $this->tester->assertEquals(
+            json_decode($expectedStdOutput, true),
+            $reportWrapper->getReport(),
+            'Output equals'
+        );
+
+        $this->tester->assertContains(
+            $expectedStdOutput,
+            $mainStdOutput->output,
+            'Output contains'
+        );
     }
 }
