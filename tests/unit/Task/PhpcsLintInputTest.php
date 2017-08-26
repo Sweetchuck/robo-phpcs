@@ -2,7 +2,6 @@
 
 namespace Sweetchuck\Robo\Phpcs\Tests\Unit\Task;
 
-use Sweetchuck\AssetJar\AssetJar;
 use Sweetchuck\Robo\Phpcs\Task\PhpcsLintInput;
 use Codeception\Util\Stub;
 use Sweetchuck\Robo\Phpcs\Test\Helper\Dummy\Output as DummyOutput;
