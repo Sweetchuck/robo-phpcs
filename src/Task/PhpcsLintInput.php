@@ -10,6 +10,11 @@ class PhpcsLintInput extends PhpcsLint
     /**
      * {@inheritdoc}
      */
+    protected $addWorkingDirectoryToCliCommand = false;
+
+    /**
+     * {@inheritdoc}
+     */
     protected $addFilesToCliCommand = false;
 
     /**
@@ -117,14 +122,21 @@ class PhpcsLintInput extends PhpcsLint
      */
     public function getCommand(array $options = null)
     {
-        if ($this->currentFile['content'] === null) {
-            // @todo Handle the different working directories.
-            $echo = $this->currentFile['command'];
-        } else {
-            $echo = sprintf('echo -n %s', escapeshellarg($this->currentFile['content']));
+        $command = '';
+
+        $wd = $this->getWorkingDirectory();
+        if ($wd) {
+            $command = 'cd ' . escapeshellarg($wd) . ' && ';
         }
 
-        return $echo . ' | ' . parent::getCommand($options);
+        if ($this->currentFile['content'] === null) {
+            // @todo Handle the different working directories.
+            $command .= $this->currentFile['command'];
+        } else {
+            $command .= sprintf('echo -n %s', escapeshellarg($this->currentFile['content']));
+        }
+
+        return $command . ' | ' . parent::getCommand($options);
     }
 
     /**

@@ -72,6 +72,19 @@ class PhpcsLintInputTest extends \Codeception\Test\Unit
                     'command' => "git show :a.php",
                 ],
             ],
+            'workingDirectory' => [
+                "cd 'my/dir' && git show :a.php | phpcs --stdin-path='a.php'",
+                [
+                    'phpcsExecutable' => 'phpcs',
+                    'workingDirectory' => 'my/dir',
+                    'stdinPath' => 'a.php',
+                ],
+                [
+                    'fileName' => 'a.php',
+                    'content' => null,
+                    'command' => "git show :a.php",
+                ],
+            ],
         ];
     }
 

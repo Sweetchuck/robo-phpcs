@@ -76,6 +76,11 @@ abstract class PhpcsLint extends BaseTask implements
     /**
      * @var bool
      */
+    protected $addWorkingDirectoryToCliCommand = true;
+
+    /**
+     * @var bool
+     */
     protected $addFilesToCliCommand = true;
 
     /**
@@ -700,7 +705,7 @@ abstract class PhpcsLint extends BaseTask implements
         $cmdArgs = [];
 
         $wd = $this->getWorkingDirectory();
-        if ($wd) {
+        if ($this->addWorkingDirectoryToCliCommand && $wd) {
             $cmdPattern .= 'cd %s && ';
             $cmdArgs[] = escapeshellarg($wd);
         }
