@@ -18,6 +18,7 @@
     },
     "require-dev": {
         "codeception/codeception": "^2.2",
+        "mikey179/vfsStream": "^1.6",
         "sweetchuck/codeception-module-robo-task-runner": "^0.0",
         "sweetchuck/git-hooks": "^0.0",
         "sweetchuck/robo-git": "^0.0",

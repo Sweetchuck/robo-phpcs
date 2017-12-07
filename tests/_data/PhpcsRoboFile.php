@@ -1,6 +1,6 @@
 <?php
 
-use Sweetchuck\AssetJar\AssetJar;
+use Robo\Contract\TaskInterface;
 use Sweetchuck\LintReport\Reporter\BaseReporter;
 use Sweetchuck\LintReport\Reporter\CheckstyleReporter;
 use Sweetchuck\LintReport\Reporter\SummaryReporter;
@@ -107,6 +107,23 @@ class PhpcsRoboFile extends \Robo\Tasks
             ->addLintReporter('summary:StdOutput', 'lintSummaryReporter')
             ->addLintReporter('summary:file', $summaryFile)
             ->addLintReporter('checkstyle:file', $checkstyleFile);
+    }
+
+    /**
+     * @command parse-xml
+     */
+    public function parseXml(
+        string $dir,
+        array $options = [
+            'skipIfXmlFileNotExists' => false,
+        ]
+    ): TaskInterface {
+        $localOptions = [
+            'workingDirectory' => $dir,
+            'failOnXmlFileNotExists' => !$options['skipIfXmlFileNotExists'],
+        ];
+
+        return $this->taskPhpcsParseXml($localOptions);
     }
 
     protected function getPhpcsExecutable(): string

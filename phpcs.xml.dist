@@ -9,5 +9,11 @@
     <file>RoboFile.php</file>
 
     <rule ref="PSR2" />
+    <rule ref="PSR2.Methods.MethodDeclaration.Underscore">
+        <exclude-pattern>tests/unit/</exclude-pattern>
+    </rule>
+    <rule ref="PSR1.Classes.ClassDeclaration.MissingNamespace">
+        <exclude-pattern>RoboFile.php</exclude-pattern>
+    </rule>
 
 </ruleset>

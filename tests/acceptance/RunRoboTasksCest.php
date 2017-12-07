@@ -2,6 +2,8 @@
 
 namespace Sweetchuck\Robo\Phpcs\Tests\Acceptance;
 
+use \org\bovigo\vfs\vfsStream;
+use \Sweetchuck\Robo\Phpcs\Task\PhpcsParseXml;
 use \Sweetchuck\Robo\Phpcs\Test\AcceptanceTester;
 
 class RunRoboTasksCest
@@ -110,5 +112,38 @@ class RunRoboTasksCest
         $i->haveAFileLikeThis('02-03.extra.summary.txt');
         $i->haveAFileLikeThis('02-03.extra.verbose.txt');
         $i->assertContains('PHP Code Sniffer found some errors :-(', $i->getRoboTaskStdError($id));
+    }
+
+    public function parseXml(AcceptanceTester $i)
+    {
+        $id = __FUNCTION__;
+        $vfs = vfsStream::setup("RunRoboTasksCest.$id");
+
+        $i->runRoboTask(
+            $id,
+            \PhpcsRoboFile::class,
+            'parse-xml',
+            $vfs->url()
+        );
+
+        $stdOutput = $i->getRoboTaskStdOutput($id);
+        $stdError = $i->getRoboTaskStdError($id);
+        $exitCode = $i->getRoboTaskExitCode($id);
+
+        $expected = [
+            'stdOutput' => '',
+            'stdError' => implode("\n", [
+                ' [PHP_CodeSniffer parse XML] XML file not found in directory: "vfs://RunRoboTasksCest.parseXml"',
+                ' [' . PhpcsParseXml::class . ']  XML file not found in directory: "vfs://RunRoboTasksCest.parseXml" ',
+                ' [' . PhpcsParseXml::class . ']  Exit code 1 ',
+                ' [error]   ',
+                '',
+            ]),
+            'exitCode' => 1,
+        ];
+
+        $i->assertEquals($expected['stdOutput'], $stdOutput, 'stdOutput');
+        $i->assertEquals($expected['stdError'], $stdError, 'stdError');
+        $i->assertEquals($expected['exitCode'], $exitCode, 'exitCode');
     }
 }

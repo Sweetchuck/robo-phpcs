@@ -2,10 +2,12 @@
 
 namespace Sweetchuck\Robo\Phpcs;
 
+use Robo\Collection\CollectionBuilder;
 use Sweetchuck\Robo\Phpcs\Task\PhpcsLintFiles;
 use Sweetchuck\Robo\Phpcs\Task\PhpcsLintInput;
 use League\Container\ContainerAwareInterface;
 use Robo\Contract\OutputAwareInterface;
+use Sweetchuck\Robo\Phpcs\Task\PhpcsParseXml;
 
 trait PhpcsTaskLoader
 {
@@ -43,6 +45,18 @@ trait PhpcsTaskLoader
         if ($this instanceof OutputAwareInterface) {
             $task->setOutput($this->output());
         }
+
+        return $task;
+    }
+
+    /**
+     * @return \Robo\Collection\CollectionBuilder|\Sweetchuck\Robo\Phpcs\Task\PhpcsParseXml
+     */
+    protected function taskPhpcsParseXml(array $options = []): CollectionBuilder
+    {
+        /** @var \Sweetchuck\Robo\Phpcs\Task\PhpcsParseXml $task */
+        $task = $this->task(PhpcsParseXml::class);
+        $task->setOptions($options);
 
         return $task;
     }
