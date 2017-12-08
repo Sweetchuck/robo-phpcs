@@ -4,8 +4,8 @@ namespace Sweetchuck\Robo\Phpcs\Tests\Unit\Task;
 
 use Robo\Robo;
 use Sweetchuck\Robo\Phpcs\Task\PhpcsLintFiles;
-use Sweetchuck\Robo\Phpcs\Test\Helper\Dummy\Output as DummyOutput;
-use Sweetchuck\Robo\Phpcs\Test\Helper\Dummy\Process as DummyProcess;
+use Sweetchuck\Codeception\Module\RoboTaskRunner\DummyOutput;
+use Sweetchuck\Codeception\Module\RoboTaskRunner\DummyProcess;
 use Sweetchuck\Robo\Phpcs\Test\Helper\Dummy\PHP_CodeSniffer_CLI as DummyPHP_CodeSniffer_CLI;
 use Codeception\Util\Stub;
 
@@ -451,7 +451,7 @@ class PhpcsLintFilesTest extends \Codeception\Test\Unit
         $container = Robo::createDefaultContainer();
         Robo::setContainer($container);
 
-        $mainStdOutput = new DummyOutput();
+        $mainStdOutput = new DummyOutput([]);
 
         $options += [
             'reports' => [
