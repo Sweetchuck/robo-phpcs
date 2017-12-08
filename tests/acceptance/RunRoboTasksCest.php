@@ -2,9 +2,10 @@
 
 namespace Sweetchuck\Robo\Phpcs\Tests\Acceptance;
 
-use \org\bovigo\vfs\vfsStream;
-use \Sweetchuck\Robo\Phpcs\Task\PhpcsParseXml;
-use \Sweetchuck\Robo\Phpcs\Test\AcceptanceTester;
+use org\bovigo\vfs\vfsStream;
+use Sweetchuck\Robo\Phpcs\Task\PhpcsParseXml;
+use Sweetchuck\Robo\Phpcs\Test\AcceptanceTester;
+use Sweetchuck\Robo\Phpcs\Test\Helper\RoboFiles\PhpcsRoboFile;
 
 class RunRoboTasksCest
 {
@@ -18,24 +19,22 @@ class RunRoboTasksCest
         $this->expectedDir = codecept_data_dir('expected');
     }
 
-    // @codingStandardsIgnoreStart
     public function _before(AcceptanceTester $i)
     {
-        // @codingStandardsIgnoreEnd
         $i->clearTheReportsDir();
     }
 
     public function lintFilesAllInOneTask(AcceptanceTester $i)
     {
         $id = __METHOD__;
-        $roboTaskName = 'lint:files-all-in-one';
+        $roboTaskName = 'lint-files:all-in-one';
         $i->wantTo("Run Robo task '<comment>$roboTaskName</comment>'.");
 
         $cwd = getcwd();
         chdir(codecept_data_dir());
         $i->runRoboTask(
             $id,
-            \PhpcsRoboFile::class,
+            PhpcsRoboFile::class,
             $roboTaskName
         );
         chdir($cwd);
@@ -73,12 +72,12 @@ class RunRoboTasksCest
 
     public function lintInputTaskCommandOnlyFalse(AcceptanceTester $i)
     {
-        $this->lintInput($i, 'lint:input');
+        $this->lintInput($i, 'lint-input');
     }
 
     public function lintInputTaskCommandOnlyTrue(AcceptanceTester $i)
     {
-        $this->lintInput($i, 'lint:input', ['--command-only']);
+        $this->lintInput($i, 'lint-input', ['--command-only']);
     }
 
     protected function lintInput(AcceptanceTester $i, string $roboTaskName, array $argsAndOptions = [])
@@ -101,7 +100,7 @@ class RunRoboTasksCest
         chdir(codecept_data_dir());
         $i->runRoboTask(
             $id,
-            \PhpcsRoboFile::class,
+            PhpcsRoboFile::class,
             $roboTaskName,
             ...$argsAndOptions
         );
@@ -121,7 +120,7 @@ class RunRoboTasksCest
 
         $i->runRoboTask(
             $id,
-            \PhpcsRoboFile::class,
+            PhpcsRoboFile::class,
             'parse-xml',
             $vfs->url()
         );
