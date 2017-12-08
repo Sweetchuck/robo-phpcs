@@ -2,6 +2,7 @@
 
 namespace Sweetchuck\Robo\Phpcs\Task;
 
+use Robo\Contract\InflectionInterface;
 use Sweetchuck\LintReport\ReportWrapperInterface;
 use Sweetchuck\Robo\Phpcs\LintReportWrapper\ReportWrapper;
 use Sweetchuck\Robo\Phpcs\Utils;
@@ -684,13 +685,25 @@ abstract class PhpcsLint extends BaseTask implements
     //endregion
 
     /**
-     * TaskPhpcs constructor.
+     * {@inheritdoc}
      */
-    public function __construct(array $options = [])
+    public function inflect(InflectionInterface $parent)
     {
-        $this->setPhpcsExecutable($this->findPhpcs());
-        if ($options) {
-            $this->setOptions($options);
+        parent::inflect($parent);
+        if ($parent instanceof ContainerAwareInterface) {
+            $container = $parent->getContainer();
+            if ($container) {
+                $this->setContainer($container);
+            }
+        }
+
+        if (!$this->getContainer() && \Robo\Robo::hasContainer()) {
+            $this->setContainer(\Robo\Robo::getContainer());
+        }
+
+        $container = $this->getContainer();
+        if ($container && $container->has('output')) {
+            $this->setOutput($container->get('output'));
         }
     }
 
@@ -710,8 +723,9 @@ abstract class PhpcsLint extends BaseTask implements
             $cmdArgs[] = escapeshellarg($wd);
         }
 
+        $phpcsExecutable = $this->getPhpcsExecutable() ?: $this->findPhpcs();
         $cmdPattern .= '%s';
-        $cmdArgs[] = escapeshellcmd($this->phpcsExecutable);
+        $cmdArgs[] = escapeshellcmd($phpcsExecutable);
 
         foreach ($this->triStateOptions as $config => $option) {
             if (isset($options[$config])) {
@@ -975,16 +989,16 @@ abstract class PhpcsLint extends BaseTask implements
     protected function initLintReporters(): array
     {
         $lintReporters = [];
-        $c = $this->getContainer();
+        $container = $this->getContainer();
         foreach ($this->getLintReporters() as $id => $lintReporter) {
             if ($lintReporter === false) {
                 continue;
             }
 
             if (!$lintReporter) {
-                $lintReporter = $c->get($id);
+                $lintReporter = $container->get($id);
             } elseif (is_string($lintReporter)) {
-                $lintReporter = $c->get($lintReporter);
+                $lintReporter = $container->get($lintReporter);
             }
 
             if ($lintReporter instanceof \Sweetchuck\LintReport\ReporterInterface) {

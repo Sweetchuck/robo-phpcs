@@ -12,21 +12,13 @@ use Sweetchuck\Robo\Phpcs\Task\PhpcsParseXml;
 trait PhpcsTaskLoader
 {
     /**
-     * Expose phpcs-lint task.
-     *
      * @return \Sweetchuck\Robo\Phpcs\Task\PhpcsLintFiles|\Robo\Collection\CollectionBuilder
      */
-    protected function taskPhpcsLintFiles(array $options = [])
+    protected function taskPhpcsLintFiles(array $options = []): CollectionBuilder
     {
         /** @var \Sweetchuck\Robo\Phpcs\Task\PhpcsLintFiles $task */
-        $task = $this->task(PhpcsLintFiles::class, $options);
-        if ($this instanceof ContainerAwareInterface) {
-            $task->setContainer($this->getContainer());
-        }
-
-        if ($this instanceof OutputAwareInterface) {
-            $task->setOutput($this->output());
-        }
+        $task = $this->task(PhpcsLintFiles::class);
+        $task->setOptions($options);
 
         return $task;
     }
@@ -34,17 +26,11 @@ trait PhpcsTaskLoader
     /**
      * @return \Sweetchuck\Robo\Phpcs\Task\PhpcsLintInput|\Robo\Collection\CollectionBuilder
      */
-    protected function taskPhpcsLintInput(array $options = [])
+    protected function taskPhpcsLintInput(array $options = []): CollectionBuilder
     {
         /** @var \Sweetchuck\Robo\Phpcs\Task\PhpcsLintInput $task */
-        $task = $this->task(PhpcsLintInput::class, $options);
-        if ($this instanceof ContainerAwareInterface) {
-            $task->setContainer($this->getContainer());
-        }
-
-        if ($this instanceof OutputAwareInterface) {
-            $task->setOutput($this->output());
-        }
+        $task = $this->task(PhpcsLintInput::class);
+        $task->setOptions($options);
 
         return $task;
     }

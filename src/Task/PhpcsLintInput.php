@@ -48,11 +48,9 @@ class PhpcsLintInput extends PhpcsLint
     }
     //endregion
 
-    public function __construct(array $options = [])
+    public function __construct()
     {
         $this->simpleOptions['stdinPath'] = 'stdin-path';
-
-        parent::__construct($options);
     }
 
     /**
@@ -63,9 +61,7 @@ class PhpcsLintInput extends PhpcsLint
         parent::setOptions($options);
         foreach ($options as $name => $value) {
             switch ($name) {
-                // @codingStandardsIgnoreStart
                 case 'stdinPath':
-                // @codingStandardsIgnoreEnd
                     $this->setStdinPath($value);
                     break;
             }
