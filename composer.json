@@ -2,7 +2,7 @@
     "name": "sweetchuck/robo-phpcs",
     "description": "Robo task wrapper for PHPCS",
     "type": "library",
-    "license": "GPL-2.0+",
+    "license": "GPL-2.0-or-later",
     "minimum-stability": "dev",
     "prefer-stable": true,
     "config": {
@@ -18,6 +18,7 @@
     },
     "require-dev": {
         "codeception/codeception": "^2.2",
+        "cweagans/composer-patches": "^1.6",
         "mikey179/vfsStream": "^1.6",
         "sweetchuck/codeception-module-robo-task-runner": "^0.0",
         "sweetchuck/git-hooks": "^0.0",
@@ -35,10 +36,14 @@
             "Sweetchuck\\Robo\\Phpcs\\Test\\Helper\\": "tests/_support/Helper/",
             "Sweetchuck\\Robo\\Phpcs\\Tests\\Acceptance\\": "tests/acceptance/",
             "Sweetchuck\\Robo\\Phpcs\\Tests\\Unit\\": "tests/unit/"
-        },
-        "classmap": [
-            "tests/_data/PhpcsRoboFile.php"
-        ]
+        }
+    },
+    "extra": {
+        "patches": {
+            "codeception/codeception": {
+                "https://github.com/Codeception/Codeception/issues/4663": "https://github.com/Codeception/Codeception/commit/4ca1316294e9a13030bc99695241a29571f4638c.patch"
+            }
+        }
     },
     "scripts": {
         "post-install-cmd": [

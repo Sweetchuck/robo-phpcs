@@ -1,5 +1,7 @@
 <?php
 
+namespace Sweetchuck\Robo\Phpcs\Test\Helper\RoboFiles;
+
 use Robo\Contract\TaskInterface;
 use Sweetchuck\LintReport\Reporter\BaseReporter;
 use Sweetchuck\LintReport\Reporter\CheckstyleReporter;
@@ -9,10 +11,8 @@ use League\Container\ContainerInterface;
 use Sweetchuck\Robo\Phpcs\PhpcsTaskLoader;
 use Webmozart\PathUtil\Path;
 
-// @codingStandardsIgnoreStart
 class PhpcsRoboFile extends \Robo\Tasks
 {
-    // @codingStandardsIgnoreEnd
     use PhpcsTaskLoader;
 
     /**
@@ -28,9 +28,9 @@ class PhpcsRoboFile extends \Robo\Tasks
     }
 
     /**
-     * @return \Sweetchuck\Robo\Phpcs\Task\PhpcsLintFiles|\Robo\Collection\CollectionBuilder
+     * @command lint-files:all-in-one
      */
-    public function lintFilesAllInOne()
+    public function lintFilesAllInOne(): TaskInterface
     {
         $reportsDir = 'actual';
 
@@ -57,13 +57,13 @@ class PhpcsRoboFile extends \Robo\Tasks
     }
 
     /**
-     * @return \Sweetchuck\Robo\Phpcs\Task\PhpcsLintInput|\Robo\Collection\CollectionBuilder
+     * @command lint-input
      */
     public function lintInput(
         array $options = [
             'command-only' => false,
         ]
-    ) {
+    ): TaskInterface {
         $fixturesDir = 'fixtures';
         $reportsDir = 'actual';
 
@@ -130,6 +130,8 @@ class PhpcsRoboFile extends \Robo\Tasks
     {
         $phpcsExecutable = Path::join(
             __DIR__,
+            '..',
+            '..',
             '..',
             '..',
             'bin',

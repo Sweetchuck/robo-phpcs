@@ -1,8 +1,6 @@
 #!groovy
 
 node {
-  env.ROBO_PHPCS_ENVIRONMENT = 'jenkins'
-
   manager.buildSuccess()
 
   try {

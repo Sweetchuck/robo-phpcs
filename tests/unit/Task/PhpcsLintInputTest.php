@@ -4,8 +4,8 @@ namespace Sweetchuck\Robo\Phpcs\Tests\Unit\Task;
 
 use Sweetchuck\Robo\Phpcs\Task\PhpcsLintInput;
 use Codeception\Util\Stub;
-use Sweetchuck\Robo\Phpcs\Test\Helper\Dummy\Output as DummyOutput;
-use Sweetchuck\Robo\Phpcs\Test\Helper\Dummy\Process as DummyProcess;
+use Sweetchuck\Codeception\Module\RoboTaskRunner\DummyOutput;
+use Sweetchuck\Codeception\Module\RoboTaskRunner\DummyProcess;
 use Robo\Robo;
 
 class PhpcsLintInputTest extends \Codeception\Test\Unit
@@ -39,7 +39,8 @@ class PhpcsLintInputTest extends \Codeception\Test\Unit
         $options = [
             'stdinPath' => 'abc',
         ];
-        $task = new PhpcsLintInput($options);
+        $task = (new PhpcsLintInput())
+            ->setOptions($options);
 
         $this->tester->assertEquals($options['stdinPath'], $task->getStdinPath());
     }
@@ -95,11 +96,12 @@ class PhpcsLintInputTest extends \Codeception\Test\Unit
         /** @var \Sweetchuck\Robo\Phpcs\Task\PhpcsLintInput $task */
         $task = Stub::construct(
             PhpcsLintInput::class,
-            [$options],
+            [],
             [
                 'currentFile' => $currentFile,
             ]
         );
+        $task->setOptions($options);
 
         $this->tester->assertEquals($expected, $task->getCommand());
     }
@@ -246,16 +248,17 @@ class PhpcsLintInputTest extends \Codeception\Test\Unit
         $container = Robo::createDefaultContainer();
         Robo::setContainer($container);
 
-        $mainStdOutput = new DummyOutput();
+        $mainStdOutput = new DummyOutput([]);
 
         $properties += ['processClass' => DummyProcess::class];
 
         /** @var \Sweetchuck\Robo\Phpcs\Task\PhpcsLintInput $task */
         $task = Stub::construct(
             PhpcsLintInput::class,
-            [$options, []],
+            [],
             $properties
         );
+        $task->setOptions($options);
 
         $processIndex = count(DummyProcess::$instances);
         foreach ($files as $file) {

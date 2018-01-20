@@ -4,8 +4,8 @@ namespace Sweetchuck\Robo\Phpcs\Tests\Unit\Task;
 
 use Robo\Robo;
 use Sweetchuck\Robo\Phpcs\Task\PhpcsLintFiles;
-use Sweetchuck\Robo\Phpcs\Test\Helper\Dummy\Output as DummyOutput;
-use Sweetchuck\Robo\Phpcs\Test\Helper\Dummy\Process as DummyProcess;
+use Sweetchuck\Codeception\Module\RoboTaskRunner\DummyOutput;
+use Sweetchuck\Codeception\Module\RoboTaskRunner\DummyProcess;
 use Sweetchuck\Robo\Phpcs\Test\Helper\Dummy\PHP_CodeSniffer_CLI as DummyPHP_CodeSniffer_CLI;
 use Codeception\Util\Stub;
 
@@ -28,13 +28,12 @@ class PhpcsLintFilesTest extends \Codeception\Test\Unit
 
     public function testGetSetLintReporters(): void
     {
-        $task = new PhpcsLintFiles([
-            'lintReporters' => [
-                'aKey' => 'aValue',
-            ],
-        ]);
-
-        $task
+        $task = (new PhpcsLintFiles())
+            ->setOptions([
+                'lintReporters' => [
+                    'aKey' => 'aValue',
+                ],
+            ])
             ->addLintReporter('bKey', 'bValue')
             ->addLintReporter('cKey', 'cValue')
             ->removeLintReporter('bKey');
@@ -50,7 +49,8 @@ class PhpcsLintFilesTest extends \Codeception\Test\Unit
 
     public function testGetSetAssetNamePrefix()
     {
-        $task = new PhpcsLintFiles(['assetNamePrefix' => 'a']);
+        $task = (new PhpcsLintFiles())
+            ->setOptions(['assetNamePrefix' => 'a']);
         $this->tester->assertEquals('a', $task->getAssetNamePrefix());
 
         $task->setAssetNamePrefix('b');
@@ -59,7 +59,8 @@ class PhpcsLintFilesTest extends \Codeception\Test\Unit
 
     public function testGetSetWorkingDirectory()
     {
-        $task = new PhpcsLintFiles(['workingDirectory' => 'a']);
+        $task = (new PhpcsLintFiles())
+            ->setOptions(['workingDirectory' => 'a']);
         $this->tester->assertEquals('a', $task->getWorkingDirectory());
 
         $task->setWorkingDirectory('b');
@@ -69,10 +70,11 @@ class PhpcsLintFilesTest extends \Codeception\Test\Unit
     public function testGetSetPhpcsExecutable(): void
     {
         $task = new PhpcsLintFiles();
-        $this->tester->assertEquals('bin/phpcs', $task->getPhpcsExecutable(), 'default value');
+        $this->tester->assertEquals('', $task->getPhpcsExecutable(), 'default value');
 
-        $task = new PhpcsLintFiles(['phpcsExecutable' => 'a']);
-        $this->tester->assertEquals('a', $task->getPhpcsExecutable(), 'set in constructor');
+        $task = (new PhpcsLintFiles())
+            ->setOptions(['phpcsExecutable' => 'a']);
+        $this->tester->assertEquals('a', $task->getPhpcsExecutable(), 'set with setOptions()');
 
         $task->setPhpcsExecutable('b');
         $this->tester->assertEquals('b', $task->getPhpcsExecutable(), 'normal');
@@ -83,7 +85,8 @@ class PhpcsLintFilesTest extends \Codeception\Test\Unit
         $task = new PhpcsLintFiles();
         $this->tester->assertNull($task->getReport('full'), 'default value');
 
-        $task = new PhpcsLintFiles(['reports' => ['full' => 'a']]);
+        $task = (new PhpcsLintFiles())
+            ->setOptions(['reports' => ['full' => 'a']]);
         $this->tester->assertEquals('a', $task->getReport('full'), 'set in constructor');
 
         $task->setReport('full', 'b');
@@ -350,7 +353,8 @@ class PhpcsLintFilesTest extends \Codeception\Test\Unit
      */
     public function testGetCommand(string $expected, array $options): void
     {
-        $task = new PhpcsLintFiles($options + ['phpcsExecutable' => 'phpcs']);
+        $task = (new PhpcsLintFiles())
+            ->setOptions($options + ['phpcsExecutable' => 'phpcs']);
 
         $this->tester->assertEquals($expected, $task->getCommand());
     }
@@ -451,7 +455,7 @@ class PhpcsLintFilesTest extends \Codeception\Test\Unit
         $container = Robo::createDefaultContainer();
         Robo::setContainer($container);
 
-        $mainStdOutput = new DummyOutput();
+        $mainStdOutput = new DummyOutput([]);
 
         $options += [
             'reports' => [
@@ -462,11 +466,12 @@ class PhpcsLintFilesTest extends \Codeception\Test\Unit
         /** @var \Sweetchuck\Robo\Phpcs\Task\PhpcsLintFiles $task */
         $task = Stub::construct(
             PhpcsLintFiles::class,
-            [$options, []],
+            [],
             [
                 'processClass' => DummyProcess::class,
             ]
         );
+        $task->setOptions($options);
 
         $processIndex = count(DummyProcess::$instances);
 
