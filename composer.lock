@@ -1274,7 +1274,10 @@
             ],
             "type": "library",
             "extra": {
-                "branch-alias": []
+                "branch-alias": [],
+                "patches_applied": {
+                    "https://github.com/Codeception/Codeception/issues/4663": "https://github.com/Codeception/Codeception/commit/4ca1316294e9a13030bc99695241a29571f4638c.patch"
+                }
             },
             "autoload": {
                 "psr-4": {
