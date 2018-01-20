@@ -25,7 +25,7 @@ class PhpcsParseXml extends BaseTask
      */
     protected $assets = [
         'files' => [],
-        'exclude-pattern' => [],
+        'exclude-patterns' => [],
     ];
 
     /**

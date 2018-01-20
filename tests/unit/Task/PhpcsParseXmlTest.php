@@ -201,7 +201,7 @@ class PhpcsParseXmlTest extends \Codeception\Test\Unit
                     break;
 
                 case 'files':
-                case 'exclude-pattern':
+                case 'exclude-patterns':
                     $this->tester->assertEquals($expected[$expectedKey], $result["{$assetNamePrefix}{$expectedKey}"]);
                     break;
             }
