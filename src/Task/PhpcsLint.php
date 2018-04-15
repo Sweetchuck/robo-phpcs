@@ -1004,9 +1004,7 @@ abstract class PhpcsLint extends BaseTask implements
             if ($lintReporter instanceof \Sweetchuck\LintReport\ReporterInterface) {
                 $lintReporters[$id] = $lintReporter;
                 if (!$lintReporter->getDestination()) {
-                    $lintReporter
-                        ->setFilePathStyle('relative')
-                        ->setDestination($this->output());
+                    $lintReporter->setDestination($this->output());
                 }
             }
         }

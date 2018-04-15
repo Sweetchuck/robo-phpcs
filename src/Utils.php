@@ -45,9 +45,20 @@ class Utils
         return $merged;
     }
 
+    /**
+     * @todo \PHP_CodeSniffer::shouldIgnoreFile.
+     */
     public static function isIgnored(string $fileName, array $patterns): bool
     {
+        if (mb_strpos($fileName, './') === 0) {
+            $fileName = mb_substr($fileName, 2);
+        }
+
         foreach ($patterns as $pattern) {
+            if (mb_strpos($pattern, './') === 0) {
+                $pattern = mb_substr($pattern, 2);
+            }
+
             if (fnmatch($pattern, $fileName)) {
                 return true;
             }
