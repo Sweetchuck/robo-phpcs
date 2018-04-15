@@ -164,6 +164,21 @@ class UtilsTest extends \Codeception\Test\Unit
                 'a/b.js/c.php',
                 '**/*.js',
             ],
+            './foo/bar.xml vs foo/' => [
+                true,
+                './foo/bar.xml',
+                'foo/',
+            ],
+            'foo/bar.xml vs ./foo/' => [
+                true,
+                'foo/bar.xml',
+                './foo/',
+            ],
+            './foo/bar.xml vs ./foo/' => [
+                true,
+                './foo/bar.xml',
+                './foo/',
+            ],
         ];
     }
 
