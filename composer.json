@@ -12,9 +12,9 @@
     },
     "require": {
         "php": ">=7.1",
+        "ext-json": "*",
         "sweetchuck/lint-report": "^0.0",
-        "consolidation/robo": "^1.0",
-        "squizlabs/php_codesniffer": "^2.6"
+        "consolidation/robo": "^1.0"
     },
     "require-dev": {
         "codeception/codeception": "^2.2",
@@ -23,6 +23,7 @@
         "sweetchuck/codeception-module-robo-task-runner": "^0.0",
         "sweetchuck/git-hooks": "^0.0",
         "sweetchuck/robo-git": "^0.0",
+        "squizlabs/php_codesniffer": "^3.0",
         "symfony/yaml": "^3.1 || ^4.0",
         "webmozart/path-util": "^2.3"
     },

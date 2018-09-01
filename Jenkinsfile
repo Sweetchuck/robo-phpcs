@@ -45,5 +45,3 @@ node {
     throw err
   }
 }
-
-// kate: syntax Groovy
