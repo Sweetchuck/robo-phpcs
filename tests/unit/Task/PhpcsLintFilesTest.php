@@ -125,6 +125,54 @@ class PhpcsLintFilesTest extends \Codeception\Test\Unit
                 'phpcs --no-colors',
                 ['colors' => false],
             ],
+            'cache-empty' => [
+                'phpcs',
+                ['cache' => ''],
+            ],
+            'cache-somethings' => [
+                "phpcs --cache='my-file.txt'",
+                ['cache' => 'my-file.txt'],
+            ],
+            'no-cache-false' => [
+                'phpcs',
+                ['noCache' => false],
+            ],
+            'no-cache-true' => [
+                'phpcs --no-cache',
+                ['noCache' => true],
+            ],
+            'tab-width null' => [
+                'phpcs',
+                ['tabWidth' => null],
+            ],
+            'tab-width zero' => [
+                "phpcs --tab-width='0'",
+                ['tabWidth' => 0],
+            ],
+            'tab-width 1' => [
+                "phpcs --tab-width='1'",
+                ['tabWidth' => 1],
+            ],
+            'base-path empty' => [
+                'phpcs',
+                ['basePath' => ''],
+            ],
+            'base-path something' => [
+                "phpcs --basepath='/foo/bar'",
+                ['basePath' => '/foo/bar'],
+            ],
+            'bootstrap empty' => [
+                'phpcs',
+                ['bootstrap' => []],
+            ],
+            'bootstrap vector' => [
+                "phpcs --bootstrap='a.php,b.php'",
+                ['bootstrap' => ['a.php', 'b.php']],
+            ],
+            'bootstrap boolean' => [
+                "phpcs --bootstrap='a.php,c.php'",
+                ['bootstrap' => ['a.php' => true, 'b.php' => false, 'c.php' => true]],
+            ],
             'reports-1' => [
                 "phpcs --report='Default'",
                 [
@@ -280,6 +328,26 @@ class PhpcsLintFilesTest extends \Codeception\Test\Unit
                     'exclude' => ['foo', 'bar', 'zed'],
                 ],
             ],
+            'encoding empty' => [
+                'phpcs',
+                ['encoding' => ''],
+            ],
+            'encoding something' => [
+                "phpcs --encoding='foo'",
+                ['encoding' => 'foo'],
+            ],
+            'parallel null' => [
+                'phpcs',
+                ['parallel' => null],
+            ],
+            'parallel zero' => [
+                "phpcs --parallel='0'",
+                ['parallel' => 0],
+            ],
+            'parallel 1' => [
+                "phpcs --parallel='1'",
+                ['parallel' => 1],
+            ],
             'ignore-single-1' => [
                 "phpcs --ignore='foo'",
                 [
@@ -303,6 +371,14 @@ class PhpcsLintFilesTest extends \Codeception\Test\Unit
                 [
                     'ignored' => ['foo', 'bar', 'zed'],
                 ],
+            ],
+            'ignore-annotations false' => [
+                'phpcs',
+                ['ignoreAnnotations' => false],
+            ],
+            'ignore-annotations true' => [
+                'phpcs --ignore-annotations',
+                ['ignoreAnnotations' => true],
             ],
             'files-empty-1' => [
                 "phpcs",
@@ -343,6 +419,45 @@ class PhpcsLintFilesTest extends \Codeception\Test\Unit
                 [
                     'colors' => true,
                     'files' => ['foo', 'bar'],
+                ],
+            ],
+            'all-in-one' => [
+                implode(' ', [
+                    'phpcs',
+                    '--ignore-annotations',
+                    '--colors',
+                    "--cache='cache.txt'",
+                    "--tab-width='4'",
+                    "--basepath='bp1'",
+                    "--severity='1'",
+                    "--error-severity='2'",
+                    "--warning-severity='3'",
+                    "--encoding='en1'",
+                    "--parallel='4'",
+                    "--bootstrap='bs1,bs2'",
+                    "--standard='s1,s3'",
+                    "--sniffs='sn1,sn2'",
+                    "--exclude='ex1,ex2'",
+                    "--extensions='e1,e2'",
+                    "-- 'a.php' 'b.php'",
+                ]),
+                [
+                    'ignoreAnnotations' => true,
+                    'colors' => true,
+                    'cache' => 'cache.txt',
+                    'tabWidth' => 4,
+                    'basePath' => 'bp1',
+                    'severity' => 1,
+                    'errorSeverity' => 2,
+                    'warningSeverity' => 3,
+                    'encoding' => 'en1',
+                    'parallel' => 4,
+                    'bootstrap' => ['bs1', 'bs2'],
+                    'standards' => ['s1' => true, 's2' => false, 's3' => true],
+                    'sniffs' => ['sn1', 'sn2'],
+                    'exclude' => ['ex1', 'ex2'],
+                    'extensions' => ['e1', 'e2'],
+                    'files' => ['a.php', 'b.php'],
                 ],
             ],
         ];

@@ -19,6 +19,9 @@ use Robo\Task\Filesystem\loadShortcuts as FsShortCuts;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Process\Process;
 
+/**
+ * @todo Add option [--runtime-set key value] ?
+ */
 abstract class PhpcsLint extends BaseTask implements
     ContainerAwareInterface,
     OutputAwareInterface,
@@ -99,23 +102,34 @@ abstract class PhpcsLint extends BaseTask implements
     ];
 
     protected $simpleOptions = [
+        'cache' => 'cache',
+        'tabWidth' => 'tab-width',
         'reportWidth' => 'report-width',
+        'basePath' => 'basepath',
         'severity' => 'severity',
         'errorSeverity' => 'error-severity',
         'warningSeverity' => 'warning-severity',
+        'encoding' => 'encoding',
+        'parallel' => 'parallel',
     ];
 
     protected $listOptions = [
-        'extensions' => 'extensions',
-        'sniffs' => 'sniffs',
+        'bootstrap' => 'bootstrap',
         'standards' => 'standard',
+        'sniffs' => 'sniffs',
         'exclude' => 'exclude',
+        'extensions' => 'extensions',
         'ignored' => 'ignore',
+    ];
+
+    protected $flagOptions = [
+        'noCache' => 'no-cache',
+        'ignoreAnnotations' => 'ignore-annotations',
     ];
 
     //region Properties.
 
-    // region Option - assetNamePrefix.
+    // region Property - assetNamePrefix.
     /**
      * @var string
      */
@@ -285,12 +299,32 @@ abstract class PhpcsLint extends BaseTask implements
                     $this->setColors($value);
                     break;
 
+                case 'cache':
+                    $this->setCache($value);
+                    break;
+
+                case 'noCache':
+                    $this->setNoCache($value);
+                    break;
+
+                case 'tabWidth':
+                    $this->setTabWidth($value);
+                    break;
+
                 case 'reports':
                     $this->setReports($value);
                     break;
 
                 case 'reportWidth':
                     $this->setReportWidth($value);
+                    break;
+
+                case 'basePath':
+                    $this->setBasePath($value);
+                    break;
+
+                case 'bootstrap':
+                    $this->setBootstrap($value);
                     break;
 
                 case 'severity':
@@ -309,10 +343,6 @@ abstract class PhpcsLint extends BaseTask implements
                     $this->setStandards($value);
                     break;
 
-                case 'extensions':
-                    $this->setExtensions($value);
-                    break;
-
                 case 'sniffs':
                     $this->setSniffs($value);
                     break;
@@ -321,9 +351,25 @@ abstract class PhpcsLint extends BaseTask implements
                     $this->setExclude($value);
                     break;
 
+                case 'encoding':
+                    $this->setEncoding($value);
+                    break;
+
+                case 'parallel':
+                    $this->setParallel($value);
+                    break;
+
+                case 'extensions':
+                    $this->setExtensions($value);
+                    break;
+
                 case 'ignore':
                 case 'ignored':
                     $this->setIgnore($value);
+                    break;
+
+                case 'ignoreAnnotations':
+                    $this->setIgnoreAnnotations($value);
                     break;
 
                 case 'files':
@@ -359,6 +405,72 @@ abstract class PhpcsLint extends BaseTask implements
         return $this;
     }
     //endregion
+
+    // region Option - cache
+    /**
+     * @var string
+     */
+    protected $cache = '';
+
+    public function getCache(): string
+    {
+        return $this->cache;
+    }
+
+    /**
+     * @return $this
+     */
+    public function setCache(string $cache)
+    {
+        $this->cache = $cache;
+
+        return $this;
+    }
+    // endregion
+
+    // region Option - noCache
+    /**
+     * @var bool
+     */
+    protected $noCache = false;
+
+    public function getNoCache(): bool
+    {
+        return $this->noCache;
+    }
+
+    /**
+     * @return $this
+     */
+    public function setNoCache(bool $noCache)
+    {
+        $this->noCache = $noCache;
+
+        return $this;
+    }
+    // endregion
+
+    // region Option - tabWidth
+    /**
+     * @var null|int
+     */
+    protected $tabWidth = null;
+
+    public function getTabWidth(): ?int
+    {
+        return $this->tabWidth;
+    }
+
+    /**
+     * @return $this
+     */
+    public function setTabWidth(?int $tabWidth)
+    {
+        $this->tabWidth = $tabWidth;
+
+        return $this;
+    }
+    // endregion
 
     //region Option - reports
     /**
@@ -446,6 +558,50 @@ abstract class PhpcsLint extends BaseTask implements
         return $this;
     }
     //endregion
+
+    // region Option - basePath
+    /**
+     * @var string
+     */
+    protected $basePath = '';
+
+    public function getBasePath(): string
+    {
+        return $this->basePath;
+    }
+
+    /**
+     * @return $this
+     */
+    public function setBasePath(string $basePath)
+    {
+        $this->basePath = $basePath;
+
+        return $this;
+    }
+    // endregion
+
+    // region Option - bootstrap
+    /**
+     * @var array
+     */
+    protected $bootstrap = [];
+
+    public function getBootstrap(): array
+    {
+        return $this->bootstrap;
+    }
+
+    /**
+     * @return $this
+     */
+    public function setBootstrap(array $bootstrap)
+    {
+        $this->bootstrap = $bootstrap;
+
+        return $this;
+    }
+    // endregion
 
     //region Option - severity
     /**
@@ -621,6 +777,50 @@ abstract class PhpcsLint extends BaseTask implements
     }
     //endregion
 
+    // region Option - encoding
+    /**
+     * @var string
+     */
+    protected $encoding = '';
+
+    public function getEncoding(): string
+    {
+        return $this->encoding;
+    }
+
+    /**
+     * @return $this
+     */
+    public function setEncoding(string $encoding)
+    {
+        $this->encoding = $encoding;
+
+        return $this;
+    }
+    // endregion
+
+    // region Option - parallel
+    /**
+     * @var null|int
+     */
+    protected $parallel = null;
+
+    public function getParallel(): ?int
+    {
+        return $this->parallel;
+    }
+
+    /**
+     * @return $this
+     */
+    public function setParallel(?int $parallel)
+    {
+        $this->parallel = $parallel;
+
+        return $this;
+    }
+    // endregion
+
     //region Option - ignore
     /**
      * @var string[]
@@ -651,6 +851,28 @@ abstract class PhpcsLint extends BaseTask implements
         return $this;
     }
     //endregion
+
+    // region Option - ignoreAnnotations
+    /**
+     * @var bool
+     */
+    protected $ignoreAnnotations = false;
+
+    public function getIgnoreAnnotations(): bool
+    {
+        return $this->ignoreAnnotations;
+    }
+
+    /**
+     * @return $this
+     */
+    public function setIgnoreAnnotations(bool $ignoreAnnotations)
+    {
+        $this->ignoreAnnotations = $ignoreAnnotations;
+
+        return $this;
+    }
+    // endregion
 
     //region Option - files
     /**
@@ -727,6 +949,12 @@ abstract class PhpcsLint extends BaseTask implements
         $cmdPattern .= '%s';
         $cmdArgs[] = escapeshellcmd($phpcsExecutable);
 
+        foreach ($this->flagOptions as $config => $option) {
+            if (!empty($options[$config])) {
+                $cmdPattern .= " --{$option}";
+            }
+        }
+
         foreach ($this->triStateOptions as $config => $option) {
             if (isset($options[$config])) {
                 $cmdPattern .= $options[$config] ? " --{$option}" : " --no-{$option}";
@@ -781,16 +1009,24 @@ abstract class PhpcsLint extends BaseTask implements
     {
         $options = [
             'colors' => $this->getColors(),
+            'cache' => $this->getCache(),
+            'noCache' => $this->getNoCache(),
+            'tabWidth' => $this->getTabWidth(),
             'standards' => $this->getStandards(),
             'reports' => $this->getReports(),
             'reportWidth' => $this->getReportWidth(),
+            'basePath' => $this->getBasePath(),
+            'bootstrap' => $this->getBootstrap(),
             'severity' => $this->getSeverity(),
             'errorSeverity' => $this->getErrorSeverity(),
             'warningSeverity' => $this->getWarningSeverity(),
+            'encoding' => $this->getEncoding(),
+            'parallel' => $this->getParallel(),
             'extensions' => $this->getExtensions(),
             'sniffs' => $this->getSniffs(),
             'exclude' => $this->getExclude(),
             'ignored' => $this->getIgnore(),
+            'ignoreAnnotations' => $this->getIgnoreAnnotations(),
         ];
 
         $options['reports'] = array_diff_key(

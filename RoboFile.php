@@ -398,6 +398,7 @@ class RoboFile extends Tasks
     protected function getTaskPhpcsLint(): CollectionBuilder
     {
         $options = [
+            'basePath' => getenv('PWD'),
             'failOn' => 'warning',
             'lintReporters' => [
                 'lintVerboseReporter' => null,
@@ -405,6 +406,7 @@ class RoboFile extends Tasks
         ];
 
         if ($this->environmentType === 'ci' && $this->environmentName === 'jenkins') {
+            unset($options['basePath']);
             $options['failOn'] = 'never';
             $options['lintReporters']['lintCheckstyleReporter'] = $this
                 ->getContainer()
