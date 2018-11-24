@@ -144,6 +144,11 @@ class RoboFile extends Tasks
             ->addTask($this->getTaskPhpcsLint());
     }
 
+    public function lintPhpcs(): CollectionBuilder
+    {
+        return $this->getTaskPhpcsLint();
+    }
+
     protected function errorOutput(): ?OutputInterface
     {
         $output = $this->output();
@@ -421,11 +426,15 @@ class RoboFile extends Tasks
                     ->taskPhpcsParseXml()
                     ->setAssetNamePrefix('phpcsXml.'))
                 ->addTask($this
+                    ->taskGitListStagedFiles()
+                    ->setPaths(['*.php']))
+                ->addTask($this
                     ->taskGitReadStagedFiles()
                     ->setCommandOnly(true)
-                    ->deferTaskConfiguration('setPaths', 'phpcsXml.files'))
+                    ->deferTaskConfiguration('setPaths', 'fileNames'))
                 ->addTask($this
                     ->taskPhpcsLintInput($options)
+                    ->setOutput($this->output())
                     ->deferTaskConfiguration('setFiles', 'files')
                     ->deferTaskConfiguration('setIgnore', 'phpcsXml.exclude-patterns'));
         }
