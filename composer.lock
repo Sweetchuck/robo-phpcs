@@ -3368,16 +3368,16 @@
         },
         {
             "name": "sweetchuck/robo-git",
-            "version": "v0.0.9",
+            "version": "v0.0.10",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Sweetchuck/robo-git.git",
-                "reference": "030a06b08262048d09d7e96a9c76fd9c970f2e29"
+                "reference": "3f2b10f335997ef2419a725f5ae8933bf7af0696"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Sweetchuck/robo-git/zipball/030a06b08262048d09d7e96a9c76fd9c970f2e29",
-                "reference": "030a06b08262048d09d7e96a9c76fd9c970f2e29",
+                "url": "https://api.github.com/repos/Sweetchuck/robo-git/zipball/3f2b10f335997ef2419a725f5ae8933bf7af0696",
+                "reference": "3f2b10f335997ef2419a725f5ae8933bf7af0696",
                 "shasum": ""
             },
             "require": {
@@ -3387,9 +3387,10 @@
             "require-dev": {
                 "codeception/codeception": "^2.2",
                 "squizlabs/php_codesniffer": "^3.0",
-                "sweetchuck/codeception-module-robo-task-runner": "^0.0",
+                "sweetchuck/codeception-module-robo-task-runner": "^0.5",
                 "sweetchuck/git-hooks": "^0.0",
-                "symfony/finder": "^3.3",
+                "symfony/debug": "^4.1",
+                "symfony/finder": "^4.0",
                 "webmozart/path-util": "^2.3"
             },
             "type": "library",
@@ -3403,7 +3404,7 @@
                 "GPL-2.0-or-later"
             ],
             "description": "Robo task to read the content of the staged files",
-            "time": "2018-02-18T12:59:04+00:00"
+            "time": "2018-11-24T20:02:03+00:00"
         },
         {
             "name": "symfony/browser-kit",
