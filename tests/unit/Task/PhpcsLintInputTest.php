@@ -27,7 +27,7 @@ class PhpcsLintInputTest extends \Codeception\Test\Unit
     /**
      * {@inheritdoc}
      */
-    protected function setUp()
+    protected function setUp(): void
     {
         parent::setUp();
 

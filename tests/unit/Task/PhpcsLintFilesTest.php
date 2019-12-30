@@ -2,14 +2,14 @@
 
 namespace Sweetchuck\Robo\Phpcs\Tests\Unit\Task;
 
+use Codeception\Test\Unit;
 use Robo\Robo;
 use Sweetchuck\Robo\Phpcs\Task\PhpcsLintFiles;
 use Sweetchuck\Codeception\Module\RoboTaskRunner\DummyOutput;
 use Sweetchuck\Codeception\Module\RoboTaskRunner\DummyProcess;
-use Sweetchuck\Robo\Phpcs\Test\Helper\Dummy\PHP_CodeSniffer_CLI as DummyPHP_CodeSniffer_CLI;
 use Codeception\Util\Stub;
 
-class PhpcsLintFilesTest extends \Codeception\Test\Unit
+class PhpcsLintFilesTest extends Unit
 {
     /**
      * @var \Sweetchuck\Robo\Phpcs\Test\UnitTester
@@ -19,7 +19,7 @@ class PhpcsLintFilesTest extends \Codeception\Test\Unit
     /**
      * {@inheritdoc}
      */
-    protected function setUp()
+    protected function setUp(): void
     {
         parent::setUp();
 
@@ -616,7 +616,7 @@ class PhpcsLintFilesTest extends \Codeception\Test\Unit
             'Output equals'
         );
 
-        $this->tester->assertContains(
+        $this->tester->assertStringContainsString(
             $expectedStdOutput,
             $mainStdOutput->output,
             'Output contains'

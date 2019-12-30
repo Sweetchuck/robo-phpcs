@@ -2,6 +2,8 @@
 
 namespace Sweetchuck\Robo\Phpcs\Task;
 
+use DOMDocument;
+use DOMXPath;
 use Robo\Result;
 use Robo\Task\BaseTask;
 use Robo\TaskInfo;
@@ -248,13 +250,13 @@ class PhpcsParseXml extends BaseTask
 
     protected function getFilePathsFromXml(string $xmlContent): ?array
     {
-        $xml = new \DOMDocument();
+        $xml = new DOMDocument();
         $result = @$xml->loadXML($xmlContent);
         if ($result === false) {
             return null;
         }
 
-        $xpath = new \DOMXPath($xml);
+        $xpath = new DOMXPath($xml);
 
         $xpathQueries = [
             'files' => '/ruleset/file',

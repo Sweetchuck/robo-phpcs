@@ -135,7 +135,6 @@ class RunRoboTasksCest
                 ' [PHP_CodeSniffer parse XML] XML file not found in directory: "vfs://RunRoboTasksCest.parseXml"',
                 ' [' . PhpcsParseXml::class . ']  XML file not found in directory: "vfs://RunRoboTasksCest.parseXml" ',
                 ' [' . PhpcsParseXml::class . ']  Exit code 1 ',
-                ' [error]   ',
                 '',
             ]),
             'exitCode' => 1,

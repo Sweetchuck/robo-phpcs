@@ -3,6 +3,7 @@
 namespace Sweetchuck\Robo\Phpcs\Test\Helper\RoboFiles;
 
 use Robo\Contract\TaskInterface;
+use Robo\Tasks;
 use Sweetchuck\LintReport\Reporter\BaseReporter;
 use Sweetchuck\LintReport\Reporter\CheckstyleReporter;
 use Sweetchuck\LintReport\Reporter\SummaryReporter;
@@ -11,7 +12,7 @@ use League\Container\ContainerInterface;
 use Sweetchuck\Robo\Phpcs\PhpcsTaskLoader;
 use Webmozart\PathUtil\Path;
 
-class PhpcsRoboFile extends \Robo\Tasks
+class PhpcsRoboFile extends Tasks
 {
     use PhpcsTaskLoader;
 
