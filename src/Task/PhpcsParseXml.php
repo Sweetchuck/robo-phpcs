@@ -20,7 +20,7 @@ class PhpcsParseXml extends BaseTask
     /**
      * @var string
      */
-    protected $taskName = 'PHP_CodeSniffer parse XML';
+    protected $taskName = 'PHP_CodeSniffer - parse XML';
 
     /**
      * @var array

@@ -132,7 +132,7 @@ class RunRoboTasksCest
         $expected = [
             'stdOutput' => '',
             'stdError' => implode("\n", [
-                ' [PHP_CodeSniffer parse XML] XML file not found in directory: "vfs://RunRoboTasksCest.parseXml"',
+                ' [PHP_CodeSniffer - parse XML] XML file not found in directory: "vfs://RunRoboTasksCest.parseXml"',
                 ' [' . PhpcsParseXml::class . ']  XML file not found in directory: "vfs://RunRoboTasksCest.parseXml" ',
                 ' [' . PhpcsParseXml::class . ']  Exit code 1 ',
                 '',

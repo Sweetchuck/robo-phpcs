@@ -2,10 +2,17 @@
 
 namespace Sweetchuck\Robo\Phpcs\Task;
 
+use Psr\Log\NullLogger;
 use Sweetchuck\Robo\Phpcs\Utils;
 
 class PhpcsLintInput extends PhpcsLint
 {
+
+    /**
+     * @var string
+     */
+    protected $taskName = 'PHP_CodeSniffer - lint StdInput';
+
     //region Properties
     /**
      * {@inheritdoc}
@@ -70,11 +77,14 @@ class PhpcsLintInput extends PhpcsLint
         return $this;
     }
 
+
+
     /**
      * {@inheritdoc}
      */
     protected function runLint()
     {
+        $logger = $this->logger() ?: new NullLogger();
         $reports = [];
         $files = $this->getFiles();
         $backupFailOn = $this->getFailOn();
@@ -90,9 +100,17 @@ class PhpcsLintInput extends PhpcsLint
                 ];
             }
 
+            $logContext = [
+                'fileName' => $file['fileName'],
+            ];
+
             if (Utils::isIgnored($file['fileName'], $ignorePatterns)) {
+                $logger->debug('Skip <info>{fileName}</info>', $logContext);
+
                 continue;
             }
+
+            $logger->debug('Lint <info>{fileName}</info>', $logContext);
 
             $this->currentFile = $file;
 
@@ -150,7 +168,17 @@ class PhpcsLintInput extends PhpcsLint
      */
     protected function getTaskInfoPattern(): string
     {
-        return "{name} is linting <info>{count}</info> files with <info>{standard}</info> standard";
+        return '';
+    }
+
+    protected function getTaskInfoContext(): ?array
+    {
+        $context = (array) parent::getTaskInfoContext();
+
+        $context['count'] = 42;
+        $context['standard'] = 'foo';
+
+        return $context;
     }
 
     /**
@@ -158,8 +186,9 @@ class PhpcsLintInput extends PhpcsLint
      */
     protected function getTaskContext($context = null)
     {
-        return [
-            'count' => $this->getFiles(),
-        ] + parent::getTaskContext($context);
+        $context = parent::getTaskContext($context);
+        $context['count'] = count($this->getFiles());
+
+        return $context;
     }
 }
