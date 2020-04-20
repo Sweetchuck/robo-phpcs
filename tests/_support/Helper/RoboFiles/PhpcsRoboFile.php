@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types = 1);
+
 namespace Sweetchuck\Robo\Phpcs\Test\Helper\RoboFiles;
 
 use Robo\Contract\TaskInterface;
@@ -33,28 +35,53 @@ class PhpcsRoboFile extends Tasks
      */
     public function lintFilesAllInOne(): TaskInterface
     {
+        $dataDir = $this->getDataDir();
         $reportsDir = 'actual';
+        $fixturesDir = 'fixtures';
 
         $verboseFile = (new VerboseReporter())
             ->setFilePathStyle('relative')
-            ->setDestination("$reportsDir/01.extra.verbose.txt");
+            ->setDestination("$dataDir/$reportsDir/01.extra.verbose.txt");
 
         $summaryFile = (new SummaryReporter())
             ->setFilePathStyle('relative')
-            ->setDestination("$reportsDir/01.extra.summary.txt");
+            ->setDestination("$dataDir/$reportsDir/01.extra.summary.txt");
 
         return $this
             ->taskPhpcsLintFiles()
+            ->setWorkingDirectory($dataDir)
             ->setPhpcsExecutable($this->getPhpcsExecutable())
             ->setColors(false)
             ->setStandards(['PSR2'])
-            ->setFiles(['fixtures/psr2.invalid.01.php'])
+            ->setFiles(["$fixturesDir/psr2.invalid.01.php"])
             ->setReport('full')
             ->setReport('checkstyle', "$reportsDir/01.native.checkstyle.xml")
             ->addLintReporter('verbose:StdOutput', 'lintVerboseReporter')
             ->addLintReporter('verbose:file', $verboseFile)
             ->addLintReporter('summary:StdOutput', 'lintSummaryReporter')
             ->addLintReporter('summary:file', $summaryFile);
+    }
+
+    /**
+     * @command lint-files:non-exists
+     */
+    public function lintFilesNonExists(string $nonExistsFile): TaskInterface
+    {
+        $dataDir = $this->getDataDir();
+        $fixturesDir = 'fixtures';
+
+        return $this
+            ->taskPhpcsLintFiles()
+            ->setPhpcsExecutable($this->getPhpcsExecutable())
+            ->setWorkingDirectory($dataDir)
+            ->setColors(false)
+            ->setStandards(['PSR2'])
+            ->setFailOn('warning')
+            ->setFiles([
+                "$fixturesDir/psr2.invalid.01.php",
+                "$fixturesDir/$nonExistsFile",
+            ])
+            ->setReport('full');
     }
 
     /**
@@ -65,20 +92,21 @@ class PhpcsRoboFile extends Tasks
             'command-only' => false,
         ]
     ): TaskInterface {
-        $fixturesDir = 'fixtures';
+        $dataDir = $this->getDataDir();
         $reportsDir = 'actual';
+        $fixturesDir = 'fixtures';
 
         $verboseFile = (new VerboseReporter())
             ->setFilePathStyle('relative')
-            ->setDestination("$reportsDir/02-03.extra.verbose.txt");
+            ->setDestination("$dataDir/$reportsDir/02-03.extra.verbose.txt");
 
         $summaryFile = (new SummaryReporter())
             ->setFilePathStyle('relative')
-            ->setDestination("$reportsDir/02-03.extra.summary.txt");
+            ->setDestination("$dataDir/$reportsDir/02-03.extra.summary.txt");
 
         $checkstyleFile = (new CheckstyleReporter())
             ->setFilePathStyle('relative')
-            ->setDestination("$reportsDir/02-03.extra.checkstyle.xml");
+            ->setDestination("$dataDir/$reportsDir/02-03.extra.checkstyle.xml");
 
         $files = [
             'psr2.invalid.02.php' => [
@@ -94,12 +122,13 @@ class PhpcsRoboFile extends Tasks
         ];
 
         if (!$options['command-only']) {
-            $files['psr2.invalid.02.php']['content'] = file_get_contents("$fixturesDir/psr2.invalid.02.php");
-            $files['psr2.invalid.03.php']['content'] = file_get_contents("$fixturesDir/psr2.invalid.03.php");
+            $files['psr2.invalid.02.php']['content'] = file_get_contents("$dataDir/$fixturesDir/psr2.invalid.02.php");
+            $files['psr2.invalid.03.php']['content'] = file_get_contents("$dataDir/$fixturesDir/psr2.invalid.03.php");
         }
 
         return $this
             ->taskPhpcsLintInput()
+            ->setWorkingDirectory($dataDir)
             ->setPhpcsExecutable($this->getPhpcsExecutable())
             ->setStandards(['PSR2'])
             ->setFiles($files)
@@ -127,18 +156,13 @@ class PhpcsRoboFile extends Tasks
         return $this->taskPhpcsParseXml($localOptions);
     }
 
+    protected function getDataDir(): string
+    {
+        return 'tests/_data';
+    }
+
     protected function getPhpcsExecutable(): string
     {
-        $phpcsExecutable = Path::join(
-            __DIR__,
-            '..',
-            '..',
-            '..',
-            '..',
-            'bin',
-            'phpcs'
-        );
-
-        return Path::makeRelative($phpcsExecutable, getcwd());
+        return '../../bin/phpcs';
     }
 }

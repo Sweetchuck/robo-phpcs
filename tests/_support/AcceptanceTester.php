@@ -3,6 +3,8 @@
 namespace Sweetchuck\Robo\Phpcs\Test;
 
 use Codeception\Actor;
+use DOMDocument;
+use DOMXPath;
 use PHPUnit\Framework\Assert;
 use Sweetchuck\Robo\Phpcs\Test\_generated\AcceptanceTesterActions;
 use Symfony\Component\Finder\Finder;
@@ -66,10 +68,10 @@ class AcceptanceTester extends Actor
      */
     public function haveAValidCheckstyleReport(string $fileName)
     {
-        $fileName = "tests/_data/$fileName";
-        $doc = new \DOMDocument();
+        $fileName = codecept_data_dir($fileName);
+        $doc = new DOMDocument();
         $doc->loadXML(file_get_contents($fileName));
-        $xpath = new \DOMXPath($doc);
+        $xpath = new DOMXPath($doc);
         $rootElement = $xpath->query('/checkstyle');
         Assert::assertEquals(1, $rootElement->length, 'Root element of the Checkstyle XML is exists.');
 

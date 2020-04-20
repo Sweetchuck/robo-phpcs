@@ -4,6 +4,7 @@ namespace Sweetchuck\Robo\Phpcs\Task;
 
 use Psr\Log\NullLogger;
 use Sweetchuck\Robo\Phpcs\Utils;
+use Symfony\Component\Filesystem\Filesystem;
 
 class PhpcsLintInput extends PhpcsLint
 {
@@ -55,8 +56,9 @@ class PhpcsLintInput extends PhpcsLint
     }
     //endregion
 
-    public function __construct()
+    public function __construct(?Filesystem $fs = null)
     {
+        parent::__construct($fs);
         $this->simpleOptions['stdinPath'] = 'stdin-path';
     }
 
