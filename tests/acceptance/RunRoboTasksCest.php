@@ -67,6 +67,36 @@ class RunRoboTasksCest
         );
     }
 
+    public function lintFilesNonExists(AcceptanceTester $i)
+    {
+        $id = __METHOD__;
+        $roboTaskName = 'lint-files:non-exists';
+        $i->wantTo("Run Robo task '<comment>$roboTaskName</comment>'.");
+
+        $i->runRoboTask(
+            $id,
+            PhpcsRoboFile::class,
+            $roboTaskName,
+            'non-exists.php'
+        );
+
+        $stdOutput = $i->getRoboTaskStdOutput($id);
+        $stdError = $i->getRoboTaskStdError($id);
+        $exitCode = $i->getRoboTaskExitCode($id);
+
+        $i->assertContains(
+            'Unknown outcome.',
+            $stdError,
+            'StdError contains a general message'
+        );
+
+        $i->assertEquals(
+            3,
+            $exitCode,
+            'Robo task exitCode'
+        );
+    }
+
     public function lintInputTaskCommandOnlyFalse(AcceptanceTester $i)
     {
         $this->lintInput($i, 'lint-input');
