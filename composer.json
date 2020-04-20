@@ -15,7 +15,8 @@
         "ext-dom": "*",
         "ext-json": "*",
         "sweetchuck/lint-report": "^0.0",
-        "consolidation/robo": "^2.0"
+        "consolidation/robo": "^2.0",
+        "webmozart/path-util": "^2.3"
     },
     "require-dev": {
         "codeception/codeception": "^4.0",
@@ -26,8 +27,7 @@
         "sweetchuck/codeception-module-robo-task-runner": "^0.7",
         "sweetchuck/git-hooks": "^0.0",
         "sweetchuck/robo-git": "^0.2",
-        "symfony/yaml": "^4.0",
-        "webmozart/path-util": "^2.3"
+        "symfony/yaml": "^4.0"
     },
     "autoload": {
         "psr-4": {

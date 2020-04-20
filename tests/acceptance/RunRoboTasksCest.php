@@ -30,14 +30,11 @@ class RunRoboTasksCest
         $roboTaskName = 'lint-files:all-in-one';
         $i->wantTo("Run Robo task '<comment>$roboTaskName</comment>'.");
 
-        $cwd = getcwd();
-        chdir(codecept_data_dir());
         $i->runRoboTask(
             $id,
             PhpcsRoboFile::class,
             $roboTaskName
         );
-        chdir($cwd);
 
         $stdOutput = $i->getRoboTaskStdOutput($id);
         $stdError = $i->getRoboTaskStdError($id);
@@ -82,13 +79,6 @@ class RunRoboTasksCest
 
     protected function lintInput(AcceptanceTester $i, string $roboTaskName, array $argsAndOptions = [])
     {
-        // @todo https://github.com/Sweetchuck/robo-phpcs/issues/6
-        if (getenv('TRAVIS_OS_NAME') === 'osx') {
-            $i->wantTo("Skip the '$roboTaskName' task, because it does not work on OSX");
-
-            return;
-        }
-
         static $callCounter = 1;
 
         $id = __METHOD__ . ':' . $callCounter++;
@@ -96,15 +86,12 @@ class RunRoboTasksCest
         $command = "$roboTaskName " . implode(' ', $argsAndOptions);
         $i->wantTo("Run Robo task '<comment>$command</comment>'.");
 
-        $cwd = getcwd();
-        chdir(codecept_data_dir());
         $i->runRoboTask(
             $id,
             PhpcsRoboFile::class,
             $roboTaskName,
             ...$argsAndOptions
         );
-        chdir($cwd);
 
         $i->assertEquals(2, $i->getRoboTaskExitCode($id));
         $i->haveAFileLikeThis('02-03.extra.checkstyle.xml');

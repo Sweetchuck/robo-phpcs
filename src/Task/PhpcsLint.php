@@ -2,6 +2,7 @@
 
 namespace Sweetchuck\Robo\Phpcs\Task;
 
+use Psr\Log\NullLogger;
 use Robo\Contract\InflectionInterface;
 use Robo\TaskInfo;
 use Sweetchuck\LintReport\ReportWrapperInterface;
@@ -19,6 +20,7 @@ use Robo\Task\Filesystem\loadTasks as FsLoadTasks;
 use Robo\Task\Filesystem\loadShortcuts as FsShortCuts;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Process\Process;
+use Webmozart\PathUtil\Path;
 
 /**
  * @todo Add option [--runtime-set key value] ?
@@ -129,6 +131,16 @@ abstract class PhpcsLint extends BaseTask implements
         'noCache' => 'no-cache',
         'ignoreAnnotations' => 'ignore-annotations',
     ];
+
+    /**
+     * @var \Symfony\Component\Filesystem\Filesystem
+     */
+    protected $fs;
+
+    public function __construct(?Filesystem $fs = null)
+    {
+        $this->fs = $fs ?: new Filesystem();
+    }
 
     //region Properties.
 
@@ -1097,11 +1109,20 @@ abstract class PhpcsLint extends BaseTask implements
     protected function runPrepareReportDirectories()
     {
         $reports = $this->getReports();
-        $fs = new Filesystem();
+
+        $wd = $this->getWorkingDirectory();
+        if ($wd === '.') {
+            $wd = '';
+        }
+
         foreach (array_filter($reports) as $fileName) {
+            if ($wd !== '' && !Path::isAbsolute($fileName)) {
+                $fileName = Path::join($wd, $fileName);
+            }
+
             $dir = pathinfo($fileName, PATHINFO_DIRNAME);
-            if (!file_exists($dir)) {
-                $fs->mkdir($dir);
+            if (!$this->fs->exists($dir)) {
+                $this->fs->mkdir($dir);
             }
         }
 
@@ -1118,22 +1139,30 @@ abstract class PhpcsLint extends BaseTask implements
         $this->reportWrapper = null;
         $this->lintExitCode = static::EXIT_CODE_OK;
 
-        /** @var Process $process */
+        /** @var \Symfony\Component\Process\Process $process */
         $process = new $this->processClass($this->getCommand());
 
         $this->lintExitCode = $process->run();
         $this->lintStdOutput = $process->getOutput();
         $this->reportRaw = $this->lintStdOutput;
 
+        $isLintSuccess = $this->isLintSuccess();
+
+        if (!$isLintSuccess) {
+            $logger = $this->logger() ?: new NullLogger();
+            $logger->debug($this->lintStdOutput);
+        }
+
+        // @todo Relative from workingDirectory.
         $jsonReportDestination = $this->getReport('json');
-        if ($this->isLintSuccess()
+        if ($isLintSuccess
             && $jsonReportDestination !== null
             && is_readable($jsonReportDestination)
         ) {
             $this->reportRaw = file_get_contents($jsonReportDestination);
         }
 
-        if ($this->reportRaw) {
+        if ($isLintSuccess && $this->reportRaw) {
             // @todo Pray for a valid JSON output.
             $this->report = (array) json_decode($this->reportRaw, true);
             $this->report += ['totals' => [], 'files' => []];
@@ -1168,10 +1197,10 @@ abstract class PhpcsLint extends BaseTask implements
 
     protected function runReturn(): Result
     {
-        if ($this->lintExitCode && !$this->reportRaw) {
-            $exitCode = static::EXIT_CODE_UNKNOWN;
-        } else {
+        if ($this->isLintSuccess() && $this->report) {
             $exitCode = $this->getTaskExitCode($this->report['totals']);
+        } else {
+            $exitCode = static::EXIT_CODE_UNKNOWN;
         }
 
         $assetNamePrefix = $this->getAssetNamePrefix();
