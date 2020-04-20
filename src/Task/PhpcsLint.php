@@ -3,6 +3,7 @@
 namespace Sweetchuck\Robo\Phpcs\Task;
 
 use Robo\Contract\InflectionInterface;
+use Robo\TaskInfo;
 use Sweetchuck\LintReport\ReportWrapperInterface;
 use Sweetchuck\Robo\Phpcs\LintReportWrapper\ReportWrapper;
 use Sweetchuck\Robo\Phpcs\Utils;
@@ -40,6 +41,8 @@ abstract class PhpcsLint extends BaseTask implements
     const EXIT_CODE_ERROR = 2;
 
     const EXIT_CODE_UNKNOWN = 3;
+
+    protected $taskName = 'PHP_CodeSniffer - lint';
 
     /**
      * @todo Some kind of dependency injection would be awesome.
@@ -1269,17 +1272,30 @@ abstract class PhpcsLint extends BaseTask implements
         return 'Unknown outcome.';
     }
 
+    public function getTaskName(): string
+    {
+        return $this->taskName ?: TaskInfo::formatTaskName($this);
+    }
+
     /**
      * {@inheritdoc}
      */
     protected function printTaskInfo($text, $context = null)
     {
-        parent::printTaskInfo($text ?: $this->getTaskInfoPattern(), $context);
+        parent::printTaskInfo(
+            $text ?: $this->getTaskInfoPattern(),
+            $context ?: $this->getTaskInfoContext()
+        );
     }
 
     protected function getTaskInfoPattern(): string
     {
-        return "{name} runs <info>{command}</info>";
+        return 'runs <info>{command}</info>';
+    }
+
+    protected function getTaskInfoContext(): ?array
+    {
+        return null;
     }
 
     /**
@@ -1287,10 +1303,11 @@ abstract class PhpcsLint extends BaseTask implements
      */
     protected function getTaskContext($context = null)
     {
-        return [
-            'name' => 'PHP_CodeSniffer',
-            'command' => $this->getCommand(),
-            'standard' => implode(',', $this->filterEnabled($this->getStandards())),
-        ] + parent::getTaskContext($context);
+        $context = parent::getTaskContext($context);
+        $context['name'] = $this->getTaskName();
+        $context['command'] = $this->getCommand();
+        $context['standard'] = implode(',', $this->filterEnabled($this->getStandards()));
+
+        return $context;
     }
 }
