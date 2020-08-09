@@ -1139,8 +1139,13 @@ abstract class PhpcsLint extends BaseTask implements
         $this->reportWrapper = null;
         $this->lintExitCode = static::EXIT_CODE_OK;
 
+        $command = [
+            'bash',
+            '-c',
+            $this->getCommand(),
+        ];
         /** @var \Symfony\Component\Process\Process $process */
-        $process = new $this->processClass($this->getCommand());
+        $process = new $this->processClass($command);
 
         $this->lintExitCode = $process->run();
         $this->lintStdOutput = $process->getOutput();

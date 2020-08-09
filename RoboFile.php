@@ -372,7 +372,11 @@ class RoboFile extends Tasks
             $cmdPattern .= ' || [[ "${?}" == "1" ]]';
         }
 
-        $command = vsprintf($cmdPattern, $cmdArgs);
+        $command = [
+            'bash',
+            '-c',
+            vsprintf($cmdPattern, $cmdArgs),
+        ];
 
         return $cb
             ->addCode(function () use ($command) {
@@ -380,7 +384,7 @@ class RoboFile extends Tasks
                     '<question>[{name}]</question> runs <info>{command}</info>',
                     [
                         '{name}' => 'Codeception',
-                        '{command}' => $command,
+                        '{command}' => implode(' ', $command),
                     ]
                 ));
                 $process = new Process($command, null, null, null, null);
@@ -457,7 +461,10 @@ class RoboFile extends Tasks
 
     protected function isPhpDbgAvailable(): bool
     {
-        $command = sprintf('%s -qrr', escapeshellcmd($this->getPhpdbgExecutable()));
+        $command = [
+            escapeshellcmd($this->getPhpdbgExecutable()),
+            '-qrr',
+        ];
 
         return (new Process($command))->run() === 0;
     }
@@ -481,12 +488,19 @@ class RoboFile extends Tasks
                 ->in($this->codeceptionInfo['paths']['tests'])
                 ->files()
                 ->name('*.suite.yml')
+                ->name('*.suite.dist.yml')
                 ->depth(0);
 
             foreach ($suiteFiles as $suiteFile) {
-                $this->codeceptionSuiteNames[] = $suiteFile->getBasename('.suite.yml');
+                $this->codeceptionSuiteNames[] = preg_replace(
+                    '/\.suite(\.dist)?\.yml$/',
+                    '',
+                    $suiteFile->getBasename()
+                );
             }
         }
+
+        $this->codeceptionSuiteNames = array_unique($this->codeceptionSuiteNames);
 
         return $this->codeceptionSuiteNames;
     }
