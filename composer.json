@@ -1,7 +1,24 @@
 {
     "name": "sweetchuck/robo-phpcs",
+    "type": "robo-tasks",
     "description": "Robo task wrapper for PHPCS",
-    "type": "library",
+    "keywords": [
+        "robo-tasks",
+        "phpcs",
+        "PHP_CodeSniffer"
+    ],
+    "authors": [
+        {
+            "name": "Andor",
+            "role": "Maintainer",
+            "homepage": "https://github.com/Sweetchuck"
+        }
+    ],
+    "homepage": "https://github.com/Sweetchuck/robo-phpcs",
+    "support": {
+        "source": "https://github.com/Sweetchuck/robo-phpcs",
+        "issues": "https://github.com/Sweetchuck/robo-phpcs/issues"
+    },
     "license": "GPL-2.0-or-later",
     "minimum-stability": "dev",
     "prefer-stable": true,
