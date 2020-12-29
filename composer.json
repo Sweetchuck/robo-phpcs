@@ -31,7 +31,7 @@
         "php": ">=7.3",
         "ext-dom": "*",
         "ext-json": "*",
-        "sweetchuck/lint-report": "^0.1",
+        "sweetchuck/lint-report": "1.x-dev",
         "consolidation/robo": "^2.0",
         "webmozart/path-util": "^2.3"
     },

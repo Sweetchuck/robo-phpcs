@@ -3,15 +3,18 @@ version: 2.1
 
 .env_common: &env_common
     SHELL: '/bin/bash'
+
 .env_xdebug: &env_xdebug
     XDEBUG_MODE: 'coverage'
+
 .env_composer: &env_composer
     COMPOSER_NO_INTERACTION: '1'
     COMPOSER_MEMORY_LIMIT: '-1'
     COMPOSER_DISABLE_XDEBUG_WARN: '1'
+    COMPOSER_CACHE_DIR: '/home/circleci/.cache/composer'
 
 orbs:
-    codecov: 'codecov/codecov@1.0.5'
+    codecov: 'codecov/codecov@1.1.2'
 
 executors:
     php704:
@@ -50,16 +53,14 @@ commands:
                 run:
                     name: 'Composer - install'
                     command: >
-                        [[ -d "$(composer config vendor-dir)" ]] || composer install --no-progress
+                        composer install --no-progress
 
             -
                 save_cache:
                     name: 'Composer - cache save'
                     key: 'composer-{{ checksum "./composer.lock" }}-1'
                     paths:
-                        - './bin/'
-                        - './vendor/'
-                        - '~/.composer/cache/'
+                        - '~/.cache/composer'
 
 
     lint:

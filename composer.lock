@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "9a2ec362a8556eb77e010765bbbbe47e",
+    "content-hash": "9daa2e545f3f7864c5f110c67f104fb4",
     "packages": [
         {
             "name": "consolidation/annotated-command",
@@ -774,26 +774,25 @@
         },
         {
             "name": "sweetchuck/lint-report",
-            "version": "v0.1.0",
+            "version": "1.x-dev",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Sweetchuck/lint-report.git",
-                "reference": "66adb802309b202d3060e220dc0f71c41457dcce"
+                "reference": "8af7e5bd8b6b58d7b40fcd45880b2746f0901431"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Sweetchuck/lint-report/zipball/66adb802309b202d3060e220dc0f71c41457dcce",
-                "reference": "66adb802309b202d3060e220dc0f71c41457dcce",
+                "url": "https://api.github.com/repos/Sweetchuck/lint-report/zipball/8af7e5bd8b6b58d7b40fcd45880b2746f0901431",
+                "reference": "8af7e5bd8b6b58d7b40fcd45880b2746f0901431",
                 "shasum": ""
             },
             "require": {
                 "ext-dom": "*",
                 "ext-json": "*",
-                "league/container": "^2.2",
-                "php": ">=7.2",
+                "league/container": "^2.2 || ^3.0",
+                "php": ">=7.3",
                 "symfony/console": "^4.0 || ^5.0",
                 "symfony/filesystem": "^4.0 || ^5.0",
-                "symfony/yaml": "^4.0 || ^5.0",
                 "webmozart/path-util": "^2.3"
             },
             "require-dev": {
@@ -803,11 +802,13 @@
                 "mikey179/vfsstream": "^1.6",
                 "phpunit/phpunit": "^8.0",
                 "squizlabs/php_codesniffer": "^3.4",
-                "stecman/symfony-console-completion": "^0.11.0",
-                "sweetchuck/codeception-module-robo-task-runner": "^0.8",
-                "sweetchuck/git-hooks": "^0.1",
-                "sweetchuck/robo-git": "^0.3"
+                "stecman/symfony-console-completion": "^0.11",
+                "sweetchuck/codeception-module-robo-task-runner": "1.x-dev",
+                "sweetchuck/git-hooks": "2.x-dev",
+                "sweetchuck/robo-git": "1.x-dev",
+                "symfony/yaml": "^4.0 || ^5.0"
             },
+            "default-branch": true,
             "type": "library",
             "autoload": {
                 "psr-4": {
@@ -820,7 +821,7 @@
             ],
             "authors": [
                 {
-                    "name": "Dávid Andor",
+                    "name": "Andor",
                     "homepage": "https://github.com/Sweetchuck",
                     "role": "Maintainer"
                 }
@@ -834,7 +835,7 @@
                 "issues": "https://github.com/Sweetchuck/lint-report/issues",
                 "source": "https://github.com/Sweetchuck/lint-report"
             },
-            "time": "2020-08-09T17:49:09+00:00"
+            "time": "2020-12-29T20:30:49+00:00"
         },
         {
             "name": "symfony/console",
@@ -2242,16 +2243,16 @@
         },
         {
             "name": "codeception/codeception",
-            "version": "4.1.13",
+            "version": "4.1.14",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Codeception/Codeception.git",
-                "reference": "e817f83fe019ed3f9c280254b88f90cc70c3d7cf"
+                "reference": "bf2d7861cc6cf4e118a21c6945f482a5c822636c"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Codeception/Codeception/zipball/e817f83fe019ed3f9c280254b88f90cc70c3d7cf",
-                "reference": "e817f83fe019ed3f9c280254b88f90cc70c3d7cf",
+                "url": "https://api.github.com/repos/Codeception/Codeception/zipball/bf2d7861cc6cf4e118a21c6945f482a5c822636c",
+                "reference": "bf2d7861cc6cf4e118a21c6945f482a5c822636c",
                 "shasum": ""
             },
             "require": {
@@ -2325,7 +2326,7 @@
             ],
             "support": {
                 "issues": "https://github.com/Codeception/Codeception/issues",
-                "source": "https://github.com/Codeception/Codeception/tree/4.1.13"
+                "source": "https://github.com/Codeception/Codeception/tree/4.1.14"
             },
             "funding": [
                 {
@@ -2333,7 +2334,7 @@
                     "type": "open_collective"
                 }
             ],
-            "time": "2020-12-20T13:35:09+00:00"
+            "time": "2020-12-28T19:16:28+00:00"
         },
         {
             "name": "codeception/lib-asserts",
@@ -2448,16 +2449,16 @@
         },
         {
             "name": "codeception/phpunit-wrapper",
-            "version": "8.1.3",
+            "version": "8.1.4",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Codeception/phpunit-wrapper.git",
-                "reference": "8c2c9b49d20b6e2d61e926a16b1bf2cee5f4db9c"
+                "reference": "f41335f0b4dd17cf7bbc63e87943b3ae72a8bbc3"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Codeception/phpunit-wrapper/zipball/8c2c9b49d20b6e2d61e926a16b1bf2cee5f4db9c",
-                "reference": "8c2c9b49d20b6e2d61e926a16b1bf2cee5f4db9c",
+                "url": "https://api.github.com/repos/Codeception/phpunit-wrapper/zipball/f41335f0b4dd17cf7bbc63e87943b3ae72a8bbc3",
+                "reference": "f41335f0b4dd17cf7bbc63e87943b3ae72a8bbc3",
                 "shasum": ""
             },
             "require": {
@@ -2490,9 +2491,9 @@
             "description": "PHPUnit classes used by Codeception",
             "support": {
                 "issues": "https://github.com/Codeception/phpunit-wrapper/issues",
-                "source": "https://github.com/Codeception/phpunit-wrapper/tree/8.1.3"
+                "source": "https://github.com/Codeception/phpunit-wrapper/tree/8.1.4"
             },
-            "time": "2020-10-11T18:16:48+00:00"
+            "time": "2020-12-28T14:00:08+00:00"
         },
         {
             "name": "codeception/stub",
@@ -4491,19 +4492,19 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/Sweetchuck/git-hooks.git",
-                "reference": "2f03af3510fc8d8305e20f4fc5415e7ff6a6048b"
+                "reference": "f8b285068fe5f5ffad4525de7490760306c23e76"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Sweetchuck/git-hooks/zipball/2f03af3510fc8d8305e20f4fc5415e7ff6a6048b",
-                "reference": "2f03af3510fc8d8305e20f4fc5415e7ff6a6048b",
+                "url": "https://api.github.com/repos/Sweetchuck/git-hooks/zipball/f8b285068fe5f5ffad4525de7490760306c23e76",
+                "reference": "f8b285068fe5f5ffad4525de7490760306c23e76",
                 "shasum": ""
             },
             "require": {
                 "composer-plugin-api": "^2.0",
                 "ext-json": "*",
                 "ext-mbstring": "*",
-                "php": ">=7.2",
+                "php": ">=7.3",
                 "webmozart/path-util": "^2.3"
             },
             "require-dev": {
@@ -4512,8 +4513,8 @@
                 "composer/composer": "^2.0",
                 "consolidation/robo": "^2.0",
                 "squizlabs/php_codesniffer": "^3.5",
-                "sweetchuck/robo-git": "^0.3",
-                "sweetchuck/robo-phpcs": "^0.2"
+                "sweetchuck/robo-git": "1.x-dev",
+                "sweetchuck/robo-phpcs": "1.x-dev"
             },
             "default-branch": true,
             "type": "composer-plugin",
@@ -4532,12 +4533,23 @@
             "license": [
                 "GPL-2.0-or-later"
             ],
-            "description": "Provide a bridge between Git hooks and scripts under VCS.",
+            "authors": [
+                {
+                    "name": "Andor",
+                    "homepage": "https://github.com/Sweetchuck",
+                    "role": "Maintainer"
+                }
+            ],
+            "description": "Provides a bridge between Git hooks and scripts under VCS.",
+            "homepage": "https://github.com/Sweetchuck/git-hooks",
+            "keywords": [
+                "git-hooks"
+            ],
             "support": {
                 "issues": "https://github.com/Sweetchuck/git-hooks/issues",
-                "source": "https://github.com/Sweetchuck/git-hooks/tree/2.x"
+                "source": "https://github.com/Sweetchuck/git-hooks"
             },
-            "time": "2020-12-09T21:30:27+00:00"
+            "time": "2020-12-28T10:19:24+00:00"
         },
         {
             "name": "sweetchuck/robo-git",
@@ -4545,12 +4557,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/Sweetchuck/robo-git.git",
-                "reference": "fa8c53e294ef06a3e5ef4e17783acf507862b0e1"
+                "reference": "52b99c48c4c2deffa29103b727f307d103c935e8"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Sweetchuck/robo-git/zipball/fa8c53e294ef06a3e5ef4e17783acf507862b0e1",
-                "reference": "fa8c53e294ef06a3e5ef4e17783acf507862b0e1",
+                "url": "https://api.github.com/repos/Sweetchuck/robo-git/zipball/52b99c48c4c2deffa29103b727f307d103c935e8",
+                "reference": "52b99c48c4c2deffa29103b727f307d103c935e8",
                 "shasum": ""
             },
             "require": {
@@ -4560,6 +4572,7 @@
             "require-dev": {
                 "codeception/codeception": "^4.0",
                 "codeception/module-asserts": "^1.1",
+                "ext-json": "*",
                 "phpunit/phpunit": "^8.0",
                 "squizlabs/php_codesniffer": "^3.0",
                 "sweetchuck/codeception-module-robo-task-runner": "1.x-dev",
@@ -4570,7 +4583,7 @@
                 "webmozart/path-util": "^2.3"
             },
             "default-branch": true,
-            "type": "library",
+            "type": "robo-tasks",
             "autoload": {
                 "psr-4": {
                     "Sweetchuck\\Robo\\Git\\": "src/"
@@ -4582,12 +4595,12 @@
             ],
             "authors": [
                 {
-                    "name": "Dávid Andor",
+                    "name": "Andor",
                     "homepage": "https://github.com/Sweetchuck",
                     "role": "Maintainer"
                 }
             ],
-            "description": "Robo task to read the content of the staged files",
+            "description": "Git related Robo tasks",
             "homepage": "https://github.com/Sweetchuck/robo-git",
             "keywords": [
                 "git",
@@ -4597,7 +4610,7 @@
                 "issues": "https://github.com/Sweetchuck/robo-git/issues",
                 "source": "https://github.com/Sweetchuck/robo-git"
             },
-            "time": "2020-12-27T20:50:15+00:00"
+            "time": "2020-12-28T13:07:44+00:00"
         },
         {
             "name": "symfony/css-selector",
@@ -4718,6 +4731,7 @@
     "aliases": [],
     "minimum-stability": "dev",
     "stability-flags": {
+        "sweetchuck/lint-report": 20,
         "sweetchuck/codeception-module-robo-task-runner": 20,
         "sweetchuck/git-hooks": 20,
         "sweetchuck/robo-git": 20
