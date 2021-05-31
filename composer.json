@@ -28,11 +28,11 @@
         "optimize-autoloader": true
     },
     "require": {
-        "php": ">=7.3",
+        "php": ">=7.4",
         "ext-dom": "*",
         "ext-json": "*",
         "sweetchuck/lint-report": "1.x-dev",
-        "consolidation/robo": "^2.0",
+        "consolidation/robo": "^3.0",
         "webmozart/path-util": "^2.3"
     },
     "require-dev": {
@@ -42,9 +42,9 @@
         "mikey179/vfsstream": "^1.6",
         "phpunit/phpunit": "^8.0",
         "squizlabs/php_codesniffer": "^3.0",
-        "sweetchuck/codeception-module-robo-task-runner": "1.x-dev",
+        "sweetchuck/codeception-module-robo-task-runner": "2.x-dev",
         "sweetchuck/git-hooks": "2.x-dev",
-        "sweetchuck/robo-git": "1.x-dev",
+        "sweetchuck/robo-git": "2.x-dev",
         "symfony/yaml": "^4.0 || ^5.0"
     },
     "autoload": {
@@ -54,7 +54,7 @@
     },
     "autoload-dev": {
         "psr-4": {
-            "Sweetchuck\\Robo\\Phpcs\\Test\\Helper\\": "tests/_support/Helper/",
+            "Sweetchuck\\Robo\\Phpcs\\Test\\": "tests/_support/",
             "Sweetchuck\\Robo\\Phpcs\\Tests\\Acceptance\\": "tests/acceptance/",
             "Sweetchuck\\Robo\\Phpcs\\Tests\\Unit\\": "tests/unit/"
         }

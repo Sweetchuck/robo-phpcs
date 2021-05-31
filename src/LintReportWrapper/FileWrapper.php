@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types = 1);
+
 namespace Sweetchuck\Robo\Phpcs\LintReportWrapper;
 
 use Sweetchuck\LintReport\FileWrapperInterface;
@@ -7,15 +9,9 @@ use Sweetchuck\LintReport\ReportWrapperInterface;
 
 class FileWrapper implements FileWrapperInterface
 {
-    /**
-     * @var array
-     */
-    protected $file = [];
+    protected array $file = [];
 
-    /**
-     * @var array
-     */
-    public $stats = [];
+    public array $stats = [];
 
     /**
      * {@inheritdoc}

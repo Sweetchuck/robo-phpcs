@@ -1,12 +1,12 @@
 <?php
 
+declare(strict_types = 1);
+
 namespace Sweetchuck\Robo\Phpcs;
 
 use Robo\Collection\CollectionBuilder;
 use Sweetchuck\Robo\Phpcs\Task\PhpcsLintFiles;
 use Sweetchuck\Robo\Phpcs\Task\PhpcsLintInput;
-use League\Container\ContainerAwareInterface;
-use Robo\Contract\OutputAwareInterface;
 use Sweetchuck\Robo\Phpcs\Task\PhpcsParseXml;
 
 trait PhpcsTaskLoader

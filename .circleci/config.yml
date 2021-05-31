@@ -14,9 +14,20 @@ version: 2.1
     COMPOSER_CACHE_DIR: '/home/circleci/.cache/composer'
 
 orbs:
-    codecov: 'codecov/codecov@1.1.2'
+    codecov: 'codecov/codecov@1.2.0'
 
 executors:
+    php800:
+        environment:
+            <<: *env_common
+            <<: *env_xdebug
+            <<: *env_composer
+
+        docker:
+            -
+                name: 'main'
+                image: 'circleci/php:8.0'
+
     php704:
         environment:
             <<: *env_common
@@ -27,17 +38,6 @@ executors:
             -
                 name: 'main'
                 image: 'circleci/php:7.4'
-
-    php703:
-        environment:
-            <<: *env_common
-            <<: *env_xdebug
-            <<: *env_composer
-
-        docker:
-            -
-                name: 'main'
-                image: 'circleci/php:7.3'
 
 commands:
     composer_install:
@@ -97,27 +97,27 @@ commands:
 
 jobs:
     build:
-        executor: 'php703'
-        working_directory: '~/repo'
-        steps:
-            - 'checkout'
-            - 'composer_install'
-    lint:
-        executor: 'php703'
-        working_directory: '~/repo'
-        steps:
-            - 'checkout'
-            - 'composer_install'
-            - 'lint'
-    test_php704:
         executor: 'php704'
         working_directory: '~/repo'
         steps:
             - 'checkout'
             - 'composer_install'
+    lint:
+        executor: 'php704'
+        working_directory: '~/repo'
+        steps:
+            - 'checkout'
+            - 'composer_install'
+            - 'lint'
+    test_php800:
+        executor: 'php800'
+        working_directory: '~/repo'
+        steps:
+            - 'checkout'
+            - 'composer_install'
             - 'test'
-    test_php703:
-        executor: 'php703'
+    test_php704:
+        executor: 'php704'
         working_directory: '~/repo'
         steps:
             - 'checkout'
@@ -132,12 +132,12 @@ workflows:
             -
                 lint:
                     requires:
-                        - build
+                        - 'build'
+            -
+                test_php800:
+                    requires:
+                        - 'build'
             -
                 test_php704:
                     requires:
-                        - build
-            -
-                test_php703:
-                    requires:
-                        - build
+                        - 'build'

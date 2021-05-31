@@ -1,10 +1,13 @@
 <?php
 
+declare(strict_types = 1);
+
 use Consolidation\AnnotatedCommand\CommandData;
-use League\Container\ContainerInterface;
+use League\Container\Container;
+use League\Container\ContainerAwareInterface;
+use Psr\Container\ContainerInterface;
 use Robo\Tasks;
 use Robo\Collection\CollectionBuilder;
-use Sweetchuck\LintReport\Reporter\BaseReporter;
 use Sweetchuck\LintReport\Reporter\CheckstyleReporter;
 use Sweetchuck\Robo\Git\GitTaskLoader;
 use Sweetchuck\Robo\Phpcs\PhpcsTaskLoader;
@@ -20,59 +23,34 @@ class RoboFile extends Tasks
     use GitTaskLoader;
     use PhpcsTaskLoader;
 
-    /**
-     * @var array
-     */
-    protected $composerInfo = [];
+    protected array $composerInfo = [];
 
-    /**
-     * @var array
-     */
-    protected $codeceptionInfo = [];
+    protected array $codeceptionInfo = [];
 
     /**
      * @var string[]
      */
-    protected $codeceptionSuiteNames = [];
+    protected array $codeceptionSuiteNames = [];
 
-    /**
-     * @var string
-     */
-    protected $packageVendor = '';
+    protected string $packageVendor = '';
 
-    /**
-     * @var string
-     */
-    protected $packageName = '';
+    protected string $packageName = '';
 
-    /**
-     * @var string
-     */
-    protected $binDir = 'vendor/bin';
+    protected string $binDir = 'vendor/bin';
 
-    /**
-     * @var string
-     */
-    protected $gitHook = '';
+    protected string $gitHook = '';
 
-    /**
-     * @var string
-     */
-    protected $envVarNamePrefix = '';
+    protected string $envVarNamePrefix = '';
 
     /**
      * Allowed values: dev, ci, prod.
-     *
-     * @var string
      */
-    protected $environmentType = '';
+    protected string $environmentType = '';
 
     /**
      * Allowed values: local, jenkins, travis, circleci.
-     *
-     * @var string
      */
-    protected $environmentName = '';
+    protected string $environmentName = '';
 
     /**
      * RoboFile constructor.
@@ -89,10 +67,12 @@ class RoboFile extends Tasks
     /**
      * {@inheritdoc}
      */
-    public function setContainer(ContainerInterface $container)
+    public function setContainer(ContainerInterface $container): ContainerAwareInterface
     {
         if (!$container->has('lintCheckstyleReporter')) {
-            BaseReporter::lintReportConfigureContainer($container);
+            if ($container instanceof Container) {
+                $container->share('lintCheckstyleReporter', CheckstyleReporter::class);
+            }
         }
 
         return parent::setContainer($container);
@@ -171,10 +151,10 @@ class RoboFile extends Tasks
      */
     protected function initEnvironmentTypeAndName()
     {
-        $this->environmentType = getenv($this->getEnvVarName('environment_type'));
-        $this->environmentName = getenv($this->getEnvVarName('environment_name'));
+        $this->environmentType = (string) getenv($this->getEnvVarName('environment_type'));
+        $this->environmentName = (string) getenv($this->getEnvVarName('environment_name'));
 
-        if (!$this->environmentType) {
+        if ($this->environmentType === '') {
             if (getenv('CI') === 'true') {
                 // Travis, GitLab and CircleCI.
                 $this->environmentType = 'ci';
@@ -186,7 +166,7 @@ class RoboFile extends Tasks
             }
         }
 
-        if (!$this->environmentName && $this->environmentType === 'ci') {
+        if ($this->environmentType === 'ci' && $this->environmentName === '') {
             if (getenv('GITLAB_CI') === 'true') {
                 $this->environmentName = 'gitlab';
             } elseif (getenv('TRAVIS') === 'true') {

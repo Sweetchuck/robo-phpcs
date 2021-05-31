@@ -9,36 +9,21 @@ use Symfony\Component\Filesystem\Filesystem;
 class PhpcsLintInput extends PhpcsLint
 {
 
-    /**
-     * @var string
-     */
-    protected $taskName = 'PHP_CodeSniffer - lint StdInput';
+    protected string $taskName = 'PHP_CodeSniffer - lint StdInput';
 
     //region Properties
-    /**
-     * {@inheritdoc}
-     */
-    protected $addWorkingDirectoryToCliCommand = false;
+    protected bool $addWorkingDirectoryToCliCommand = false;
 
-    /**
-     * {@inheritdoc}
-     */
-    protected $addFilesToCliCommand = false;
+    protected bool $addFilesToCliCommand = false;
 
-    /**
-     * @var array
-     */
-    protected $currentFile = [
+    protected array $currentFile = [
         'fileName' => '',
         'content' => '',
     ];
     //endregion
 
     //region Option - stdinPath
-    /**
-     * @var null|string
-     */
-    protected $stdinPath = null;
+    protected ?string $stdinPath = null;
 
     public function getStdinPath(): ?string
     {
@@ -155,9 +140,6 @@ class PhpcsLintInput extends PhpcsLint
         return $command . ' | ' . parent::getCommand($options);
     }
 
-    /**
-     * {@inheritdoc}
-     */
     protected function getCommandOptions(): array
     {
         return [
@@ -165,9 +147,6 @@ class PhpcsLintInput extends PhpcsLint
         ] + parent::getCommandOptions();
     }
 
-    /**
-     * {@inheritdoc}
-     */
     protected function getTaskInfoPattern(): string
     {
         return '';

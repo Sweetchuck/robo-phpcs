@@ -1,10 +1,14 @@
 <?php
 
+declare(strict_types = 1);
+
 namespace Sweetchuck\Robo\Phpcs\Task;
 
+use Consolidation\AnnotatedCommand\Output\OutputAwareInterface;
 use Psr\Log\NullLogger;
-use Robo\Contract\InflectionInterface;
+use Robo\Robo;
 use Robo\TaskInfo;
+use Sweetchuck\LintReport\ReporterInterface;
 use Sweetchuck\LintReport\ReportWrapperInterface;
 use Sweetchuck\Robo\Phpcs\LintReportWrapper\ReportWrapper;
 use Sweetchuck\Robo\Phpcs\Utils;
@@ -12,12 +16,11 @@ use League\Container\ContainerAwareInterface;
 use League\Container\ContainerAwareTrait;
 use Robo\Common\IO;
 use Robo\Contract\CommandInterface;
-use Robo\Contract\OutputAwareInterface;
 use Robo\Result;
 use Robo\TaskAccessor;
 use Robo\Task\BaseTask;
-use Robo\Task\Filesystem\loadTasks as FsLoadTasks;
-use Robo\Task\Filesystem\loadShortcuts as FsShortCuts;
+use Robo\Task\Filesystem\Tasks as FsLoadTasks;
+use Robo\Task\Filesystem\Shortcuts as FsShortCuts;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Process\Process;
 use Webmozart\PathUtil\Path;
@@ -44,69 +47,49 @@ abstract class PhpcsLint extends BaseTask implements
 
     const EXIT_CODE_UNKNOWN = 3;
 
-    protected $taskName = 'PHP_CodeSniffer - lint';
+    protected string $taskName = 'PHP_CodeSniffer - lint';
 
     /**
      * @todo Some kind of dependency injection would be awesome.
-     *
-     * @var string
      */
-    protected $processClass = Process::class;
+    protected string $processClass = Process::class;
+
+    protected int $lintExitCode = 0;
+
+    protected string $lintStdOutput = '';
+
+    protected bool $isLintStdOutputPublic = true;
+
+    protected string $reportRaw = '';
 
     /**
-     * @var int
+     * @var array<int, string>
      */
-    protected $lintExitCode = 0;
-
-    /**
-     * @var string
-     */
-    protected $lintStdOutput = '';
-
-    /**
-     * @var bool
-     */
-    protected $isLintStdOutputPublic = true;
-
-    /**
-     * @var string
-     */
-    protected $reportRaw = '';
-
-    /**
-     * @var string[]
-     */
-    protected $exitMessages = [
+    protected array $exitMessages = [
         0 => 'PHP Code Sniffer not found any errors :-)',
         1 => 'PHP Code Sniffer found some warnings :-|',
         2 => 'PHP Code Sniffer found some errors :-(',
     ];
 
-    /**
-     * @var bool
-     */
-    protected $addWorkingDirectoryToCliCommand = true;
+    protected bool $addWorkingDirectoryToCliCommand = true;
 
-    /**
-     * @var bool
-     */
-    protected $addFilesToCliCommand = true;
+    protected bool $addFilesToCliCommand = true;
 
     /**
      * @var array
      */
-    protected $report = [];
+    protected array $report = [];
+
+    protected ?ReportWrapperInterface $reportWrapper = null;
 
     /**
-     * @var ReportWrapperInterface
+     * @var array<string, string>
      */
-    protected $reportWrapper = null;
-
-    protected $triStateOptions = [
+    protected array $triStateOptions = [
         'colors' => 'colors',
     ];
 
-    protected $simpleOptions = [
+    protected array $simpleOptions = [
         'cache' => 'cache',
         'tabWidth' => 'tab-width',
         'reportWidth' => 'report-width',
@@ -118,7 +101,7 @@ abstract class PhpcsLint extends BaseTask implements
         'parallel' => 'parallel',
     ];
 
-    protected $listOptions = [
+    protected array $listOptions = [
         'bootstrap' => 'bootstrap',
         'standards' => 'standard',
         'sniffs' => 'sniffs',
@@ -127,15 +110,12 @@ abstract class PhpcsLint extends BaseTask implements
         'ignored' => 'ignore',
     ];
 
-    protected $flagOptions = [
+    protected array $flagOptions = [
         'noCache' => 'no-cache',
         'ignoreAnnotations' => 'ignore-annotations',
     ];
 
-    /**
-     * @var \Symfony\Component\Filesystem\Filesystem
-     */
-    protected $fs;
+    protected Filesystem $fs;
 
     public function __construct(?Filesystem $fs = null)
     {
@@ -145,10 +125,7 @@ abstract class PhpcsLint extends BaseTask implements
     //region Properties.
 
     // region Property - assetNamePrefix.
-    /**
-     * @var string
-     */
-    protected $assetNamePrefix = '';
+    protected string $assetNamePrefix = '';
 
     public function getAssetNamePrefix(): string
     {
@@ -167,10 +144,7 @@ abstract class PhpcsLint extends BaseTask implements
     // endregion
 
     //region Property - workingDirectory
-    /**
-     * @var string
-     */
-    protected $workingDirectory = '';
+    protected string $workingDirectory = '';
 
     public function getWorkingDirectory(): string
     {
@@ -189,10 +163,7 @@ abstract class PhpcsLint extends BaseTask implements
     //endregion
 
     //region Property - phpcsExecutable
-    /**
-     * @var string
-     */
-    protected $phpcsExecutable = '';
+    protected string $phpcsExecutable = '';
 
     public function getPhpcsExecutable(): string
     {
@@ -211,10 +182,7 @@ abstract class PhpcsLint extends BaseTask implements
     //endregion
 
     //region Property - failOn
-    /**
-     * @var string
-     */
-    protected $failOn = 'error';
+    protected string $failOn = 'error';
 
     public function getFailOn(): string
     {
@@ -234,12 +202,12 @@ abstract class PhpcsLint extends BaseTask implements
 
     //region Property - lintReporters
     /**
-     * @var \Sweetchuck\LintReport\ReporterInterface[]
+     * @var null[]|bool[]|string[]|\Sweetchuck\LintReport\ReporterInterface[]
      */
-    protected $lintReporters = [];
+    protected array $lintReporters = [];
 
     /**
-     * @return \Sweetchuck\LintReport\ReporterInterface[]
+     * @return null[]|bool[]|string[]|\Sweetchuck\LintReport\ReporterInterface[]
      */
     public function getLintReporters(): array
     {
@@ -247,7 +215,7 @@ abstract class PhpcsLint extends BaseTask implements
     }
 
     /**
-     * @param \Sweetchuck\LintReport\ReporterInterface[] $lintReporters
+     * @param null[]|bool[]|string[]|\Sweetchuck\LintReport\ReporterInterface[] $lintReporters
      *
      * @return $this
      */
@@ -260,7 +228,7 @@ abstract class PhpcsLint extends BaseTask implements
 
     /**
      * @param string $id
-     * @param \Sweetchuck\LintReport\ReporterInterface|null $lintReporter
+     * @param null|bool|string|\Sweetchuck\LintReport\ReporterInterface $lintReporter
      *
      * @return $this
      */
@@ -290,6 +258,10 @@ abstract class PhpcsLint extends BaseTask implements
     {
         foreach ($options as $name => $value) {
             switch ($name) {
+                case 'container':
+                    $this->setContainer($value);
+                    break;
+
                 case 'assetNamePrefix':
                     $this->setAssetNamePrefix($value);
                     break;
@@ -398,10 +370,7 @@ abstract class PhpcsLint extends BaseTask implements
 
     //region Options
     //region Option - colors
-    /**
-     * @var null|bool
-     */
-    protected $colors = null;
+    protected ?bool $colors = null;
 
     public function getColors(): ?bool
     {
@@ -425,7 +394,7 @@ abstract class PhpcsLint extends BaseTask implements
     /**
      * @var string
      */
-    protected $cache = '';
+    protected string $cache = '';
 
     public function getCache(): string
     {
@@ -444,10 +413,7 @@ abstract class PhpcsLint extends BaseTask implements
     // endregion
 
     // region Option - noCache
-    /**
-     * @var bool
-     */
-    protected $noCache = false;
+    protected bool $noCache = false;
 
     public function getNoCache(): bool
     {
@@ -467,7 +433,7 @@ abstract class PhpcsLint extends BaseTask implements
 
     // region Option - tabWidth
     /**
-     * @var null|int
+     * @var int|null
      */
     protected $tabWidth = null;
 
@@ -488,10 +454,7 @@ abstract class PhpcsLint extends BaseTask implements
     // endregion
 
     //region Option - reports
-    /**
-     * @var array
-     */
-    protected $reports = [];
+    protected array $reports = [];
 
     public function getReports(): array
     {
@@ -505,7 +468,6 @@ abstract class PhpcsLint extends BaseTask implements
      *   Key-value pairs of report name and file path.
      *
      * @return $this
-     *   The called object.
      */
     public function setReports(array $reports)
     {
@@ -528,7 +490,7 @@ abstract class PhpcsLint extends BaseTask implements
      *
      * @param string $report
      *   Name of the report type.
-     * @param string $fileName
+     * @param null|string $fileName
      *   Write the report to the specified file path.
      *
      * @return $this
@@ -575,10 +537,7 @@ abstract class PhpcsLint extends BaseTask implements
     //endregion
 
     // region Option - basePath
-    /**
-     * @var string
-     */
-    protected $basePath = '';
+    protected string $basePath = '';
 
     public function getBasePath(): string
     {
@@ -597,10 +556,7 @@ abstract class PhpcsLint extends BaseTask implements
     // endregion
 
     // region Option - bootstrap
-    /**
-     * @var array
-     */
-    protected $bootstrap = [];
+    protected array $bootstrap = [];
 
     public function getBootstrap(): array
     {
@@ -620,7 +576,7 @@ abstract class PhpcsLint extends BaseTask implements
 
     //region Option - severity
     /**
-     * @var null|int
+     * @var int|null
      */
     protected $severity = null;
 
@@ -669,7 +625,7 @@ abstract class PhpcsLint extends BaseTask implements
 
     //region Option - warningSeverity
     /**
-     * @var null|int
+     * @var int|null
      */
     protected $warningSeverity = null;
 
@@ -693,7 +649,7 @@ abstract class PhpcsLint extends BaseTask implements
     /**
      * @var bool[]
      */
-    protected $standards = [];
+    protected array $standards = [];
 
     public function getStandards(): array
     {
@@ -716,10 +672,7 @@ abstract class PhpcsLint extends BaseTask implements
     //endregion
 
     //region Option - extensions
-    /**
-     * @var array
-     */
-    protected $extensions = [];
+    protected array $extensions = [];
 
     public function getExtensions(): array
     {
@@ -749,10 +702,7 @@ abstract class PhpcsLint extends BaseTask implements
     //endregion
 
     //region Option - sniffs
-    /**
-     * @var array
-     */
-    protected $sniffs = [];
+    protected array $sniffs = [];
 
     public function getSniffs(): array
     {
@@ -771,10 +721,7 @@ abstract class PhpcsLint extends BaseTask implements
     //endregion
 
     //region Option - exclude
-    /**
-     * @var array
-     */
-    protected $exclude = [];
+    protected array $exclude = [];
 
     public function getExclude(): array
     {
@@ -793,10 +740,7 @@ abstract class PhpcsLint extends BaseTask implements
     //endregion
 
     // region Option - encoding
-    /**
-     * @var string
-     */
-    protected $encoding = '';
+    protected string $encoding = '';
 
     public function getEncoding(): string
     {
@@ -837,13 +781,10 @@ abstract class PhpcsLint extends BaseTask implements
     // endregion
 
     //region Option - ignore
-    /**
-     * @var string[]
-     */
-    protected $ignored = [];
+    protected array $ignored = [];
 
     /**
-     * @return array|null
+     * @return array
      */
     public function getIgnore()
     {
@@ -868,10 +809,7 @@ abstract class PhpcsLint extends BaseTask implements
     //endregion
 
     // region Option - ignoreAnnotations
-    /**
-     * @var bool
-     */
-    protected $ignoreAnnotations = false;
+    protected bool $ignoreAnnotations = false;
 
     public function getIgnoreAnnotations(): bool
     {
@@ -890,10 +828,7 @@ abstract class PhpcsLint extends BaseTask implements
     // endregion
 
     //region Option - files
-    /**
-     * @var array
-     */
-    protected $files = [];
+    protected array $files = [];
 
     /**
      * @return array
@@ -924,7 +859,7 @@ abstract class PhpcsLint extends BaseTask implements
     /**
      * {@inheritdoc}
      */
-    public function inflect(InflectionInterface $parent)
+    public function inflect($parent)
     {
         parent::inflect($parent);
         if ($parent instanceof ContainerAwareInterface) {
@@ -934,11 +869,12 @@ abstract class PhpcsLint extends BaseTask implements
             }
         }
 
-        if (!$this->getContainer() && \Robo\Robo::hasContainer()) {
-            $this->setContainer(\Robo\Robo::getContainer());
+        $container = $this->container;
+        if (!$container && Robo::hasContainer()) {
+            $this->setContainer(Robo::getContainer());
         }
 
-        $container = $this->getContainer();
+        $container = $this->container;
         if ($container && $container->has('output')) {
             $this->setOutput($container->get('output'));
         }
@@ -981,7 +917,7 @@ abstract class PhpcsLint extends BaseTask implements
                 && ($options[$config] === 0 || $options[$config] === '0' || $options[$config])
             ) {
                 $cmdPattern .= " --{$option}=%s";
-                $cmdArgs[] = escapeshellarg($options[$config]);
+                $cmdArgs[] = escapeshellarg((string) $options[$config]);
             }
         }
 
@@ -1257,7 +1193,7 @@ abstract class PhpcsLint extends BaseTask implements
     }
 
     /**
-     * @return \Sweetchuck\LintReport\ReporterInterface[]
+     * @return ReporterInterface[]
      */
     protected function initLintReporters(): array
     {
@@ -1274,7 +1210,7 @@ abstract class PhpcsLint extends BaseTask implements
                 $lintReporter = $container->get($lintReporter);
             }
 
-            if ($lintReporter instanceof \Sweetchuck\LintReport\ReporterInterface) {
+            if ($lintReporter instanceof ReporterInterface) {
                 $lintReporters[$id] = $lintReporter;
                 if (!$lintReporter->getDestination()) {
                     $lintReporter->setDestination($this->output());

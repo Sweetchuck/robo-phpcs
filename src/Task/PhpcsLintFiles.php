@@ -1,11 +1,10 @@
 <?php
 
+declare(strict_types = 1);
+
 namespace Sweetchuck\Robo\Phpcs\Task;
 
 class PhpcsLintFiles extends PhpcsLint
 {
-    /**
-     * @var string
-     */
-    protected $taskName = 'PHP_CodeSniffer - lint files';
+    protected string $taskName = 'PHP_CodeSniffer - lint files';
 }

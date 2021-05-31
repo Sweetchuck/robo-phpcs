@@ -1,32 +1,19 @@
 <?php
 
+declare(strict_types = 1);
+
 namespace Sweetchuck\Robo\Phpcs\Tests\Unit\Task;
 
-use League\Container\ContainerInterface;
 use org\bovigo\vfs\vfsStream;
-use Robo\Robo;
-use Sweetchuck\Codeception\Module\RoboTaskRunner\DummyOutput;
+use org\bovigo\vfs\vfsStreamDirectory;
 use Sweetchuck\Robo\Phpcs\Task\PhpcsParseXml;
 use Codeception\Util\Stub;
-use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Filesystem\Filesystem;
 
-class PhpcsParseXmlTest extends \Codeception\Test\Unit
+class PhpcsParseXmlTest extends TestBase
 {
-    /**
-     * @var \Sweetchuck\Robo\Phpcs\Test\UnitTester
-     */
-    protected $tester;
 
-    /**
-     * @var \org\bovigo\vfs\vfsStreamDirectory
-     */
-    protected $rootDir;
-
-    /**
-     * @var \League\Container\ContainerInterface
-     */
-    protected $containerBackup;
+    protected ?vfsStreamDirectory $rootDir;
 
     /**
      * {@inheritdoc}
@@ -36,23 +23,10 @@ class PhpcsParseXmlTest extends \Codeception\Test\Unit
         parent::_before();
 
         $this->rootDir = vfsStream::setup('PhpcsParseXmlTest');
-
-        $this->containerBackup = Robo::hasContainer() ? Robo::getContainer() : null;
-        if ($this->containerBackup) {
-            Robo::unsetContainer();
-        }
     }
 
     protected function _after()
     {
-        if ($this->containerBackup) {
-            Robo::setContainer($this->containerBackup);
-        } else {
-            Robo::unsetContainer();
-        }
-
-        $this->containerBackup = null;
-
         (new Filesystem())->remove($this->rootDir->getName());
         $this->rootDir = null;
 
@@ -176,13 +150,12 @@ class PhpcsParseXmlTest extends \Codeception\Test\Unit
             file_put_contents("$baseDir/$fileName", $fileContent);
         }
 
-        /** @var \Sweetchuck\Robo\Phpcs\Task\PhpcsParseXml $task */
         $task = Stub::construct(
             PhpcsParseXml::class,
             [],
             [
                 'container' => $this->getNewContainer(),
-            ]
+            ],
         );
 
         $assetNamePrefix = $options['assetNamePrefix'] ?? '';
@@ -193,32 +166,18 @@ class PhpcsParseXmlTest extends \Codeception\Test\Unit
         foreach ($expected as $expectedKey => $expectedValue) {
             switch ($expectedKey) {
                 case 'exitCode':
-                    $this->tester->assertEquals($expected[$expectedKey], $result->getExitCode());
+                    $this->tester->assertEquals($expectedValue, $result->getExitCode());
                     break;
 
                 case 'message':
-                    $this->tester->assertEquals($expected[$expectedKey], $result->getMessage());
+                    $this->tester->assertEquals($expectedValue, $result->getMessage());
                     break;
 
                 case 'files':
                 case 'exclude-patterns':
-                    $this->tester->assertEquals($expected[$expectedKey], $result["{$assetNamePrefix}{$expectedKey}"]);
+                    $this->tester->assertEquals($expectedValue, $result["$assetNamePrefix$expectedKey"]);
                     break;
             }
         }
-    }
-
-    protected function getNewContainer(): ContainerInterface
-    {
-        $config = [
-            'verbosity' => OutputInterface::VERBOSITY_DEBUG,
-            'colors' => false,
-        ];
-        $output = new DummyOutput($config);
-
-        $container = Robo::createDefaultContainer(null, $output);
-        $container->add('output', $output, false);
-
-        return $container;
     }
 }

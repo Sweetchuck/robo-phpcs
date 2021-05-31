@@ -1,9 +1,9 @@
 <?php
 
+declare(strict_types = 1);
+
 namespace Sweetchuck\Robo\Phpcs\Task;
 
-use DOMDocument;
-use DOMXPath;
 use Robo\Result;
 use Robo\Task\BaseTask;
 use Robo\TaskInfo;
@@ -12,40 +12,25 @@ use Symfony\Component\Filesystem\Filesystem;
 class PhpcsParseXml extends BaseTask
 {
 
-    /**
-     * @var \Symfony\Component\Filesystem\Filesystem
-     */
-    protected $fs;
+    protected Filesystem $fs;
 
-    /**
-     * @var string
-     */
-    protected $taskName = 'PHP_CodeSniffer - parse XML';
+    protected string $taskName = 'PHP_CodeSniffer - parse XML';
 
-    /**
-     * @var array
-     */
-    protected $assets = [
+    protected array $assets = [
         'files' => [],
         'exclude-patterns' => [],
     ];
 
-    /**
-     * @var int
-     */
-    protected $actionExitCode = 0;
+    protected int $actionExitCode = 0;
 
     /**
      * @var string
      */
-    protected $actionStdError = '';
+    protected string $actionStdError = '';
 
     // region Option
     // region assetNamePrefix
-    /**
-     * @var string
-     */
-    protected $assetNamePrefix = '';
+    protected string $assetNamePrefix = '';
 
     public function getAssetNamePrefix(): string
     {
@@ -64,10 +49,7 @@ class PhpcsParseXml extends BaseTask
     // endregion
 
     // region workingDirectory
-    /**
-     * @var string
-     */
-    protected $workingDirectory = '';
+    protected string $workingDirectory = '';
 
     public function getWorkingDirectory(): string
     {
@@ -86,10 +68,7 @@ class PhpcsParseXml extends BaseTask
     // endregion
 
     // region failOnXmlFileNotExists
-    /**
-     * @var bool
-     */
-    protected $failOnXmlFileNotExists = true;
+    protected bool $failOnXmlFileNotExists = true;
 
     public function getFailOnXmlFileNotExists(): bool
     {
@@ -149,10 +128,7 @@ class PhpcsParseXml extends BaseTask
         return $context;
     }
 
-    /**
-     * @var string|null
-     */
-    protected $xmlFileName = null;
+    protected ?string $xmlFileName = null;
 
     protected function getXmlFileName(): string
     {
@@ -209,7 +185,7 @@ class PhpcsParseXml extends BaseTask
         if (!$xmlFileName) {
             if ($this->getFailOnXmlFileNotExists()) {
                 $this->actionExitCode = 1;
-                $this->actionStdError = "XML file not found in directory: \"<info>{$wd}</info>\"";
+                $this->actionStdError = "XML file not found in directory: \"<info>$wd</info>\"";
             }
 
             return $this;
@@ -218,7 +194,7 @@ class PhpcsParseXml extends BaseTask
         $assets = $this->getFilePathsFromXml(file_get_contents("$wd/$xmlFileName"));
         if ($assets === null) {
             $this->actionExitCode = 2;
-            $this->actionStdError = "Invalid XML file: \"<info>{$wd}/{$xmlFileName}</info>\"";
+            $this->actionStdError = "Invalid XML file: \"<info>$wd/$xmlFileName</info>\"";
 
             return $this;
         }
@@ -236,7 +212,7 @@ class PhpcsParseXml extends BaseTask
         } else {
             $data = [];
             foreach ($this->assets as $key => $value) {
-                $data["{$assetNamePrefix}{$key}"] = $value;
+                $data["$assetNamePrefix$key"] = $value;
             }
         }
 
@@ -250,13 +226,13 @@ class PhpcsParseXml extends BaseTask
 
     protected function getFilePathsFromXml(string $xmlContent): ?array
     {
-        $xml = new DOMDocument();
+        $xml = new \DOMDocument();
         $result = @$xml->loadXML($xmlContent);
         if ($result === false) {
             return null;
         }
 
-        $xpath = new DOMXPath($xml);
+        $xpath = new \DOMXPath($xml);
 
         $xpathQueries = [
             'files' => '/ruleset/file',

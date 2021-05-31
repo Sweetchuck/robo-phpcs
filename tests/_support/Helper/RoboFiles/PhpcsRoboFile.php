@@ -4,15 +4,16 @@ declare(strict_types = 1);
 
 namespace Sweetchuck\Robo\Phpcs\Test\Helper\RoboFiles;
 
+use League\Container\Container as LeagueContainer;
+use League\Container\ContainerAwareInterface;
+use Psr\Container\ContainerInterface;
 use Robo\Contract\TaskInterface;
 use Robo\Tasks;
 use Sweetchuck\LintReport\Reporter\BaseReporter;
 use Sweetchuck\LintReport\Reporter\CheckstyleReporter;
 use Sweetchuck\LintReport\Reporter\SummaryReporter;
 use Sweetchuck\LintReport\Reporter\VerboseReporter;
-use League\Container\ContainerInterface;
 use Sweetchuck\Robo\Phpcs\PhpcsTaskLoader;
-use Webmozart\PathUtil\Path;
 
 class PhpcsRoboFile extends Tasks
 {
@@ -21,11 +22,15 @@ class PhpcsRoboFile extends Tasks
     /**
      * @return $this
      */
-    public function setContainer(ContainerInterface $container)
+    public function setContainer(ContainerInterface $container): ContainerAwareInterface
     {
         $this->container = $container;
 
-        BaseReporter::lintReportConfigureContainer($this->container);
+        foreach (BaseReporter::getServices() as $name => $class) {
+            if ($this->container instanceof LeagueContainer) {
+                $this->container->share($name, $class);
+            }
+        }
 
         return $this;
     }

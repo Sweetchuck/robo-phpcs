@@ -1,14 +1,18 @@
 <?php
 
+declare(strict_types = 1);
+
 namespace Sweetchuck\Robo\Phpcs\Tests\Unit\Task;
 
+use Codeception\Test\Unit;
 use Sweetchuck\Robo\Phpcs\Task\PhpcsLintInput;
 use Codeception\Util\Stub;
 use Sweetchuck\Codeception\Module\RoboTaskRunner\DummyOutput;
 use Sweetchuck\Codeception\Module\RoboTaskRunner\DummyProcess;
 use Robo\Robo;
+use Sweetchuck\Robo\Phpcs\Test\UnitTester;
 
-class PhpcsLintInputTest extends \Codeception\Test\Unit
+class PhpcsLintInputTest extends TestBase
 {
     protected static function getMethod(string $name): \ReflectionMethod
     {
@@ -18,11 +22,6 @@ class PhpcsLintInputTest extends \Codeception\Test\Unit
 
         return $method;
     }
-
-    /**
-     * @var \Sweetchuck\Robo\Phpcs\Test\UnitTester
-     */
-    protected $tester;
 
     /**
      * {@inheritdoc}
@@ -93,7 +92,6 @@ class PhpcsLintInputTest extends \Codeception\Test\Unit
      */
     public function testGetCommand($expected, array $options, array $currentFile): void
     {
-        /** @var \Sweetchuck\Robo\Phpcs\Task\PhpcsLintInput $task */
         $task = Stub::construct(
             PhpcsLintInput::class,
             [],
@@ -227,12 +225,12 @@ class PhpcsLintInputTest extends \Codeception\Test\Unit
                 [
                     'w1.js' => [
                         'lintExitCode' => 1,
-                        'lintStdOutput' => json_encode($files['w1'], true),
+                        'lintStdOutput' => json_encode($files['w1']),
                         'report' => $files['w1'],
                     ],
                     'w2.js' => [
                         'lintExitCode' => 1,
-                        'lintStdOutput' => json_encode($files['w2'], true),
+                        'lintStdOutput' => json_encode($files['w2']),
                         'report' => $files['w2'],
                     ],
                 ],
@@ -245,18 +243,18 @@ class PhpcsLintInputTest extends \Codeception\Test\Unit
      */
     public function testRun(array $expected, array $options, array $files, array $properties = []): void
     {
-        $container = Robo::createDefaultContainer();
-        Robo::setContainer($container);
-
+        $container = $this->getNewContainer();
         $mainStdOutput = new DummyOutput([]);
 
-        $properties += ['processClass' => DummyProcess::class];
+        $properties += [
+            'processClass' => DummyProcess::class,
+            'container' => $container,
+        ];
 
-        /** @var \Sweetchuck\Robo\Phpcs\Task\PhpcsLintInput $task */
         $task = Stub::construct(
             PhpcsLintInput::class,
             [],
-            $properties
+            $properties,
         );
         $task->setOptions($options);
 

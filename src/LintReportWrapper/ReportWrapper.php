@@ -1,19 +1,15 @@
 <?php
 
+declare(strict_types = 1);
+
 namespace Sweetchuck\Robo\Phpcs\LintReportWrapper;
 
 use Sweetchuck\LintReport\ReportWrapperInterface;
 
 class ReportWrapper implements ReportWrapperInterface
 {
-    /**
-     * @var array
-     */
-    protected $report = [];
+    protected array $report = [];
 
-    /**
-     * {@inheritdoc}
-     */
     public function __construct(array $report = null)
     {
         if ($report !== null) {
@@ -21,9 +17,6 @@ class ReportWrapper implements ReportWrapperInterface
         }
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function getReport(): array
     {
         return $this->report;
@@ -47,9 +40,6 @@ class ReportWrapper implements ReportWrapperInterface
         return $this;
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function countFiles(): int
     {
         return count($this->report['files']);
@@ -66,25 +56,16 @@ class ReportWrapper implements ReportWrapperInterface
         }
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function numOfErrors(): int
     {
         return $this->report['totals']['errors'];
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function numOfWarnings(): int
     {
         return $this->report['totals']['warnings'];
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function highestSeverity(): string
     {
         if ($this->numOfErrors()) {
