@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types = 1);
+
 namespace Sweetchuck\Robo\Phpcs\Tests\Unit;
 
 use Sweetchuck\Robo\Phpcs\Utils;
@@ -9,9 +11,6 @@ use Sweetchuck\Robo\Phpcs\Utils;
  */
 class UtilsTest extends \Codeception\Test\Unit
 {
-    /**
-     * @var \UnitTester
-     */
     protected $tester;
 
     public function casesEscapeShellArgWithWildcard(): array

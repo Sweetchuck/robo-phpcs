@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types = 1);
+
 namespace Sweetchuck\Robo\Phpcs\Task;
 
 use Psr\Log\NullLogger;
@@ -71,7 +73,7 @@ class PhpcsLintInput extends PhpcsLint
      */
     protected function runLint()
     {
-        $logger = $this->logger() ?: new NullLogger();
+        $logger = $this->logger ?: new NullLogger();
         $reports = [];
         $files = $this->getFiles();
         $backupFailOn = $this->getFailOn();

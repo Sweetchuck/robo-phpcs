@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types = 1);
+
 namespace Sweetchuck\Robo\Phpcs\Tests\Unit\LintReportWrapper;
 
 use Sweetchuck\Robo\Phpcs\LintReportWrapper\ReportWrapper;

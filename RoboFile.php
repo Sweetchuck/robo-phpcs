@@ -4,10 +4,12 @@ declare(strict_types = 1);
 
 use Consolidation\AnnotatedCommand\CommandData;
 use League\Container\Container;
+use League\Container\Container as LeagueContainer;
 use League\Container\ContainerAwareInterface;
 use Psr\Container\ContainerInterface;
 use Robo\Tasks;
 use Robo\Collection\CollectionBuilder;
+use Sweetchuck\LintReport\Reporter\BaseReporter;
 use Sweetchuck\LintReport\Reporter\CheckstyleReporter;
 use Sweetchuck\Robo\Git\GitTaskLoader;
 use Sweetchuck\Robo\Phpcs\PhpcsTaskLoader;
@@ -80,6 +82,8 @@ class RoboFile extends Tasks
 
     /**
      * Git "pre-commit" hook callback.
+     *
+     * @initLintReporters
      */
     public function githookPreCommit(): CollectionBuilder
     {
@@ -114,7 +118,29 @@ class RoboFile extends Tasks
     }
 
     /**
+     * @hook pre-command @initLintReporters
+     */
+    public function initLintReporters()
+    {
+        $lintServices = BaseReporter::getServices();
+        $container = $this->getContainer();
+        foreach ($lintServices as $name => $class) {
+            if ($container->has($name)) {
+                continue;
+            }
+
+            if ($container instanceof LeagueContainer) {
+                $container->share($name, $class);
+            }
+        }
+    }
+
+    /**
      * Run code style checkers.
+     *
+     * @command lint
+     *
+     * @initLintReporters
      */
     public function lint(): CollectionBuilder
     {
@@ -124,6 +150,11 @@ class RoboFile extends Tasks
             ->addTask($this->getTaskPhpcsLint());
     }
 
+    /**
+     * @command lint:phpcs
+     *
+     * @initLintReporters
+     */
     public function lintPhpcs(): CollectionBuilder
     {
         return $this->getTaskPhpcsLint();
@@ -370,7 +401,8 @@ class RoboFile extends Tasks
                     ]
                 ));
                 $process = new Process($command, null, null, null, null);
-                $exitCode = $process->run(function ($type, $data) {
+
+                return $process->run(function ($type, $data) {
                     switch ($type) {
                         case Process::OUT:
                             $this->output()->write($data);
@@ -381,8 +413,6 @@ class RoboFile extends Tasks
                             break;
                     }
                 });
-
-                return $exitCode;
             });
     }
 
@@ -406,6 +436,12 @@ class RoboFile extends Tasks
         }
 
         if ($this->gitHook === 'pre-commit') {
+            $phpcsTask = $this->taskPhpcsLintInput($options);
+            $phpcsTask->setOutput($this->output());
+            $phpcsTask
+                ->deferTaskConfiguration('setFiles', 'files')
+                ->deferTaskConfiguration('setIgnore', 'phpcsXml.exclude-patterns');
+
             return $this
                 ->collectionBuilder()
                 ->addTask($this
@@ -418,27 +454,10 @@ class RoboFile extends Tasks
                     ->taskGitReadStagedFiles()
                     ->setCommandOnly(true)
                     ->deferTaskConfiguration('setPaths', 'fileNames'))
-                ->addTask($this
-                    ->taskPhpcsLintInput($options)
-                    ->setOutput($this->output())
-                    ->deferTaskConfiguration('setFiles', 'files')
-                    ->deferTaskConfiguration('setIgnore', 'phpcsXml.exclude-patterns'));
+                ->addTask($phpcsTask);
         }
 
         return $this->taskPhpcsLintFiles($options);
-    }
-
-    protected function isPhpExtensionAvailable(string $extension): bool
-    {
-        $command = sprintf('%s -m', escapeshellcmd($this->getPhpExecutable()));
-
-        $process = new Process($command);
-        $exitCode = $process->run();
-        if ($exitCode !== 0) {
-            throw new \RuntimeException('@todo');
-        }
-
-        return in_array($extension, explode("\n", $process->getOutput()));
     }
 
     protected function isPhpDbgAvailable(): bool

@@ -5,6 +5,7 @@ declare(strict_types = 1);
 namespace Sweetchuck\Robo\Phpcs\Task;
 
 use Consolidation\AnnotatedCommand\Output\OutputAwareInterface;
+use Psr\Log\LoggerAwareTrait;
 use Psr\Log\NullLogger;
 use Robo\Robo;
 use Robo\TaskInfo;
@@ -38,6 +39,7 @@ abstract class PhpcsLint extends BaseTask implements
     use FsShortCuts;
     use IO;
     use TaskAccessor;
+    use LoggerAwareTrait;
 
     const EXIT_CODE_OK = 0;
 
@@ -432,10 +434,7 @@ abstract class PhpcsLint extends BaseTask implements
     // endregion
 
     // region Option - tabWidth
-    /**
-     * @var int|null
-     */
-    protected $tabWidth = null;
+    protected ?int $tabWidth = null;
 
     public function getTabWidth(): ?int
     {
@@ -575,10 +574,7 @@ abstract class PhpcsLint extends BaseTask implements
     // endregion
 
     //region Option - severity
-    /**
-     * @var int|null
-     */
-    protected $severity = null;
+    protected ?int $severity = null;
 
     public function getSeverity(): ?int
     {
@@ -597,25 +593,17 @@ abstract class PhpcsLint extends BaseTask implements
     //endregion
 
     //region Options - errorSeverity
-    /**
-     * @var int|null
-     */
-    protected $errorSeverity = null;
+    protected ?int $errorSeverity = null;
 
-    /**
-     * @return int|null
-     */
-    public function getErrorSeverity()
+    public function getErrorSeverity(): ?int
     {
         return $this->errorSeverity;
     }
 
     /**
-     * @param int $value
-     *
      * @return $this
      */
-    public function setErrorSeverity($value)
+    public function setErrorSeverity(?int $value)
     {
         $this->errorSeverity = $value;
 
@@ -624,10 +612,7 @@ abstract class PhpcsLint extends BaseTask implements
     //endregion
 
     //region Option - warningSeverity
-    /**
-     * @var int|null
-     */
-    protected $warningSeverity = null;
+    protected ?int $warningSeverity = null;
 
     public function getWarningSeverity(): ?int
     {
@@ -759,10 +744,7 @@ abstract class PhpcsLint extends BaseTask implements
     // endregion
 
     // region Option - parallel
-    /**
-     * @var null|int
-     */
-    protected $parallel = null;
+    protected ?int $parallel = null;
 
     public function getParallel(): ?int
     {
@@ -783,10 +765,7 @@ abstract class PhpcsLint extends BaseTask implements
     //region Option - ignore
     protected array $ignored = [];
 
-    /**
-     * @return array
-     */
-    public function getIgnore()
+    public function getIgnore(): array
     {
         return $this->ignored;
     }
@@ -833,7 +812,7 @@ abstract class PhpcsLint extends BaseTask implements
     /**
      * @return array
      */
-    public function getFiles()
+    public function getFiles(): array
     {
         return $this->files;
     }

@@ -13,9 +13,6 @@ class FileWrapper implements FileWrapperInterface
 
     public array $stats = [];
 
-    /**
-     * {@inheritdoc}
-     */
     public function __construct(array $file)
     {
         $this->file = $file + [
@@ -26,25 +23,16 @@ class FileWrapper implements FileWrapperInterface
         ];
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function filePath(): string
     {
         return $this->file['filePath'];
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function numOfErrors(): int
     {
         return $this->file['errors'];
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function numOfWarnings(): int
     {
         return $this->file['warnings'];
@@ -60,9 +48,6 @@ class FileWrapper implements FileWrapperInterface
         }
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function stats(): array
     {
         if (!$this->stats) {
@@ -98,19 +83,12 @@ class FileWrapper implements FileWrapperInterface
         return $this->stats;
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function highestSeverity(): string
     {
         if ($this->numOfErrors()) {
             return ReportWrapperInterface::SEVERITY_ERROR;
         }
 
-        if ($this->numOfWarnings()) {
-            return ReportWrapperInterface::SEVERITY_WARNING;
-        }
-
-        return ReportWrapperInterface::SEVERITY_OK;
+        return $this->numOfWarnings() ? ReportWrapperInterface::SEVERITY_WARNING : ReportWrapperInterface::SEVERITY_OK;
     }
 }

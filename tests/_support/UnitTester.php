@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types = 1);
+
 namespace Sweetchuck\Robo\Phpcs\Test;
 
 use Sweetchuck\Robo\Phpcs\Test\_generated\UnitTesterActions;

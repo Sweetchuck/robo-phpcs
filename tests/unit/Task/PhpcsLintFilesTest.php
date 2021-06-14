@@ -198,10 +198,6 @@ class PhpcsLintFilesTest extends TestBase
                 "phpcs --severity='0'",
                 ['severity' => 0],
             ],
-//            'severity-string-zero' => [
-//                "phpcs --severity='0'",
-//                ['severity' => '0'],
-//            ],
             'warning-severity-null' => [
                 'phpcs',
                 ['warningSeverity' => null],
@@ -209,18 +205,6 @@ class PhpcsLintFilesTest extends TestBase
             'warning-severity-integer-zero' => [
                 "phpcs --warning-severity='0'",
                 ['warningSeverity' => 0],
-            ],
-//            'warning-severity-string-zero' => [
-//                "phpcs --warning-severity='0'",
-//                ['warningSeverity' => '0'],
-//            ],
-            'error-severity-string-empty' => [
-                'phpcs',
-                ['errorSeverity' => ''],
-            ],
-            'error-severity-false' => [
-                'phpcs',
-                ['errorSeverity' => false],
             ],
             'error-severity-null' => [
                 'phpcs',
@@ -230,9 +214,9 @@ class PhpcsLintFilesTest extends TestBase
                 "phpcs --error-severity='0'",
                 ['errorSeverity' => 0],
             ],
-            'error-severity-string-zero' => [
-                "phpcs --error-severity='0'",
-                ['errorSeverity' => '0'],
+            'error-severity-integer-one' => [
+                "phpcs --error-severity='1'",
+                ['errorSeverity' => 1],
             ],
             'standards-empty' => [
                 'phpcs',
