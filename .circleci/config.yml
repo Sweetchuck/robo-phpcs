@@ -1,6 +1,9 @@
 
 version: 2.1
 
+orbs:
+    codecov: 'codecov/codecov@3.0.0'
+
 .env_common: &env_common
     SHELL: '/bin/bash'
 
@@ -13,22 +16,8 @@ version: 2.1
     COMPOSER_DISABLE_XDEBUG_WARN: '1'
     COMPOSER_CACHE_DIR: '/home/circleci/.cache/composer'
 
-orbs:
-    codecov: 'codecov/codecov@1.1.2'
-
 executors:
-    php704:
-        environment:
-            <<: *env_common
-            <<: *env_xdebug
-            <<: *env_composer
-
-        docker:
-            -
-                name: 'main'
-                image: 'circleci/php:7.4'
-
-    php703:
+    php_min:
         environment:
             <<: *env_common
             <<: *env_xdebug
@@ -38,6 +27,17 @@ executors:
             -
                 name: 'main'
                 image: 'circleci/php:7.3'
+
+    php_plus1:
+        environment:
+            <<: *env_common
+            <<: *env_xdebug
+            <<: *env_composer
+
+        docker:
+            -
+                name: 'main'
+                image: 'circleci/php:7.4'
 
 commands:
     composer_install:
@@ -60,7 +60,8 @@ commands:
                     name: 'Composer - cache save'
                     key: 'composer-{{ checksum "./composer.lock" }}-1'
                     paths:
-                        - '~/.cache/composer'
+                        - '~/.cache/composer/'
+                        - '~/.composer/cache/'
 
 
     lint:
@@ -97,27 +98,27 @@ commands:
 
 jobs:
     build:
-        executor: 'php703'
+        executor: 'php_min'
         working_directory: '~/repo'
         steps:
             - 'checkout'
             - 'composer_install'
     lint:
-        executor: 'php703'
+        executor: 'php_min'
         working_directory: '~/repo'
         steps:
             - 'checkout'
             - 'composer_install'
             - 'lint'
-    test_php704:
-        executor: 'php704'
+    test_php_min:
+        executor: 'php_min'
         working_directory: '~/repo'
         steps:
             - 'checkout'
             - 'composer_install'
             - 'test'
-    test_php703:
-        executor: 'php703'
+    test_php_plus1:
+        executor: 'php_plus1'
         working_directory: '~/repo'
         steps:
             - 'checkout'
@@ -132,12 +133,12 @@ workflows:
             -
                 lint:
                     requires:
-                        - build
+                        - 'build'
             -
-                test_php704:
+                test_php_min:
                     requires:
-                        - build
+                        - 'build'
             -
-                test_php703:
+                test_php_plus1:
                     requires:
-                        - build
+                        - 'build'
