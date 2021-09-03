@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types = 1);
+
 use Consolidation\AnnotatedCommand\CommandData;
 use League\Container\ContainerInterface;
 use Robo\Tasks;
@@ -100,6 +102,10 @@ class RoboFile extends Tasks
 
     /**
      * Git "pre-commit" hook callback.
+     *
+     * @command githook:pre-commit
+     *
+     * @hidden
      */
     public function githookPreCommit(): CollectionBuilder
     {
@@ -123,6 +129,8 @@ class RoboFile extends Tasks
 
     /**
      * Run the Robo unit tests.
+     *
+     * @command test
      */
     public function test(
         array $suiteNames,
@@ -135,6 +143,8 @@ class RoboFile extends Tasks
 
     /**
      * Run code style checkers.
+     *
+     * @command lint
      */
     public function lint(): CollectionBuilder
     {
@@ -144,6 +154,9 @@ class RoboFile extends Tasks
             ->addTask($this->getTaskPhpcsLint());
     }
 
+    /**
+     * @command lint:phpcs
+     */
     public function lintPhpcs(): CollectionBuilder
     {
         return $this->getTaskPhpcsLint();
@@ -227,12 +240,13 @@ class RoboFile extends Tasks
      */
     protected function initComposerInfo()
     {
-        if ($this->composerInfo || !is_readable('composer.json')) {
+        $composerFileName = getenv('COMPOSER') ?: 'composer.json';
+        if ($this->composerInfo || !is_readable($composerFileName)) {
             return $this;
         }
 
-        $this->composerInfo = json_decode(file_get_contents('composer.json'), true);
-        list($this->packageVendor, $this->packageName) = explode('/', $this->composerInfo['name']);
+        $this->composerInfo = json_decode(file_get_contents($composerFileName), true);
+        [$this->packageVendor, $this->packageName] = explode('/', $this->composerInfo['name']);
 
         if (!empty($this->composerInfo['config']['bin-dir'])) {
             $this->binDir = $this->composerInfo['config']['bin-dir'];
@@ -284,16 +298,18 @@ class RoboFile extends Tasks
     {
         $this->initCodeceptionInfo();
 
-        $withCoverageHtml = in_array($this->environmentType, ['dev']);
-        $withCoverageXml = in_array($this->environmentType, ['ci']);
+        $withCoverageHtml = $this->environmentType === 'dev';
+        $withCoverageXml = $this->environmentType === 'ci';
 
-        $withUnitReportHtml = in_array($this->environmentType, ['dev']);
-        $withUnitReportXml = in_array($this->environmentType, ['ci']);
+        $withUnitReportHtml = $this->environmentType === 'dev';
+        $withUnitReportXml = $this->environmentType === 'ci';
 
         $logDir = $this->getLogDir();
 
         $cmdArgs = [];
-        if ($this->isPhpDbgAvailable()) {
+        if ($this->isPhpExtensionAvailable('xdebug')) {
+            $cmdPattern = "XDEBUG_MODE='coverage' " . escapeshellcmd($this->getPhpExecutable());
+        } elseif ($this->isPhpDbgAvailable()) {
             $cmdPattern = '%s -qrr';
             $cmdArgs[] = escapeshellcmd($this->getPhpdbgExecutable());
         } else {
@@ -390,7 +406,8 @@ class RoboFile extends Tasks
                     ]
                 ));
                 $process = new Process($command, null, null, null, null);
-                $exitCode = $process->run(function ($type, $data) {
+
+                return $process->run(function ($type, $data) {
                     switch ($type) {
                         case Process::OUT:
                             $this->output()->write($data);
@@ -401,8 +418,6 @@ class RoboFile extends Tasks
                             break;
                     }
                 });
-
-                return $exitCode;
             });
     }
 
@@ -450,7 +465,10 @@ class RoboFile extends Tasks
 
     protected function isPhpExtensionAvailable(string $extension): bool
     {
-        $command = sprintf('%s -m', escapeshellcmd($this->getPhpExecutable()));
+        $command = [
+            $this->getPhpExecutable(),
+            '-m',
+        ];
 
         $process = new Process($command);
         $exitCode = $process->run();
@@ -485,7 +503,6 @@ class RoboFile extends Tasks
         if (!$this->codeceptionSuiteNames) {
             $this->initCodeceptionInfo();
 
-            /** @var \Symfony\Component\Finder\Finder $suiteFiles */
             $suiteFiles = Finder::create()
                 ->in($this->codeceptionInfo['paths']['tests'])
                 ->files()
