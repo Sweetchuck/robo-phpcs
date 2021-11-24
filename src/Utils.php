@@ -61,7 +61,7 @@ class Utils
                 $pattern = mb_substr($pattern, 2);
             }
 
-            if (fnmatch($pattern, $fileName)) {
+            if (preg_match(static::wildcardToRegexp($pattern), $fileName)) {
                 return true;
             }
 
@@ -71,7 +71,7 @@ class Utils
 
             if (strpos($pattern, '**/') === 0
                 && strpos($fileName, '/') === false
-                && fnmatch($pattern, "a/$fileName")
+                && preg_match(static::wildcardToRegexp($pattern), "a/$fileName")
             ) {
                 return true;
             }
@@ -82,5 +82,12 @@ class Utils
         }
 
         return false;
+    }
+
+    public static function wildcardToRegexp(string $wildcard): string
+    {
+        $pattern = '@^' . preg_quote($wildcard, '@') . '$@';
+
+        return str_replace('\*', '.*', $pattern);
     }
 }
