@@ -3,14 +3,10 @@
 declare(strict_types = 1);
 
 use Consolidation\AnnotatedCommand\CommandData;
-use League\Container\Container;
 use League\Container\Container as LeagueContainer;
-use League\Container\ContainerAwareInterface;
-use Psr\Container\ContainerInterface;
 use Robo\Tasks;
 use Robo\Collection\CollectionBuilder;
 use Sweetchuck\LintReport\Reporter\BaseReporter;
-use Sweetchuck\LintReport\Reporter\CheckstyleReporter;
 use Sweetchuck\Robo\Git\GitTaskLoader;
 use Sweetchuck\Robo\Phpcs\PhpcsTaskLoader;
 use Symfony\Component\Console\Output\ConsoleOutputInterface;
@@ -67,17 +63,21 @@ class RoboFile extends Tasks
     }
 
     /**
-     * {@inheritdoc}
+     * @hook pre-command @initLintReporters
      */
-    public function setContainer(ContainerInterface $container): ContainerAwareInterface
+    public function initLintReporters()
     {
-        if (!$container->has('lintCheckstyleReporter')) {
-            if ($container instanceof Container) {
-                $container->share('lintCheckstyleReporter', CheckstyleReporter::class);
+        $lintServices = BaseReporter::getServices();
+        $container = $this->getContainer();
+        foreach ($lintServices as $name => $class) {
+            if ($container->has($name)) {
+                continue;
+            }
+
+            if ($container instanceof LeagueContainer) {
+                $container->share($name, $class);
             }
         }
-
-        return parent::setContainer($container);
     }
 
     /**
@@ -115,24 +115,6 @@ class RoboFile extends Tasks
         ]
     ): CollectionBuilder {
         return $this->getTaskCodeceptRunSuites($suiteNames, $options);
-    }
-
-    /**
-     * @hook pre-command @initLintReporters
-     */
-    public function initLintReporters()
-    {
-        $lintServices = BaseReporter::getServices();
-        $container = $this->getContainer();
-        foreach ($lintServices as $name => $class) {
-            if ($container->has($name)) {
-                continue;
-            }
-
-            if ($container instanceof LeagueContainer) {
-                $container->share($name, $class);
-            }
-        }
     }
 
     /**
