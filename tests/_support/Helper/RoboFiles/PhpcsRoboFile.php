@@ -20,6 +20,14 @@ class PhpcsRoboFile extends Tasks
     use PhpcsTaskLoader;
 
     /**
+     * {@inheritdoc}
+     */
+    protected function output()
+    {
+        return $this->getContainer()->get('output');
+    }
+
+    /**
      * @return $this
      */
     public function setContainer(ContainerInterface $container): ContainerAwareInterface
@@ -28,7 +36,7 @@ class PhpcsRoboFile extends Tasks
 
         foreach (BaseReporter::getServices() as $name => $class) {
             if ($this->container instanceof LeagueContainer) {
-                $this->container->share($name, $class);
+                $this->container->addShared($name, $class);
             }
         }
 
@@ -168,6 +176,6 @@ class PhpcsRoboFile extends Tasks
 
     protected function getPhpcsExecutable(): string
     {
-        return '../../bin/phpcs';
+        return '../../vendor/bin/phpcs';
     }
 }
