@@ -1,0 +1,6 @@
+
+php:
+    executables:
+        current:
+            enabled: true
+            command: 'php'

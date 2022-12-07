@@ -1,11 +1,11 @@
 
 version: 2.1
 
-.env_common: &env_common
-    SHELL: '/bin/bash'
+orbs:
+    codecov: 'codecov/codecov@3.0.0'
 
-.env_xdebug: &env_xdebug
-    XDEBUG_MODE: 'coverage'
+.env_app: &env_app
+    SHELL: '/bin/bash'
 
 .env_composer: &env_composer
     COMPOSER_NO_INTERACTION: '1'
@@ -13,33 +13,59 @@ version: 2.1
     COMPOSER_DISABLE_XDEBUG_WARN: '1'
     COMPOSER_CACHE_DIR: '/home/circleci/.cache/composer'
 
-orbs:
-    codecov: 'codecov/codecov@1.2.0'
-
 executors:
-    php800:
+    php_min:
+        resource_class: 'small'
         environment:
-            <<: *env_common
-            <<: *env_xdebug
+            <<: *env_app
             <<: *env_composer
 
         docker:
             -
                 name: 'main'
-                image: 'circleci/php:8.0'
-
-    php704:
+                image: 'cimg/php:7.4'
+    php_plus1:
+        resource_class: 'small'
         environment:
-            <<: *env_common
-            <<: *env_xdebug
+            <<: *env_app
             <<: *env_composer
 
         docker:
             -
                 name: 'main'
-                image: 'circleci/php:7.4'
+                image: 'cimg/php:8.0'
+    php_plus2:
+        resource_class: 'small'
+        environment:
+            <<: *env_app
+            <<: *env_composer
+
+        docker:
+            -
+                name: 'main'
+                image: 'cimg/php:8.1'
 
 commands:
+    install_php_extension_pcov:
+        description: 'Install PCOV PHP extension'
+        steps:
+            -
+                run:
+                    name: 'Install PCOV PHP extension - pecl install pcov'
+                    command: |
+                        if php -m | grep pcov ; then
+                            exit 0
+                        fi
+
+                        sudo pecl install pcov
+                        if php -m | grep pcov ; then
+                            exit 0
+                        fi
+
+                        scanDir="$(php -i | grep --color=never --only-matching --perl-regexp '(?<=^Scan this dir for additional \.ini files => ).+')"
+                        echo 'extension=pcov' | sudo tee "${scanDir}/pcov.ini"
+                        php -m | grep pcov
+
     composer_install:
         description: 'Install Composer dependencies with cache restore and save'
         steps:
@@ -47,20 +73,20 @@ commands:
                 restore_cache:
                     name: 'Composer - cache restore'
                     keys:
-                        - 'composer-{{ checksum "./composer.lock" }}-1'
+                        - 'composer-{{ checksum "./composer.lock" }}-3'
 
             -
                 run:
                     name: 'Composer - install'
                     command: >
-                        composer install --no-progress
+                        composer install --no-progress --ansi
 
             -
                 save_cache:
                     name: 'Composer - cache save'
-                    key: 'composer-{{ checksum "./composer.lock" }}-1'
+                    key: 'composer-{{ checksum "./composer.lock" }}-3'
                     paths:
-                        - '~/.cache/composer'
+                        - '~/.cache/composer/'
 
 
     lint:
@@ -69,7 +95,8 @@ commands:
             -
                 run:
                     name: 'Run linters'
-                    command: 'bin/robo lint'
+                    command: |
+                        "./$(composer config bin-dir)/robo" --ansi lint
 
     test:
         description: 'Run tests'
@@ -77,50 +104,48 @@ commands:
             -
                 run:
                     name: 'Codeception - unit'
-                    command: 'bin/robo test unit'
+                    command: |
+                        "./$(composer config bin-dir)/robo" --ansi test unit
             -
                 codecov/upload:
                     flags: 'unit'
-                    file: './tests/_output/machine/coverage/unit/coverage.xml'
+                    file: './tests/_log/machine/coverage/unit/coverage.xml'
             -
                 run:
                     name: 'Codeception - acceptance'
-                    command: 'bin/robo test acceptance'
+                    command: |
+                        "./$(composer config bin-dir)/robo" --ansi test acceptance
             -
                 codecov/upload:
                     flags: 'acceptance'
-                    file: './tests/_output/machine/coverage/acceptance/coverage.xml'
+                    file: './tests/_log/machine/coverage/acceptance/coverage.xml'
             -
                 store_test_results:
                     name: 'Store unit test results'
-                    path: './tests/_output/machine/junit'
+                    path: './tests/_log/machine/junit'
 
 jobs:
     build:
-        executor: 'php704'
+        executor: 'php_min'
         working_directory: '~/repo'
         steps:
             - 'checkout'
             - 'composer_install'
     lint:
-        executor: 'php704'
+        executor: 'php_min'
         working_directory: '~/repo'
         steps:
             - 'checkout'
             - 'composer_install'
             - 'lint'
-    test_php800:
-        executor: 'php800'
-        working_directory: '~/repo'
+    test:
+        parameters:
+            executor:
+                type: 'string'
+        executor: '<<parameters.executor>>'
         steps:
             - 'checkout'
-            - 'composer_install'
-            - 'test'
-    test_php704:
-        executor: 'php704'
-        working_directory: '~/repo'
-        steps:
-            - 'checkout'
+            - 'install_php_extension_pcov'
             - 'composer_install'
             - 'test'
 
@@ -134,10 +159,13 @@ workflows:
                     requires:
                         - 'build'
             -
-                test_php800:
+                test:
+                    name: 'test_<<matrix.executor>>'
                     requires:
                         - 'build'
-            -
-                test_php704:
-                    requires:
-                        - 'build'
+                    matrix:
+                        parameters:
+                            executor:
+                                - 'php_min'
+                                - 'php_plus1'
+                                - 'php_plus2'

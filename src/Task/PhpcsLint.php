@@ -23,8 +23,8 @@ use Robo\Task\BaseTask;
 use Robo\Task\Filesystem\Tasks as FsLoadTasks;
 use Robo\Task\Filesystem\Shortcuts as FsShortCuts;
 use Symfony\Component\Filesystem\Filesystem;
+use Symfony\Component\Filesystem\Path;
 use Symfony\Component\Process\Process;
-use Webmozart\PathUtil\Path;
 
 /**
  * @todo Add option [--runtime-set key value] ?

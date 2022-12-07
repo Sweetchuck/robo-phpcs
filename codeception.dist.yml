@@ -1,19 +1,19 @@
 
-namespace: Sweetchuck\Robo\Phpcs\Test
-
-actor: Tester
+namespace: 'Sweetchuck\Robo\Phpcs\Test'
 
 paths:
     tests: 'tests'
-    log: 'tests/_output'
     data: 'tests/_data'
-    support: 'tests/_support'
     envs: 'tests/_envs'
+    log: 'tests/_log'
+    support: 'tests/_support'
 
 bootstrap: '_bootstrap.php'
 settings:
     colors: true
     memory_limit: '1024M'
+    shuffle: false
+    lint: false
 
 extensions:
     enabled:
@@ -21,6 +21,8 @@ extensions:
 
 coverage:
     enabled: true
-    whitelist:
-        include:
-            - 'src/*'
+    show_uncovered: true
+    low_limit: 60
+    high_limit: 90
+    include:
+        - 'src/*'

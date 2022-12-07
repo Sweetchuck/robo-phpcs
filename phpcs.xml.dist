@@ -8,7 +8,7 @@
 
     <file>./tests/</file>
     <exclude-pattern>./tests/_data/</exclude-pattern>
-    <exclude-pattern>./tests/_output/</exclude-pattern>
+    <exclude-pattern>./tests/_log/</exclude-pattern>
     <exclude-pattern>./tests/_support/generated</exclude-pattern>
 
     <file>RoboFile.php</file>
