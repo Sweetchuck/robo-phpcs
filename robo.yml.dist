@@ -1,6 +1,6 @@
 
 php:
     executables:
-        current:
+        php_min:
             enabled: true
             command: 'php'
