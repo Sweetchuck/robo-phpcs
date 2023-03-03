@@ -222,14 +222,11 @@ class PhpcsLintInputTest extends TestBase
         $task->setContainer($this->container);
         $task->setProcessClass(DummyProcess::class);
 
-        $processIndex = count(DummyProcess::$instances);
         foreach ($files as $file) {
-            DummyProcess::$prophecy[$processIndex] = [
+            DummyProcess::$prophecy[] = [
                 'exitCode' => $file['lintExitCode'],
                 'stdOutput' => $file['lintStdOutput'],
             ];
-
-            $processIndex++;
         }
 
         $result = $task->run();

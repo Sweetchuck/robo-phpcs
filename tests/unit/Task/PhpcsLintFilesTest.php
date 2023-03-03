@@ -551,9 +551,7 @@ class PhpcsLintFilesTest extends TestBase
 
         $task->setOptions($options);
 
-        $processIndex = count(DummyProcess::$instances);
-
-        DummyProcess::$prophecy[$processIndex] = [
+        DummyProcess::$prophecy[] = [
             'exitCode' => $exitCode,
             'stdOutput' => $expectedStdOutput,
         ];
