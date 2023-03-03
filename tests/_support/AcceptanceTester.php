@@ -57,9 +57,9 @@ class AcceptanceTester extends Actor
         $expectedDir = codecept_data_dir('expected');
         $actualDir = codecept_data_dir('actual');
 
-        Assert::assertContains(
+        Assert::assertStringContainsString(
             file_get_contents("$expectedDir/$fileName"),
-            file_get_contents("$actualDir/$fileName")
+            file_get_contents("$actualDir/$fileName"),
         );
 
         return $this;

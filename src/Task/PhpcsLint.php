@@ -52,9 +52,17 @@ abstract class PhpcsLint extends BaseTask implements
     protected string $taskName = 'PHP_CodeSniffer - lint';
 
     /**
-     * @todo Some kind of dependency injection would be awesome.
+     * @internal
      */
     protected string $processClass = Process::class;
+
+    /**
+     * @internal
+     */
+    public function setProcessClass(string $processClass): void
+    {
+        $this->processClass = $processClass;
+    }
 
     protected int $lintExitCode = 0;
 
@@ -134,10 +142,7 @@ abstract class PhpcsLint extends BaseTask implements
         return $this->assetNamePrefix;
     }
 
-    /**
-     * @return $this
-     */
-    public function setAssetNamePrefix(string $value)
+    public function setAssetNamePrefix(string $value): static
     {
         $this->assetNamePrefix = $value;
 
@@ -153,10 +158,7 @@ abstract class PhpcsLint extends BaseTask implements
         return $this->workingDirectory;
     }
 
-    /**
-     * @return $this
-     */
-    public function setWorkingDirectory(string $workingDirectory)
+    public function setWorkingDirectory(string $workingDirectory): static
     {
         $this->workingDirectory = $workingDirectory;
 
@@ -172,10 +174,7 @@ abstract class PhpcsLint extends BaseTask implements
         return $this->phpcsExecutable;
     }
 
-    /**
-     * @return $this
-     */
-    public function setPhpcsExecutable(string $phpcsExecutable)
+    public function setPhpcsExecutable(string $phpcsExecutable): static
     {
         $this->phpcsExecutable = $phpcsExecutable;
 
@@ -191,10 +190,7 @@ abstract class PhpcsLint extends BaseTask implements
         return $this->failOn;
     }
 
-    /**
-     * @return $this
-     */
-    public function setFailOn(string $value)
+    public function setFailOn(string $value): static
     {
         $this->failOn = $value;
 
@@ -218,10 +214,8 @@ abstract class PhpcsLint extends BaseTask implements
 
     /**
      * @param null[]|bool[]|string[]|\Sweetchuck\LintReport\ReporterInterface[] $lintReporters
-     *
-     * @return $this
      */
-    public function setLintReporters(array $lintReporters)
+    public function setLintReporters(array $lintReporters): static
     {
         $this->lintReporters = $lintReporters;
 
@@ -231,20 +225,15 @@ abstract class PhpcsLint extends BaseTask implements
     /**
      * @param string $id
      * @param null|bool|string|\Sweetchuck\LintReport\ReporterInterface $lintReporter
-     *
-     * @return $this
      */
-    public function addLintReporter(string $id, $lintReporter = null)
+    public function addLintReporter(string $id, $lintReporter = null): static
     {
         $this->lintReporters[$id] = $lintReporter;
 
         return $this;
     }
 
-    /**
-     * @return $this
-     */
-    public function removeLintReporter(string $id)
+    public function removeLintReporter(string $id): static
     {
         unset($this->lintReporters[$id]);
 
@@ -253,10 +242,7 @@ abstract class PhpcsLint extends BaseTask implements
     //endregion
     //endregion
 
-    /**
-     * @return $this
-     */
-    public function setOptions(array $options)
+    public function setOptions(array $options): static
     {
         foreach ($options as $name => $value) {
             switch ($name) {
@@ -381,10 +367,8 @@ abstract class PhpcsLint extends BaseTask implements
 
     /**
      * Use colors in output.
-     *
-     * @return $this
      */
-    public function setColors(?bool $value)
+    public function setColors(?bool $value): static
     {
         $this->colors = $value;
 
@@ -393,9 +377,6 @@ abstract class PhpcsLint extends BaseTask implements
     //endregion
 
     // region Option - cache
-    /**
-     * @var string
-     */
     protected string $cache = '';
 
     public function getCache(): string
@@ -403,10 +384,7 @@ abstract class PhpcsLint extends BaseTask implements
         return $this->cache;
     }
 
-    /**
-     * @return $this
-     */
-    public function setCache(string $cache)
+    public function setCache(string $cache): static
     {
         $this->cache = $cache;
 
@@ -422,10 +400,7 @@ abstract class PhpcsLint extends BaseTask implements
         return $this->noCache;
     }
 
-    /**
-     * @return $this
-     */
-    public function setNoCache(bool $noCache)
+    public function setNoCache(bool $noCache): static
     {
         $this->noCache = $noCache;
 
@@ -441,10 +416,7 @@ abstract class PhpcsLint extends BaseTask implements
         return $this->tabWidth;
     }
 
-    /**
-     * @return $this
-     */
-    public function setTabWidth(?int $tabWidth)
+    public function setTabWidth(?int $tabWidth): static
     {
         $this->tabWidth = $tabWidth;
 
@@ -465,10 +437,8 @@ abstract class PhpcsLint extends BaseTask implements
      *
      * @param array $reports
      *   Key-value pairs of report name and file path.
-     *
-     * @return $this
      */
-    public function setReports(array $reports)
+    public function setReports(array $reports): static
     {
         foreach ($reports as $report => $fileName) {
             $this->setReport($report, $fileName);
@@ -491,11 +461,8 @@ abstract class PhpcsLint extends BaseTask implements
      *   Name of the report type.
      * @param null|string $fileName
      *   Write the report to the specified file path.
-     *
-     * @return $this
-     *   The called object.
      */
-    public function setReport(string $report, ?string $fileName = null)
+    public function setReport(string $report, ?string $fileName = null): static
     {
         $this->reports[$report] = $fileName;
 
@@ -523,11 +490,8 @@ abstract class PhpcsLint extends BaseTask implements
      * @param null|int|string $width
      *   How many columns wide screen reports should be printed or set to "auto"
      *   to use current screen width, where supported.
-     *
-     * @return $this
-     *   The called object.
      */
-    public function setReportWidth($width)
+    public function setReportWidth($width): static
     {
         $this->reportWidth = $width;
 
@@ -543,10 +507,7 @@ abstract class PhpcsLint extends BaseTask implements
         return $this->basePath;
     }
 
-    /**
-     * @return $this
-     */
-    public function setBasePath(string $basePath)
+    public function setBasePath(string $basePath): static
     {
         $this->basePath = $basePath;
 
@@ -562,10 +523,7 @@ abstract class PhpcsLint extends BaseTask implements
         return $this->bootstrap;
     }
 
-    /**
-     * @return $this
-     */
-    public function setBootstrap(array $bootstrap)
+    public function setBootstrap(array $bootstrap): static
     {
         $this->bootstrap = $bootstrap;
 
@@ -581,10 +539,7 @@ abstract class PhpcsLint extends BaseTask implements
         return $this->severity;
     }
 
-    /**
-     * @return $this
-     */
-    public function setSeverity(?int $value)
+    public function setSeverity(?int $value): static
     {
         $this->severity = $value;
 
@@ -600,10 +555,7 @@ abstract class PhpcsLint extends BaseTask implements
         return $this->errorSeverity;
     }
 
-    /**
-     * @return $this
-     */
-    public function setErrorSeverity(?int $value)
+    public function setErrorSeverity(?int $value): static
     {
         $this->errorSeverity = $value;
 
@@ -619,10 +571,7 @@ abstract class PhpcsLint extends BaseTask implements
         return $this->warningSeverity;
     }
 
-    /**
-     * @return $this
-     */
-    public function setWarningSeverity(?int $value)
+    public function setWarningSeverity(?int $value): static
     {
         $this->warningSeverity = $value;
 
@@ -643,10 +592,8 @@ abstract class PhpcsLint extends BaseTask implements
 
     /**
      * Set the name or path of the coding standard to use.
-     *
-     * @return $this
      */
-    public function setStandards(array $standards)
+    public function setStandards(array $standards): static
     {
         $this->standards = gettype(reset($standards)) === 'boolean' ?
             $standards
@@ -674,11 +621,9 @@ abstract class PhpcsLint extends BaseTask implements
      * @param string[] $value
      *   File extensions.
      *
-     * @return $this
-     *
      * @see \PHP_CodeSniffer::setAllowedFileExtensions
      */
-    public function setExtensions(array $value)
+    public function setExtensions(array $value): static
     {
         $this->extensions = $value;
 
@@ -694,10 +639,7 @@ abstract class PhpcsLint extends BaseTask implements
         return $this->sniffs;
     }
 
-    /**
-     * @return $this
-     */
-    public function setSniffs(array $sniffNames)
+    public function setSniffs(array $sniffNames): static
     {
         $this->sniffs = $sniffNames;
 
@@ -713,10 +655,7 @@ abstract class PhpcsLint extends BaseTask implements
         return $this->exclude;
     }
 
-    /**
-     * @return $this
-     */
-    public function setExclude(array $value)
+    public function setExclude(array $value): static
     {
         $this->exclude = $value;
 
@@ -732,10 +671,7 @@ abstract class PhpcsLint extends BaseTask implements
         return $this->encoding;
     }
 
-    /**
-     * @return $this
-     */
-    public function setEncoding(string $encoding)
+    public function setEncoding(string $encoding): static
     {
         $this->encoding = $encoding;
 
@@ -751,10 +687,7 @@ abstract class PhpcsLint extends BaseTask implements
         return $this->parallel;
     }
 
-    /**
-     * @return $this
-     */
-    public function setParallel(?int $parallel)
+    public function setParallel(?int $parallel): static
     {
         $this->parallel = $parallel;
 
@@ -775,11 +708,8 @@ abstract class PhpcsLint extends BaseTask implements
      *
      * @param string[] $value
      *   File patterns.
-     *
-     * @return $this
-     *   The called object.
      */
-    public function setIgnore(array $value)
+    public function setIgnore(array $value): static
     {
         $this->ignored = $value;
 
@@ -795,10 +725,7 @@ abstract class PhpcsLint extends BaseTask implements
         return $this->ignoreAnnotations;
     }
 
-    /**
-     * @return $this
-     */
-    public function setIgnoreAnnotations(bool $ignoreAnnotations)
+    public function setIgnoreAnnotations(bool $ignoreAnnotations): static
     {
         $this->ignoreAnnotations = $ignoreAnnotations;
 
@@ -809,9 +736,6 @@ abstract class PhpcsLint extends BaseTask implements
     //region Option - files
     protected array $files = [];
 
-    /**
-     * @return array
-     */
     public function getFiles(): array
     {
         return $this->files;
@@ -822,11 +746,8 @@ abstract class PhpcsLint extends BaseTask implements
      *
      * @param string[] $files
      *   File names to check.
-     *
-     * @return $this
-     *   The called object.
      */
-    public function setFiles(array $files)
+    public function setFiles(array $files): static
     {
         $this->files = $files;
 
@@ -1006,10 +927,7 @@ abstract class PhpcsLint extends BaseTask implements
             ->runReturn();
     }
 
-    /**
-     * @return $this
-     */
-    protected function runHeader()
+    protected function runHeader(): static
     {
         $this->printTaskInfo(null, null);
 
@@ -1018,10 +936,8 @@ abstract class PhpcsLint extends BaseTask implements
 
     /**
      * Prepare directories for report outputs.
-     *
-     * @return $this
      */
-    protected function runPrepareReportDirectories()
+    protected function runPrepareReportDirectories(): static
     {
         $reports = $this->getReports();
 
@@ -1044,10 +960,7 @@ abstract class PhpcsLint extends BaseTask implements
         return $this;
     }
 
-    /**
-     * @return $this
-     */
-    protected function runLint()
+    protected function runLint(): static
     {
         $this->reportRaw = '';
         $this->report = [];
@@ -1092,10 +1005,7 @@ abstract class PhpcsLint extends BaseTask implements
         return $this;
     }
 
-    /**
-     * @return $this
-     */
-    protected function runReleaseLintReports()
+    protected function runReleaseLintReports(): static
     {
         if (!$this->isLintSuccess() || !$this->reportRaw) {
             return $this;

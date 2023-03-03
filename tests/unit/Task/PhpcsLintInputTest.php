@@ -4,44 +4,19 @@ declare(strict_types = 1);
 
 namespace Sweetchuck\Robo\Phpcs\Tests\Unit\Task;
 
-use Codeception\Test\Unit;
+use Codeception\Stub;
 use Sweetchuck\Robo\Phpcs\Task\PhpcsLintInput;
-use Codeception\Util\Stub;
-use Sweetchuck\Codeception\Module\RoboTaskRunner\DummyOutput;
 use Sweetchuck\Codeception\Module\RoboTaskRunner\DummyProcess;
-use Robo\Robo;
-use Sweetchuck\Robo\Phpcs\Test\UnitTester;
 
 class PhpcsLintInputTest extends TestBase
 {
-    protected static function getMethod(string $name): \ReflectionMethod
-    {
-        $class = new \ReflectionClass(PhpcsLintInput::class);
-        $method = $class->getMethod($name);
-        $method->setAccessible(true);
-
-        return $method;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    protected function setUp(): void
-    {
-        parent::setUp();
-
-        DummyProcess::reset();
-    }
-
     public function testGetSetOptions(): void
     {
         $options = [
             'stdinPath' => 'abc',
         ];
-        $task = (new PhpcsLintInput())
-            ->setOptions($options);
-
-        $this->tester->assertEquals($options['stdinPath'], $task->getStdinPath());
+        $task = $this->taskBuilder->taskPhpcsLintInput($options);
+        $this->tester->assertSame($options['stdinPath'], $task->getStdinPath());
     }
 
     public function casesGetCommand(): array
@@ -241,22 +216,11 @@ class PhpcsLintInputTest extends TestBase
     /**
      * @dataProvider casesRun
      */
-    public function testRun(array $expected, array $options, array $files, array $properties = []): void
+    public function testRun(array $expected, array $options, array $files): void
     {
-        $container = $this->getNewContainer();
-        $mainStdOutput = new DummyOutput([]);
-
-        $properties += [
-            'processClass' => DummyProcess::class,
-            'container' => $container,
-        ];
-
-        $task = Stub::construct(
-            PhpcsLintInput::class,
-            [],
-            $properties,
-        );
-        $task->setOptions($options);
+        $task = $this->taskBuilder->taskPhpcsLintInput($options);
+        $task->setContainer($this->container);
+        $task->setProcessClass(DummyProcess::class);
 
         $processIndex = count(DummyProcess::$instances);
         foreach ($files as $file) {
@@ -268,21 +232,18 @@ class PhpcsLintInputTest extends TestBase
             $processIndex++;
         }
 
-        $task->setLogger($container->get('logger'));
-        $task->setOutput($mainStdOutput);
-
         $result = $task->run();
 
-        $this->tester->assertEquals($expected['exitCode'], $result->getExitCode());
+        $this->tester->assertSame($expected['exitCode'], $result->getExitCode());
 
         $assetNamePrefix = $options['assetNamePrefix'] ?? '';
 
         /** @var \Sweetchuck\LintReport\ReportWrapperInterface $reportWrapper */
         $reportWrapper = $result["{$assetNamePrefix}report"];
-        $this->tester->assertEquals(
+        $this->tester->assertSame(
             $expected['report'],
             $reportWrapper->getReport(),
-            'Native report array'
+            'Native report array',
         );
     }
 }

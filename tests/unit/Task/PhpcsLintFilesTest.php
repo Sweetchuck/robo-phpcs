@@ -4,24 +4,14 @@ declare(strict_types = 1);
 
 namespace Sweetchuck\Robo\Phpcs\Tests\Unit\Task;
 
+use PHPUnit\Framework\SkippedTestSuiteError;
 use Robo\Robo;
 use Sweetchuck\Robo\Phpcs\Task\PhpcsLintFiles;
 use Sweetchuck\Codeception\Module\RoboTaskRunner\DummyOutput;
 use Sweetchuck\Codeception\Module\RoboTaskRunner\DummyProcess;
-use Codeception\Util\Stub;
 
 class PhpcsLintFilesTest extends TestBase
 {
-    /**
-     * {@inheritdoc}
-     */
-    protected function setUp(): void
-    {
-        parent::setUp();
-
-        DummyProcess::reset();
-    }
-
     public function testGetSetLintReporters(): void
     {
         $task = (new PhpcsLintFiles())
@@ -547,9 +537,6 @@ class PhpcsLintFilesTest extends TestBase
      */
     public function testRun(int $exitCode, array $options, string $expectedStdOutput): void
     {
-        $container = $this->getNewContainer();
-        Robo::setContainer($container);
-
         $mainStdOutput = new DummyOutput([]);
 
         $options += [
@@ -558,14 +545,10 @@ class PhpcsLintFilesTest extends TestBase
             ],
         ];
 
-        $task = Stub::construct(
-            PhpcsLintFiles::class,
-            [],
-            [
-                'processClass' => DummyProcess::class,
-                'container' => $container,
-            ]
-        );
+        $task = $this->taskBuilder->taskPhpcsLintFiles();
+        $task->setProcessClass(DummyProcess::class);
+        $task->setContainer($this->container);
+
         $task->setOptions($options);
 
         $processIndex = count(DummyProcess::$instances);
@@ -575,31 +558,34 @@ class PhpcsLintFilesTest extends TestBase
             'stdOutput' => $expectedStdOutput,
         ];
 
-        $task->setLogger($container->get('logger'));
-        $task->setOutput($mainStdOutput);
+        $task->setLogger($this->container->get('logger'));
+        //$task->setOutput($mainStdOutput);
 
         $result = $task->run();
 
-        $this->tester->assertEquals(
+        $this->tester->assertSame(
             $exitCode,
             $result->getExitCode(),
-            'Exit code is different than the expected.'
+            'Exit code is different than the expected.',
         );
 
         $assetNamePrefix = $options['assetNamePrefix'] ?? '';
 
         /** @var \Sweetchuck\LintReport\ReportWrapperInterface $reportWrapper */
         $reportWrapper = $result["{$assetNamePrefix}report"];
-        $this->tester->assertEquals(
+        $this->tester->assertSame(
             json_decode($expectedStdOutput, true),
             $reportWrapper->getReport(),
-            'Output equals'
+            'Output equals',
         );
+
+        /** @var \Sweetchuck\Codeception\Module\RoboTaskRunner\DummyOutput $output */
+        $output = $this->container->get('output');
 
         $this->tester->assertStringContainsString(
             $expectedStdOutput,
-            $mainStdOutput->output,
-            'Output contains'
+            $output->output,
+            'Output contains',
         );
     }
 }

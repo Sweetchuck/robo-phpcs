@@ -32,10 +32,7 @@ class PhpcsLintInput extends PhpcsLint
         return $this->stdinPath;
     }
 
-    /**
-     * @return $this
-     */
-    public function setStdinPath(?string $value)
+    public function setStdinPath(?string $value): static
     {
         $this->stdinPath = $value;
 
@@ -49,10 +46,7 @@ class PhpcsLintInput extends PhpcsLint
         $this->simpleOptions['stdinPath'] = 'stdin-path';
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function setOptions(array $options)
+    public function setOptions(array $options): static
     {
         parent::setOptions($options);
         foreach ($options as $name => $value) {
@@ -68,10 +62,7 @@ class PhpcsLintInput extends PhpcsLint
 
 
 
-    /**
-     * {@inheritdoc}
-     */
-    protected function runLint()
+    protected function runLint(): static
     {
         $logger = $this->logger ?: new NullLogger();
         $reports = [];

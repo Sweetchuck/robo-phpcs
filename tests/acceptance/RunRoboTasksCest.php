@@ -48,7 +48,7 @@ class RunRoboTasksCest
             'extra.summary',
         ];
         foreach ($reports as $report) {
-            $i->assertContains(
+            $i->assertStringContainsString(
                 file_get_contents("{$this->expectedDir}/01.$report.txt"),
                 $stdOutput,
                 "StdOutput contains the $report report"
@@ -56,16 +56,16 @@ class RunRoboTasksCest
         }
         $i->haveAValidCheckstyleReport('actual/01.native.checkstyle.xml');
 
-        $i->assertContains(
+        $i->assertStringContainsString(
             'PHP Code Sniffer found some errors :-(',
             $stdError,
             'StdError contains a general message'
         );
 
-        $i->assertEquals(
+        $i->assertSame(
             2,
             $exitCode,
-            'Robo task exitCode'
+            'Robo task exitCode',
         );
     }
 
@@ -86,13 +86,13 @@ class RunRoboTasksCest
         $stdError = $i->getRoboTaskStdError($id);
         $exitCode = $i->getRoboTaskExitCode($id);
 
-        $i->assertContains(
+        $i->assertStringContainsString(
             'Unknown outcome.',
             $stdError,
             'StdError contains a general message'
         );
 
-        $i->assertEquals(
+        $i->assertSame(
             3,
             $exitCode,
             'Robo task exitCode'
@@ -125,11 +125,11 @@ class RunRoboTasksCest
             ...$argsAndOptions
         );
 
-        $i->assertEquals(2, $i->getRoboTaskExitCode($id));
+        $i->assertSame(2, $i->getRoboTaskExitCode($id));
         $i->haveAFileLikeThis('02-03.extra.checkstyle.xml');
         $i->haveAFileLikeThis('02-03.extra.summary.txt');
         $i->haveAFileLikeThis('02-03.extra.verbose.txt');
-        $i->assertContains('PHP Code Sniffer found some errors :-(', $i->getRoboTaskStdError($id));
+        $i->assertStringContainsString('PHP Code Sniffer found some errors :-(', $i->getRoboTaskStdError($id));
     }
 
     public function parseXml(AcceptanceTester $i)
@@ -159,8 +159,8 @@ class RunRoboTasksCest
             'exitCode' => 1,
         ];
 
-        $i->assertEquals($expected['stdOutput'], $stdOutput, 'stdOutput');
-        $i->assertEquals($expected['stdError'], $stdError, 'stdError');
-        $i->assertEquals($expected['exitCode'], $exitCode, 'exitCode');
+        $i->assertSame($expected['stdOutput'], $stdOutput, 'stdOutput');
+        $i->assertSame($expected['stdError'], $stdError, 'stdError');
+        $i->assertSame($expected['exitCode'], $exitCode, 'exitCode');
     }
 }

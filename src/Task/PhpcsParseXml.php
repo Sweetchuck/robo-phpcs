@@ -23,9 +23,6 @@ class PhpcsParseXml extends BaseTask
 
     protected int $actionExitCode = 0;
 
-    /**
-     * @var string
-     */
     protected string $actionStdError = '';
 
     // region Option
@@ -37,10 +34,7 @@ class PhpcsParseXml extends BaseTask
         return $this->assetNamePrefix;
     }
 
-    /**
-     * @return $this
-     */
-    public function setAssetNamePrefix(string $value)
+    public function setAssetNamePrefix(string $value): static
     {
         $this->assetNamePrefix = $value;
 
@@ -56,10 +50,7 @@ class PhpcsParseXml extends BaseTask
         return $this->workingDirectory;
     }
 
-    /**
-     * @return $this
-     */
-    public function setWorkingDirectory(string $value)
+    public function setWorkingDirectory(string $value): static
     {
         $this->workingDirectory = $value;
 
@@ -75,10 +66,7 @@ class PhpcsParseXml extends BaseTask
         return $this->failOnXmlFileNotExists;
     }
 
-    /**
-     * @return $this
-     */
-    public function setFailOnXmlFileNotExists(bool $value)
+    public function setFailOnXmlFileNotExists(bool $value): static
     {
         $this->failOnXmlFileNotExists = $value;
 
@@ -86,10 +74,7 @@ class PhpcsParseXml extends BaseTask
     }
     // endregion
 
-    /**
-     * @return $this
-     */
-    public function setOptions(array $options)
+    public function setOptions(array $options): static
     {
         if (array_key_exists('assetNamePrefix', $options)) {
             $this->setAssetNamePrefix($options['assetNamePrefix']);
@@ -157,10 +142,7 @@ class PhpcsParseXml extends BaseTask
             ->runReturn();
     }
 
-    /**
-     * @return $this
-     */
-    protected function runHeader()
+    protected function runHeader(): static
     {
         $context = [
             'workingDirectory' => $this->getWorkingDirectory() ?: '.',
@@ -175,10 +157,7 @@ class PhpcsParseXml extends BaseTask
         return $this;
     }
 
-    /**
-     * @return $this
-     */
-    protected function runAction()
+    protected function runAction(): static
     {
         $wd = $this->getWorkingDirectory() ?: '.';
         $xmlFileName = $this->getXmlFileName();

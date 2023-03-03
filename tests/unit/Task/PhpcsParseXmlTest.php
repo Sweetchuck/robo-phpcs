@@ -6,8 +6,8 @@ namespace Sweetchuck\Robo\Phpcs\Tests\Unit\Task;
 
 use org\bovigo\vfs\vfsStream;
 use org\bovigo\vfs\vfsStreamDirectory;
+use Codeception\Stub;
 use Sweetchuck\Robo\Phpcs\Task\PhpcsParseXml;
-use Codeception\Util\Stub;
 use Symfony\Component\Filesystem\Filesystem;
 
 class PhpcsParseXmlTest extends TestBase

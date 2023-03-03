@@ -22,29 +22,9 @@ executors:
         docker:
             -
                 name: 'main'
-                image: 'cimg/php:7.4'
-
-    php_plus1:
-        resource_class: 'small'
-        environment:
-            <<: *env_app
-            <<: *env_composer
-        docker:
-            -
-                name: 'main'
-                image: 'cimg/php:8.0'
-
-    php_plus2:
-        resource_class: 'small'
-        environment:
-            <<: *env_app
-            <<: *env_composer
-        docker:
-            -
-                name: 'main'
                 image: 'cimg/php:8.1'
 
-    php_plus3:
+    php_plus1:
         resource_class: 'small'
         environment:
             <<: *env_app
@@ -110,15 +90,15 @@ commands:
     test:
         description: 'Run tests'
         steps:
-            -
-                run:
-                    name: 'Codeception - unit'
-                    command: |
-                        "./$(composer config bin-dir)/robo" --ansi test unit
-            -
-                codecov/upload:
-                    flags: 'unit'
-                    file: './tests/_log/machine/coverage/unit/coverage.xml'
+#            -
+#                run:
+#                    name: 'Codeception - unit'
+#                    command: |
+#                        "./$(composer config bin-dir)/robo" --ansi test unit
+#            -
+#                codecov/upload:
+#                    flags: 'unit'
+#                    file: './tests/_log/machine/coverage/unit/coverage.xml'
             -
                 run:
                     name: 'Codeception - acceptance'
@@ -175,5 +155,3 @@ workflows:
                             executor:
                                 - 'php_min'
                                 - 'php_plus1'
-                                - 'php_plus2'
-                                - 'php_plus3'

@@ -238,6 +238,7 @@ class RoboFile extends Tasks implements LoggerAwareInterface, ConfigAwareInterfa
         $default = [
             'paths' => [
                 'tests' => 'tests',
+                'log' => 'tests/_log',
                 'output' => 'tests/_log',
             ],
         ];
