@@ -87,7 +87,7 @@ class RunRoboTasksCest
         $exitCode = $i->getRoboTaskExitCode($id);
 
         $i->assertStringContainsString(
-            'Unknown outcome.',
+            'ERROR: The file "fixtures/non-exists.php" does not exist.',
             $stdError,
             'StdError contains a general message'
         );
