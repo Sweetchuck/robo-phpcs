@@ -226,6 +226,7 @@ class PhpcsLintInputTest extends TestBase
             DummyProcess::$prophecy[] = [
                 'exitCode' => $file['lintExitCode'],
                 'stdOutput' => $file['lintStdOutput'],
+                'stdError' => '',
             ];
         }
 

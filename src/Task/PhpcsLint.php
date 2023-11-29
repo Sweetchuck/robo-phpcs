@@ -68,6 +68,8 @@ abstract class PhpcsLint extends BaseTask implements
 
     protected string $lintStdOutput = '';
 
+    protected string $lintStdError = '';
+
     protected bool $isLintStdOutputPublic = true;
 
     protected string $reportRaw = '';
@@ -977,6 +979,7 @@ abstract class PhpcsLint extends BaseTask implements
 
         $this->lintExitCode = $process->run();
         $this->lintStdOutput = $process->getOutput();
+        $this->lintStdError = $process->getErrorOutput();
         $this->reportRaw = $this->lintStdOutput;
 
         $isLintSuccess = $this->isLintSuccess();
@@ -984,6 +987,7 @@ abstract class PhpcsLint extends BaseTask implements
         if (!$isLintSuccess) {
             $logger = $this->logger() ?: new NullLogger();
             $logger->debug($this->lintStdOutput);
+            $logger->error($this->lintStdError);
         }
 
         // @todo Relative from workingDirectory.
@@ -992,7 +996,7 @@ abstract class PhpcsLint extends BaseTask implements
             && $jsonReportDestination !== null
             && is_readable($jsonReportDestination)
         ) {
-            $this->reportRaw = file_get_contents($jsonReportDestination);
+            $this->reportRaw = file_get_contents($jsonReportDestination) ?: '';
         }
 
         if ($isLintSuccess && $this->reportRaw) {
@@ -1128,7 +1132,12 @@ abstract class PhpcsLint extends BaseTask implements
             return $this->exitMessages[$exitCode];
         }
 
-        return 'Unknown outcome.';
+        if ($this->lintStdError) {
+            return $this->lintStdError;
+        }
+
+        // Most of the time phpcs writes the error message to the stdOutput.
+        return $this->lintStdOutput ?: 'Unknown outcome.';
     }
 
     public function getTaskName(): string

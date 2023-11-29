@@ -554,6 +554,7 @@ class PhpcsLintFilesTest extends TestBase
         DummyProcess::$prophecy[] = [
             'exitCode' => $exitCode,
             'stdOutput' => $expectedStdOutput,
+            'stdError' => '',
         ];
 
         $task->setLogger($this->container->get('logger'));
