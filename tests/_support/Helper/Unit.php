@@ -2,7 +2,7 @@
 
 declare(strict_types = 1);
 
-namespace Sweetchuck\Robo\Phpcs\Test\Helper;
+namespace Sweetchuck\Robo\Phpcs\Tests\Helper;
 
 use Codeception\Module;
 

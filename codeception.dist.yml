@@ -1,5 +1,5 @@
 
-namespace: 'Sweetchuck\Robo\Phpcs\Test'
+namespace: 'Sweetchuck\Robo\Phpcs\Tests'
 
 paths:
     tests: 'tests'

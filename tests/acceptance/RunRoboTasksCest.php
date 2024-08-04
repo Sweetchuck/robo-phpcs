@@ -6,8 +6,8 @@ namespace Sweetchuck\Robo\Phpcs\Tests\Acceptance;
 
 use org\bovigo\vfs\vfsStream;
 use Sweetchuck\Robo\Phpcs\Task\PhpcsParseXml;
-use Sweetchuck\Robo\Phpcs\Test\AcceptanceTester;
-use Sweetchuck\Robo\Phpcs\Test\Helper\RoboFiles\PhpcsRoboFile;
+use Sweetchuck\Robo\Phpcs\Tests\AcceptanceTester;
+use Sweetchuck\Robo\Phpcs\Tests\Helper\RoboFiles\PhpcsRoboFile;
 
 class RunRoboTasksCest
 {
@@ -26,7 +26,7 @@ class RunRoboTasksCest
         $i->clearTheReportsDir();
     }
 
-    public function lintFilesAllInOneTask(AcceptanceTester $i)
+    public function lintFilesAllInOneTask(AcceptanceTester $i): void
     {
         $id = __METHOD__;
         $roboTaskName = 'lint-files:all-in-one';
@@ -69,7 +69,7 @@ class RunRoboTasksCest
         );
     }
 
-    public function lintFilesNonExists(AcceptanceTester $i)
+    public function lintFilesNonExists(AcceptanceTester $i): void
     {
         $id = __METHOD__;
         $roboTaskName = 'lint-files:non-exists';
@@ -99,17 +99,17 @@ class RunRoboTasksCest
         );
     }
 
-    public function lintInputTaskCommandOnlyFalse(AcceptanceTester $i)
+    public function lintInputTaskCommandOnlyFalse(AcceptanceTester $i): void
     {
         $this->lintInput($i, 'lint-input');
     }
 
-    public function lintInputTaskCommandOnlyTrue(AcceptanceTester $i)
+    public function lintInputTaskCommandOnlyTrue(AcceptanceTester $i): void
     {
         $this->lintInput($i, 'lint-input', ['--command-only']);
     }
 
-    protected function lintInput(AcceptanceTester $i, string $roboTaskName, array $argsAndOptions = [])
+    protected function lintInput(AcceptanceTester $i, string $roboTaskName, array $argsAndOptions = []): void
     {
         static $callCounter = 1;
 
@@ -132,7 +132,7 @@ class RunRoboTasksCest
         $i->assertStringContainsString('PHP Code Sniffer found some errors :-(', $i->getRoboTaskStdError($id));
     }
 
-    public function parseXml(AcceptanceTester $i)
+    public function parseXml(AcceptanceTester $i): void
     {
         $id = __FUNCTION__;
         $vfs = vfsStream::setup("RunRoboTasksCest.$id");

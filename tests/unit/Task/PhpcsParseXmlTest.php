@@ -4,6 +4,7 @@ declare(strict_types = 1);
 
 namespace Sweetchuck\Robo\Phpcs\Tests\Unit\Task;
 
+use Codeception\Attribute\DataProvider;
 use org\bovigo\vfs\vfsStream;
 use org\bovigo\vfs\vfsStreamDirectory;
 use Codeception\Stub;
@@ -33,7 +34,7 @@ class PhpcsParseXmlTest extends TestBase
         parent::_after();
     }
 
-    public function casesRun(): array
+    public static function casesRun(): array
     {
         return [
             'xml file not exists; fail:true' => [
@@ -139,9 +140,7 @@ class PhpcsParseXmlTest extends TestBase
         ];
     }
 
-    /**
-     * @dataProvider casesRun
-     */
+    #[DataProvider('casesRun')]
     public function testRun($expected, array $options, array $files): void
     {
         $baseDir = $this->rootDir->url();
@@ -166,16 +165,16 @@ class PhpcsParseXmlTest extends TestBase
         foreach ($expected as $expectedKey => $expectedValue) {
             switch ($expectedKey) {
                 case 'exitCode':
-                    $this->tester->assertEquals($expectedValue, $result->getExitCode());
+                    $this->tester->assertSame($expectedValue, $result->getExitCode());
                     break;
 
                 case 'message':
-                    $this->tester->assertEquals($expectedValue, $result->getMessage());
+                    $this->tester->assertSame($expectedValue, $result->getMessage());
                     break;
 
                 case 'files':
                 case 'exclude-patterns':
-                    $this->tester->assertEquals($expectedValue, $result["$assetNamePrefix$expectedKey"]);
+                    $this->tester->assertSame($expectedValue, $result["$assetNamePrefix$expectedKey"]);
                     break;
             }
         }

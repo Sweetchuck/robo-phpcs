@@ -4,8 +4,7 @@ declare(strict_types = 1);
 
 namespace Sweetchuck\Robo\Phpcs\Tests\Unit\Task;
 
-use PHPUnit\Framework\SkippedTestSuiteError;
-use Robo\Robo;
+use Codeception\Attribute\DataProvider;
 use Sweetchuck\Robo\Phpcs\Task\PhpcsLintFiles;
 use Sweetchuck\Codeception\Module\RoboTaskRunner\DummyOutput;
 use Sweetchuck\Codeception\Module\RoboTaskRunner\DummyProcess;
@@ -24,7 +23,7 @@ class PhpcsLintFilesTest extends TestBase
             ->addLintReporter('cKey', 'cValue')
             ->removeLintReporter('bKey');
 
-        $this->tester->assertEquals(
+        $this->tester->assertSame(
             [
                 'aKey' => 'aValue',
                 'cKey' => 'cValue',
@@ -37,33 +36,33 @@ class PhpcsLintFilesTest extends TestBase
     {
         $task = (new PhpcsLintFiles())
             ->setOptions(['assetNamePrefix' => 'a']);
-        $this->tester->assertEquals('a', $task->getAssetNamePrefix());
+        $this->tester->assertSame('a', $task->getAssetNamePrefix());
 
         $task->setAssetNamePrefix('b');
-        $this->tester->assertEquals('b', $task->getAssetNamePrefix());
+        $this->tester->assertSame('b', $task->getAssetNamePrefix());
     }
 
     public function testGetSetWorkingDirectory()
     {
         $task = (new PhpcsLintFiles())
             ->setOptions(['workingDirectory' => 'a']);
-        $this->tester->assertEquals('a', $task->getWorkingDirectory());
+        $this->tester->assertSame('a', $task->getWorkingDirectory());
 
         $task->setWorkingDirectory('b');
-        $this->tester->assertEquals('b', $task->getWorkingDirectory());
+        $this->tester->assertSame('b', $task->getWorkingDirectory());
     }
 
     public function testGetSetPhpcsExecutable(): void
     {
         $task = new PhpcsLintFiles();
-        $this->tester->assertEquals('', $task->getPhpcsExecutable(), 'default value');
+        $this->tester->assertSame('', $task->getPhpcsExecutable(), 'default value');
 
         $task = (new PhpcsLintFiles())
             ->setOptions(['phpcsExecutable' => 'a']);
-        $this->tester->assertEquals('a', $task->getPhpcsExecutable(), 'set with setOptions()');
+        $this->tester->assertSame('a', $task->getPhpcsExecutable(), 'set with setOptions()');
 
         $task->setPhpcsExecutable('b');
-        $this->tester->assertEquals('b', $task->getPhpcsExecutable(), 'normal');
+        $this->tester->assertSame('b', $task->getPhpcsExecutable(), 'normal');
     }
 
     public function testGetSetReport(): void
@@ -73,13 +72,13 @@ class PhpcsLintFilesTest extends TestBase
 
         $task = (new PhpcsLintFiles())
             ->setOptions(['reports' => ['full' => 'a']]);
-        $this->tester->assertEquals('a', $task->getReport('full'), 'set in constructor');
+        $this->tester->assertSame('a', $task->getReport('full'), 'set in constructor');
 
         $task->setReport('full', 'b');
-        $this->tester->assertEquals('b', $task->getReport('full'), 'normal');
+        $this->tester->assertSame('b', $task->getReport('full'), 'normal');
     }
 
-    public function casesGetCommand(): array
+    public static function casesGetCommand(): array
     {
         return [
             'empty' => [
@@ -433,18 +432,16 @@ class PhpcsLintFilesTest extends TestBase
         ];
     }
 
-    /**
-     * @dataProvider casesGetCommand
-     */
+    #[DataProvider('casesGetCommand')]
     public function testGetCommand(string $expected, array $options): void
     {
         $task = (new PhpcsLintFiles())
             ->setOptions($options + ['phpcsExecutable' => 'phpcs']);
 
-        $this->tester->assertEquals($expected, $task->getCommand());
+        $this->tester->assertSame($expected, $task->getCommand());
     }
 
-    public function casesRun(): array
+    public static function casesRun(): array
     {
         $reportBase = [
             'totals' => [
@@ -532,9 +529,7 @@ class PhpcsLintFilesTest extends TestBase
         return $cases;
     }
 
-    /**
-     * @dataProvider casesRun
-     */
+    #[DataProvider('casesRun')]
     public function testRun(int $exitCode, array $options, string $expectedStdOutput): void
     {
         $mainStdOutput = new DummyOutput([]);

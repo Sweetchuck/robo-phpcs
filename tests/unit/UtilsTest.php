@@ -4,16 +4,18 @@ declare(strict_types = 1);
 
 namespace Sweetchuck\Robo\Phpcs\Tests\Unit;
 
+use Codeception\Attribute\DataProvider;
+use Codeception\Test\Unit;
+use PHPUnit\Framework\Attributes\CoversClass;
+use Sweetchuck\Robo\Phpcs\Tests\UnitTester;
 use Sweetchuck\Robo\Phpcs\Utils;
 
-/**
- * @coversDefaultClass \Sweetchuck\Robo\Phpcs\Utils
- */
-class UtilsTest extends \Codeception\Test\Unit
+#[CoversClass(Utils::class)]
+class UtilsTest extends Unit
 {
-    protected $tester;
+    protected UnitTester $tester;
 
-    public function casesEscapeShellArgWithWildcard(): array
+    public static function casesEscapeShellArgWithWildcard(): array
     {
         return [
             'empty' => ["''", ''],
@@ -34,17 +36,13 @@ class UtilsTest extends \Codeception\Test\Unit
         ];
     }
 
-    /**
-     * @dataProvider casesEscapeShellArgWithWildcard
-     *
-     * @covers ::escapeShellArgWithWildcard
-     */
+    #[DataProvider('casesEscapeShellArgWithWildcard')]
     public function testEscapeShellArgWithWildcard(string $expected, string $arg): void
     {
-        $this->tester->assertEquals($expected, Utils::escapeShellArgWithWildcard($arg));
+        $this->tester->assertSame($expected, Utils::escapeShellArgWithWildcard($arg));
     }
 
-    public function casesMergeReports(): array
+    public static function casesMergeReports(): array
     {
         return [
             'empty' => [
@@ -91,16 +89,14 @@ class UtilsTest extends \Codeception\Test\Unit
         ];
     }
 
-    /**
-     * @dataProvider casesMergeReports
-     */
+    #[DataProvider('casesMergeReports')]
     public function testMergeReports(array $expected, array $args): void
     {
         $callable = Utils::class . '::mergeReports';
-        $this->tester->assertEquals($expected, call_user_func_array($callable, $args));
+        $this->tester->assertSame($expected, call_user_func_array($callable, $args));
     }
 
-    public function casesIsIgnored(): array
+    public static function casesIsIgnored(): array
     {
         return [
             'empty' => [
@@ -181,12 +177,10 @@ class UtilsTest extends \Codeception\Test\Unit
         ];
     }
 
-    /**
-     * @dataProvider casesIsIgnored
-     */
+    #[DataProvider('casesIsIgnored')]
     public function testIsIgnored(bool $expected, string $fileName, string $pattern): void
     {
-        $this->tester->assertEquals($expected, Utils::isIgnored(
+        $this->tester->assertSame($expected, Utils::isIgnored(
             $fileName,
             ($pattern ? [$pattern] : [])
         ));

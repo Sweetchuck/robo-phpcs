@@ -2,13 +2,13 @@
 
 declare(strict_types = 1);
 
-namespace Sweetchuck\Robo\Phpcs\Test;
+namespace Sweetchuck\Robo\Phpcs\Tests;
 
 use Codeception\Actor;
 use DOMDocument;
 use DOMXPath;
 use PHPUnit\Framework\Assert;
-use Sweetchuck\Robo\Phpcs\Test\_generated\AcceptanceTesterActions;
+use Sweetchuck\Robo\Phpcs\Tests\_generated\AcceptanceTesterActions;
 use Symfony\Component\Finder\Finder;
 
 /**

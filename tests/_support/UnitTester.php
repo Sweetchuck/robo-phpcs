@@ -2,9 +2,9 @@
 
 declare(strict_types = 1);
 
-namespace Sweetchuck\Robo\Phpcs\Test;
+namespace Sweetchuck\Robo\Phpcs\Tests;
 
-use Sweetchuck\Robo\Phpcs\Test\_generated\UnitTesterActions;
+use Sweetchuck\Robo\Phpcs\Tests\_generated\UnitTesterActions;
 
 /**
  * Inherited Methods

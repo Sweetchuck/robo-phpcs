@@ -4,6 +4,7 @@ declare(strict_types = 1);
 
 namespace Sweetchuck\Robo\Phpcs\Tests\Unit\Task;
 
+use Codeception\Attribute\DataProvider;
 use Codeception\Stub;
 use Sweetchuck\Robo\Phpcs\Task\PhpcsLintInput;
 use Sweetchuck\Codeception\Module\RoboTaskRunner\DummyProcess;
@@ -19,7 +20,7 @@ class PhpcsLintInputTest extends TestBase
         $this->tester->assertSame($options['stdinPath'], $task->getStdinPath());
     }
 
-    public function casesGetCommand(): array
+    public static function casesGetCommand(): array
     {
         return [
             'with content' => [
@@ -62,9 +63,7 @@ class PhpcsLintInputTest extends TestBase
         ];
     }
 
-    /**
-     * @dataProvider casesGetCommand
-     */
+    #[DataProvider('casesGetCommand')]
     public function testGetCommand($expected, array $options, array $currentFile): void
     {
         $task = Stub::construct(
@@ -76,10 +75,10 @@ class PhpcsLintInputTest extends TestBase
         );
         $task->setOptions($options);
 
-        $this->tester->assertEquals($expected, $task->getCommand());
+        $this->tester->assertSame($expected, $task->getCommand());
     }
 
-    public function casesRun(): array
+    public static function casesRun(): array
     {
         $files = [
             'empty' => [
@@ -213,9 +212,7 @@ class PhpcsLintInputTest extends TestBase
         ];
     }
 
-    /**
-     * @dataProvider casesRun
-     */
+    #[DataProvider('casesRun')]
     public function testRun(array $expected, array $options, array $files): void
     {
         $task = $this->taskBuilder->taskPhpcsLintInput($options);

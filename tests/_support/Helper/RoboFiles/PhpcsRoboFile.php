@@ -2,7 +2,7 @@
 
 declare(strict_types = 1);
 
-namespace Sweetchuck\Robo\Phpcs\Test\Helper\RoboFiles;
+namespace Sweetchuck\Robo\Phpcs\Tests\Helper\RoboFiles;
 
 use League\Container\Container as LeagueContainer;
 use League\Container\ContainerAwareInterface;

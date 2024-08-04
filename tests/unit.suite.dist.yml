@@ -3,4 +3,4 @@ actor: 'UnitTester'
 modules:
     enabled:
         - 'Asserts'
-        - '\Sweetchuck\Robo\Phpcs\Test\Helper\Unit'
+        - '\Sweetchuck\Robo\Phpcs\Tests\Helper\Unit'

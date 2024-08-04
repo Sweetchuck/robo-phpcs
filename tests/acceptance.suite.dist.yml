@@ -4,4 +4,4 @@ modules:
     enabled:
         - 'Asserts'
         - '\Sweetchuck\Codeception\Module\RoboTaskRunner\RoboTaskRunner'
-        - '\Sweetchuck\Robo\Phpcs\Test\Helper\Acceptance'
+        - '\Sweetchuck\Robo\Phpcs\Tests\Helper\Acceptance'

@@ -4,19 +4,16 @@ declare(strict_types = 1);
 
 namespace Sweetchuck\Robo\Phpcs\Tests\Unit\LintReportWrapper;
 
+use Codeception\Attribute\DataProvider;
+use Codeception\Test\Unit;
 use Sweetchuck\Robo\Phpcs\LintReportWrapper\ReportWrapper;
+use Sweetchuck\Robo\Phpcs\Tests\UnitTester;
 
-class ReportWrapperTest extends \Codeception\Test\Unit
+class ReportWrapperTest extends Unit
 {
-    /**
-     * @var \Sweetchuck\Robo\Phpcs\Test\UnitTester
-     */
-    protected $tester;
+    protected UnitTester $tester;
 
-    /**
-     * @return array
-     */
-    public function casesReports()
+    public static function casesReports(): array
     {
         return [
             'ok:no-files' => [
@@ -196,17 +193,15 @@ class ReportWrapperTest extends \Codeception\Test\Unit
         ];
     }
 
-    /**
-     * @dataProvider casesReports
-     */
+    #[DataProvider('casesReports')]
     public function testAll(array $expected, array $report)
     {
         $rw = new ReportWrapper($report);
 
-        $this->tester->assertEquals($expected['countFiles'], $rw->countFiles());
-        $this->tester->assertEquals($expected['numOfErrors'], $rw->numOfErrors());
-        $this->tester->assertEquals($expected['numOfWarnings'], $rw->numOfWarnings());
-        $this->tester->assertEquals($expected['highestSeverity'], $rw->highestSeverity());
+        $this->tester->assertSame($expected['countFiles'], $rw->countFiles());
+        $this->tester->assertSame($expected['numOfErrors'], $rw->numOfErrors());
+        $this->tester->assertSame($expected['numOfWarnings'], $rw->numOfWarnings());
+        $this->tester->assertSame($expected['highestSeverity'], $rw->highestSeverity());
 
         /**
          * @var string $filePath
@@ -214,11 +209,11 @@ class ReportWrapperTest extends \Codeception\Test\Unit
          */
         foreach ($rw->yieldFiles() as $filePath => $fw) {
             $file = array_shift($report['files']);
-            $this->tester->assertEquals($file['filePath'], $fw->filePath());
-            $this->tester->assertEquals($file['errors'], $fw->numOfErrors());
-            $this->tester->assertEquals($file['warnings'], $fw->numOfWarnings());
-            $this->tester->assertEquals($file['__highestSeverity'], $fw->highestSeverity());
-            $this->tester->assertEquals($file['__stats'], $fw->stats());
+            $this->tester->assertSame($file['filePath'], $fw->filePath());
+            $this->tester->assertSame($file['errors'], $fw->numOfErrors());
+            $this->tester->assertSame($file['warnings'], $fw->numOfWarnings());
+            $this->tester->assertSame($file['__highestSeverity'], $fw->highestSeverity());
+            $this->tester->assertSame($file['__stats'], $fw->stats());
 
             /**
              * @var int $i
@@ -226,11 +221,11 @@ class ReportWrapperTest extends \Codeception\Test\Unit
              */
             foreach ($fw->yieldFailures() as $i => $failureWrapper) {
                 $message = $file['messages'][$i];
-                $this->tester->assertEquals($message['type'], $failureWrapper->severity());
-                $this->tester->assertEquals($message['source'], $failureWrapper->source());
-                $this->tester->assertEquals($message['line'], $failureWrapper->line());
-                $this->tester->assertEquals($message['column'], $failureWrapper->column());
-                $this->tester->assertEquals($message['message'], $failureWrapper->message());
+                $this->tester->assertSame($message['type'], $failureWrapper->severity());
+                $this->tester->assertSame($message['source'], $failureWrapper->source());
+                $this->tester->assertSame($message['line'], $failureWrapper->line());
+                $this->tester->assertSame($message['column'], $failureWrapper->column());
+                $this->tester->assertSame($message['message'], $failureWrapper->message());
             }
         }
     }
