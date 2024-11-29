@@ -64,6 +64,16 @@ executors:
                 name: 'main'
                 image: 'cimg/php:8.3'
 
+    php_plus5:
+        resource_class: 'small'
+        environment:
+            <<: *env_app
+            <<: *env_composer
+        docker:
+            -
+                name: 'main'
+                image: 'cimg/php:8.4'
+
 commands:
     install_php_extension_pcov:
         description: 'Install PCOV PHP extension'
@@ -72,6 +82,16 @@ commands:
                 run:
                     name: 'Install PCOV PHP extension - pecl install pcov'
                     command: |
+                        phpVersionMajorMinor="$(php -r 'echo substr(\PHP_VERSION_ID, 0, 3);')"
+                        # PHP 8.4 and pcov aren't friends.
+                        if [[ "${phpVersionMajorMinor}" = '804' ]] ; then
+                            echo 'IGNORE pcov installation'
+                            sudo pecl install xdebug
+                            echo 'xdebug.mode=develop,coverage' | sudo tee --append /etc/php.d/xdebug.ini
+
+                            exit 0
+                        fi
+
                         if php -m | grep pcov ; then
                             exit 0
                         fi
@@ -188,3 +208,4 @@ workflows:
                                 - 'php_plus2'
                                 - 'php_plus3'
                                 - 'php_plus4'
+                                - 'php_plus5'

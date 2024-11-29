@@ -825,12 +825,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/Sweetchuck/lint-report.git",
-                "reference": "ad202336969a537ab85ececcf25e63eb40801e46"
+                "reference": "84934eea1f411593c7e3c42efc358ed327358abd"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Sweetchuck/lint-report/zipball/ad202336969a537ab85ececcf25e63eb40801e46",
-                "reference": "ad202336969a537ab85ececcf25e63eb40801e46",
+                "url": "https://api.github.com/repos/Sweetchuck/lint-report/zipball/84934eea1f411593c7e3c42efc358ed327358abd",
+                "reference": "84934eea1f411593c7e3c42efc358ed327358abd",
                 "shasum": ""
             },
             "require": {
@@ -881,7 +881,7 @@
                 "issues": "https://github.com/Sweetchuck/lint-report/issues",
                 "source": "https://github.com/Sweetchuck/lint-report"
             },
-            "time": "2024-11-06T21:07:33+00:00"
+            "time": "2024-11-29T19:01:03+00:00"
         },
         {
             "name": "symfony/console",
@@ -4397,12 +4397,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/Sweetchuck/git-hooks.git",
-                "reference": "4788b389b583535fe128d360b2606ef947f88b08"
+                "reference": "e90e1bc3db2c54ba9d1f903fd22c0f2d5c5d053b"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Sweetchuck/git-hooks/zipball/4788b389b583535fe128d360b2606ef947f88b08",
-                "reference": "4788b389b583535fe128d360b2606ef947f88b08",
+                "url": "https://api.github.com/repos/Sweetchuck/git-hooks/zipball/e90e1bc3db2c54ba9d1f903fd22c0f2d5c5d053b",
+                "reference": "e90e1bc3db2c54ba9d1f903fd22c0f2d5c5d053b",
                 "shasum": ""
             },
             "require": {
@@ -4455,7 +4455,7 @@
                 "issues": "https://github.com/Sweetchuck/git-hooks/issues",
                 "source": "https://github.com/Sweetchuck/git-hooks"
             },
-            "time": "2024-11-06T21:09:02+00:00"
+            "time": "2024-11-29T18:25:27+00:00"
         },
         {
             "name": "sweetchuck/robo-git",
@@ -4463,12 +4463,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/Sweetchuck/robo-git.git",
-                "reference": "32da3f524f52d356b186ea1361cf1fd07f015cca"
+                "reference": "6a2c9bfbc82079c22358be0f46611f0d0af22ecb"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Sweetchuck/robo-git/zipball/32da3f524f52d356b186ea1361cf1fd07f015cca",
-                "reference": "32da3f524f52d356b186ea1361cf1fd07f015cca",
+                "url": "https://api.github.com/repos/Sweetchuck/robo-git/zipball/6a2c9bfbc82079c22358be0f46611f0d0af22ecb",
+                "reference": "6a2c9bfbc82079c22358be0f46611f0d0af22ecb",
                 "shasum": ""
             },
             "require": {
@@ -4489,7 +4489,6 @@
                 "symfony/finder": "^5.2 || ^6.0",
                 "symfony/yaml": "^5.0 || ^6.0"
             },
-            "default-branch": true,
             "type": "robo-tasks",
             "autoload": {
                 "psr-4": {
@@ -4517,7 +4516,7 @@
                 "issues": "https://github.com/Sweetchuck/robo-git/issues",
                 "source": "https://github.com/Sweetchuck/robo-git"
             },
-            "time": "2022-12-11T20:59:00+00:00"
+            "time": "2024-11-29T19:37:48+00:00"
         },
         {
             "name": "sweetchuck/utils",
@@ -4525,12 +4524,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/Sweetchuck/utils.git",
-                "reference": "93234cb749347a05c5ec3163b9451b7f3d978675"
+                "reference": "e0e9dc87028ad16e125c14650f0dd73334db8a9b"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Sweetchuck/utils/zipball/93234cb749347a05c5ec3163b9451b7f3d978675",
-                "reference": "93234cb749347a05c5ec3163b9451b7f3d978675",
+                "url": "https://api.github.com/repos/Sweetchuck/utils/zipball/e0e9dc87028ad16e125c14650f0dd73334db8a9b",
+                "reference": "e0e9dc87028ad16e125c14650f0dd73334db8a9b",
                 "shasum": ""
             },
             "require": {
@@ -4583,7 +4582,7 @@
                 "issues": "https://github.com/Sweetchuck/utils/issues",
                 "source": "https://github.com/Sweetchuck/utils"
             },
-            "time": "2023-12-26T14:18:57+00:00"
+            "time": "2024-11-29T19:19:21+00:00"
         },
         {
             "name": "symfony/css-selector",
