@@ -6,9 +6,15 @@ namespace Sweetchuck\Robo\Phpcs\Tests\Unit\LintReportWrapper;
 
 use Codeception\Attribute\DataProvider;
 use Codeception\Test\Unit;
+use PHPUnit\Framework\Attributes\CoversClass;
+use Sweetchuck\Robo\Phpcs\LintReportWrapper\FailureWrapper;
+use Sweetchuck\Robo\Phpcs\LintReportWrapper\FileWrapper;
 use Sweetchuck\Robo\Phpcs\LintReportWrapper\ReportWrapper;
 use Sweetchuck\Robo\Phpcs\Tests\UnitTester;
 
+#[CoversClass(ReportWrapper::class)]
+#[CoversClass(FileWrapper::class)]
+#[CoversClass(FailureWrapper::class)]
 class ReportWrapperTest extends Unit
 {
     protected UnitTester $tester;
