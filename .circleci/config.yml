@@ -52,16 +52,6 @@ commands:
                 run:
                     name: 'Install PCOV PHP extension - pecl install pcov'
                     command: |
-                        phpVersionMajorMinor="$(php -r 'echo substr(\PHP_VERSION_ID, 0, 3);')"
-                        # PHP 8.4 and pcov aren't friends.
-                        if [[ "${phpVersionMajorMinor}" = '804' ]] ; then
-                            echo 'IGNORE pcov installation'
-                            sudo pecl install xdebug
-                            echo 'xdebug.mode=develop,coverage' | sudo tee --append /etc/php.d/xdebug.ini
-
-                            exit 0
-                        fi
-
                         if php -m | grep pcov ; then
                             exit 0
                         fi
