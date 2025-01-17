@@ -92,7 +92,7 @@ class PhpcsParseXml extends BaseTask
     }
     // endregion
 
-    public function __construct(Filesystem $fs = null)
+    public function __construct(?Filesystem $fs = null)
     {
         $this->fs = $fs ?: new Filesystem();
     }

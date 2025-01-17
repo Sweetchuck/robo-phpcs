@@ -114,7 +114,7 @@ class PhpcsLintInput extends PhpcsLint
     /**
      * {@inheritdoc}
      */
-    public function getCommand(array $options = null)
+    public function getCommand(?array $options = null)
     {
         $command = '';
 
