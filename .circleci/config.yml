@@ -158,4 +158,4 @@ workflows:
                         parameters:
                             executor:
                                 - 'php_min'
-#                                - 'php_plus1'
+                                - 'php_plus1'
