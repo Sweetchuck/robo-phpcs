@@ -1123,6 +1123,8 @@ abstract class PhpcsLint extends BaseTask implements
             static::EXIT_CODE_OK,
             static::EXIT_CODE_WARNING,
             static::EXIT_CODE_ERROR,
+            // With squizlabs/php_codesniffer:4.x exit code 3 is also used for success.
+            static::EXIT_CODE_UNKNOWN,
         ];
     }
 
