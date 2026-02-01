@@ -3,6 +3,7 @@
 declare(strict_types = 1);
 
 use Consolidation\AnnotatedCommand\CommandData;
+use League\Container\Container as LeagueContainer;
 use League\Container\ContainerInterface;
 use Robo\Tasks;
 use Robo\Collection\CollectionBuilder;
@@ -93,8 +94,14 @@ class RoboFile extends Tasks
      */
     public function setContainer(ContainerInterface $container)
     {
-        if (!$container->has('lintCheckstyleReporter')) {
-            BaseReporter::lintReportConfigureContainer($container);
+        foreach (BaseReporter::getServices() as $name => $class) {
+            if ($container->has($name)) {
+                continue;
+            }
+
+            if ($container instanceof LeagueContainer) {
+                $container->share($name, $class);
+            }
         }
 
         return parent::setContainer($container);
@@ -230,11 +237,6 @@ class RoboFile extends Tasks
         return getenv($this->getEnvVarName('php_executable')) ?: PHP_BINARY;
     }
 
-    protected function getPhpdbgExecutable(): string
-    {
-        return getenv($this->getEnvVarName('phpdbg_executable')) ?: Path::join(PHP_BINDIR, 'phpdbg');
-    }
-
     /**
      * @return $this
      */
@@ -309,9 +311,6 @@ class RoboFile extends Tasks
         $cmdArgs = [];
         if ($this->isPhpExtensionAvailable('xdebug')) {
             $cmdPattern = "XDEBUG_MODE='coverage' " . escapeshellcmd($this->getPhpExecutable());
-        } elseif ($this->isPhpDbgAvailable()) {
-            $cmdPattern = '%s -qrr';
-            $cmdArgs[] = escapeshellcmd($this->getPhpdbgExecutable());
         } else {
             $cmdPattern = '%s';
             $cmdArgs[] = escapeshellcmd($this->getPhpExecutable());
@@ -477,16 +476,6 @@ class RoboFile extends Tasks
         }
 
         return in_array($extension, explode("\n", $process->getOutput()));
-    }
-
-    protected function isPhpDbgAvailable(): bool
-    {
-        $command = [
-            escapeshellcmd($this->getPhpdbgExecutable()),
-            '-qrr',
-        ];
-
-        return (new Process($command))->run() === 0;
     }
 
     protected function getLogDir(): string
