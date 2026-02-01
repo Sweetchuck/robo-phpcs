@@ -25,7 +25,11 @@
     "config": {
         "bin-dir": "bin",
         "sort-packages": true,
-        "optimize-autoloader": true
+        "optimize-autoloader": true,
+        "allow-plugins": {
+            "cweagans/composer-patches": true,
+            "sweetchuck/git-hooks": true
+        }
     },
     "require": {
         "php": ">=7.3",

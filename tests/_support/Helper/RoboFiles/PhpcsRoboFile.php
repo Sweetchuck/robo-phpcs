@@ -4,13 +4,14 @@ declare(strict_types = 1);
 
 namespace Sweetchuck\Robo\Phpcs\Test\Helper\RoboFiles;
 
+use League\Container\Container as LeagueContainer;
+use League\Container\ContainerInterface;
 use Robo\Contract\TaskInterface;
 use Robo\Tasks;
 use Sweetchuck\LintReport\Reporter\BaseReporter;
 use Sweetchuck\LintReport\Reporter\CheckstyleReporter;
 use Sweetchuck\LintReport\Reporter\SummaryReporter;
 use Sweetchuck\LintReport\Reporter\VerboseReporter;
-use League\Container\ContainerInterface;
 use Sweetchuck\Robo\Phpcs\PhpcsTaskLoader;
 use Webmozart\PathUtil\Path;
 
@@ -25,7 +26,15 @@ class PhpcsRoboFile extends Tasks
     {
         $this->container = $container;
 
-        BaseReporter::lintReportConfigureContainer($this->container);
+        foreach (BaseReporter::getServices() as $name => $class) {
+            if ($container->has($name)) {
+                continue;
+            }
+
+            if ($container instanceof LeagueContainer) {
+                $container->share($name, $class);
+            }
+        }
 
         return $this;
     }
